@@ -36,7 +36,7 @@ set guifont=Iosevka
 
 " Remaps
 let mapleader = " "
-inoremap jj <ESC>
+inoremap jk <ESC>
 nnoremap <leader>w :w<cr>
 
 " Ignore for ctrl-p
