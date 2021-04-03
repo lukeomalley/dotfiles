@@ -30,3 +30,14 @@ cp -rf "$DOTFILES/fonts" "$XDG_DATA_HOME"
 # Dunst Notifications
 mkdir -p "$XDG_CONFIG_HOME/dunst"
 ln -sf "$DOTFILES/dunst/dunstrc" "$XDG_CONFIG_HOME/dunst/dunstrc"
+
+# Tmux
+mkdir -p "$XDG_CONFIG_HOME/tmux"
+ln -sf "$DOTFILES/tmux/tmux.conf" "$XDG_CONFIG_HOME/tmux/tmux.conf"
+
+[ ! -d "$XDG_CONFIG_HOME/tmux/plugins" ] \
+&& git clone https://github.com/tmux-plugins/tpm \
+"$XDG_CONFIG_HOME/tmux/plugins/tpm"
+
+# Keymappings
+ln -sf "$DOTFILES/X11/.Xmodmap" "$XDG_CONFIG_HOME/X11/.Xmodmap"

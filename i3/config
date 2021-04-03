@@ -16,7 +16,7 @@ set $mod Mod4
 font pango:Inconsolata Nerd Font Mono 9
 
 # Set Wallpaper
-exec --no-startup-id feh --bg-scale ~/walls/foggy-mountain-blur.jpg
+exec --no-startup-id feh --bg-scale ~/.config/i3/feh/wallpaper.jpg
 
 # This font is widely installed, provides lots of unicode glyphs, right-to-left
 # text rendering and scalability on retina/hidpi displays (thanks to pango).
@@ -295,10 +295,10 @@ for_window [instance="urxvt_scratchpad"] move to scratchpad, border none
 bindsym $mod+Shift+t [instance="urxvt_scratchpad"] scratchpad show
 exec urxvtc -name urxvt_scratchpad
 
-# htop scratchpad
-for_window [instance="htop_scratchpad"] move to scratchpad, border none
-bindsym $mod+Shift+p [instance="htop_scratchpad"] scratchpad show
-exec urxvtc -name htop_scratchpad -e htop
+# ytop scratchpad
+for_window [instance="ytop_scratchpad"] move to scratchpad, border none
+bindsym $mod+Shift+p [instance="ytop_scratchpad"] scratchpad show
+exec urxvtc -name ytop_scratchpad -e ytop
 
 
 # Capslock escape remap

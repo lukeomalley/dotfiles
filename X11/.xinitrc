@@ -8,6 +8,10 @@ xset r rate 200 50
 
 udiskie &
 
-setxkbmap -option 'caps:ctrl_modifier';xcape -e 'Caps_Lock=Escape'&
+xmodmap ~/.config/X11/.Xmodmap
+setxkbmap -option caps:escape
+
+xmodmap -e "keycode 49 = Escape"
+xmodmap -e "keycode 9 = grave asciitilde"
 
 exec i3

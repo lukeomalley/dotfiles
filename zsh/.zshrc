@@ -65,3 +65,8 @@ fi
 
 # Z
 . /usr/share/z/z.sh
+
+# Clear the terminal
+bindkey -r '^l'
+bindkey -r '^g'
+bindkey -s '^g' 'clear\n'
