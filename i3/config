@@ -18,6 +18,9 @@ font pango:Inconsolata Nerd Font Mono 9
 # Set Wallpaper
 exec --no-startup-id feh --bg-scale ~/.config/i3/feh/wallpaper.jpg
 
+# i3 Auto Tiling (https://github.com/olemartinorg/i3-alternating-layout)
+exec --no-startup-id /path/to/alternating_layouts.py 
+
 # This font is widely installed, provides lots of unicode glyphs, right-to-left
 # text rendering and scalability on retina/hidpi displays (thanks to pango).
 #font pango:DejaVu Sans Mono 8
