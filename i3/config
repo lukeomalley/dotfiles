@@ -194,7 +194,7 @@ bar {
     tray_output primary
 
     colors {
-        background $black1
+        background $background
         statusline $white2
         separator $white2
 
