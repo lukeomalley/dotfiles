@@ -22,7 +22,7 @@ URxvt.iso14755_52: false
 !==============================================================================
 
 ! hard contrast: *background: #1d2021
-*background: #282828
+*background: #16191e
 ! soft contrast: *background: #32302f
 *foreground: #ebdbb2
 
