@@ -21,6 +21,7 @@ call plug#end()
 " Telescope
 nnoremap <C-p> :lua require'telescope.builtin'.find_files(require('telescope.themes').get_dropdown({}))<cr>
 
+
 " nnoremap <leader>fg <cmd>Telescope live_grep<cr>
 " nnoremap <leader>fb <cmd>Telescope buffers<cr>
 " nnoremap <leader>fh <cmd>Telescope help_tags<cr>
@@ -79,6 +80,7 @@ require('telescope').setup{
 }
 EOF
 
+
 " Nerdtree Configuration
 nnoremap <C-b> :NERDTreeClose<CR>
 nnoremap <C-e> :NERDTreeFind<CR>
@@ -103,16 +105,19 @@ nmap <silent> gy <Plug>(coc-type-definition)
 nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
 
+" Remap for codeAction of current line
+nmap <silent> <c-space> <Plug>(coc-codeaction)
+
 " Remap for do codeAction of current line
-nmap <leader>ac  <Plug>(coc-codeaction)
+nmap gR <Plug>(coc-rename)
 
 " Fix autofix problem of current line
-nmap <leader>qf  <Plug>(coc-fix-current)
+nmap <leader>qf <Plug>(coc-fix-current)
 
 " You will have bad experience for diagnostic messages when it's default 4000.
 set updatetime=300
+set timeoutlen=150
 
-" General Config
 colorscheme gruvbox
 highlight Normal ctermbg=none
 
@@ -140,6 +145,9 @@ set incsearch
 set scrolloff=8
 set clipboard+=unnamedplus
 set signcolumn=yes
+
+" Airline Configuration
+let g:airline#extensions#tabline#formatter = 'unique_tail_improved'
 
 " Remaps
 let mapleader = " "
