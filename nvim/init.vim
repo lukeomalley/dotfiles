@@ -84,7 +84,9 @@ EOF
 " Nerdtree Configuration
 nnoremap <C-b> :NERDTreeClose<CR>
 nnoremap <C-e> :NERDTreeFind<CR>
+let NERDTreeWinSize = 45
 let g:NERDTreeGitStatusUseNerdFonts = 1
+let g:NERDTreeShowHidden=1 
 
 " Split Configuration
 nnoremap <C-j> :vertical resize -10<CR>
