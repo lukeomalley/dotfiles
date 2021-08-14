@@ -15,6 +15,12 @@
           "directory": "/tmp/ccls"
         }
       }
+    },
+
+    "graphql": {
+      "command": "graphql-lsp",
+      "args": ["server", "-m", "stream"],
+      "filetypes": ["typescript", "typescriptreact", "graphql", "graphql.ts"]
     }
   },
   "suggest.noselect": false,

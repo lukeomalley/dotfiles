@@ -18,14 +18,16 @@ Plug 'preservim/nerdtree' |
 
 call plug#end()
 
+" Color Theme
+syntax enable
+colorscheme gruvbox
+highlight Normal ctermbg=none
+
 " Telescope
 nnoremap <C-p> :lua require'telescope.builtin'.find_files(require('telescope.themes').get_dropdown({}))<cr>
-
-
-" nnoremap <leader>fg <cmd>Telescope live_grep<cr>
+nnoremap <C-f> <cmd>Telescope live_grep<cr>
 " nnoremap <leader>fb <cmd>Telescope buffers<cr>
 " nnoremap <leader>fh <cmd>Telescope help_tags<cr>
-
 lua << EOF
 require('telescope').setup{
   defaults = {
@@ -80,7 +82,6 @@ require('telescope').setup{
 }
 EOF
 
-
 " Nerdtree Configuration
 nnoremap <C-b> :NERDTreeClose<CR>
 nnoremap <C-e> :NERDTreeFind<CR>
@@ -120,8 +121,6 @@ nmap <leader>qf <Plug>(coc-fix-current)
 set updatetime=300
 set timeoutlen=150
 
-colorscheme gruvbox
-highlight Normal ctermbg=none
 
 "Set Options 
 set encoding=UTF-8
