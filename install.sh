@@ -4,7 +4,8 @@
 mkdir -p "$XDG_CONFIG_HOME/nvim"
 mkdir -p "$XDG_CONFIG_HOME/nvim/undo"
 ln -sf "$DOTFILES/nvim/init.vim" "$XDG_CONFIG_HOME/nvim"
-ln -sf "$DOTFILES/nvim/coc-settings.json" "$XDG_CONFIG_HOME/nvim"
+ln -sf "$DOTFILES/nvim/lua" "$XDG_CONFIG_HOME/nvim"
+ln -sf "$DOTFILES/nvim/plugin" "$XDG_CONFIG_HOME/nvim"
 
 # X
 rm -rf "$XDG_CONFIG_HOME/X11"
@@ -16,7 +17,7 @@ ln -s "$DOTFILES/i3" "$XDG_CONFIG_HOME"
 
 # Zsh
 mkdir -p "$XDG_CONFIG_HOME/zsh"
-ln -sf "$DOTFILES/zsh/.zshenv" "$HOME"
+ln -sf "$DOTFILES/zsh/.zshenv" "$XDG_CONFIG_HOME/zsh"
 ln -sf "$DOTFILES/zsh/.zshrc" "$XDG_CONFIG_HOME/zsh"
 ln -sf "$DOTFILES/zsh/aliases" "$XDG_CONFIG_HOME/zsh/aliases"
 

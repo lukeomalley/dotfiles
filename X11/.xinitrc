@@ -1,13 +1,22 @@
+# Merge Xresources
 xrdb -merge ~/.config/X11/.Xresources
+
+# Start urxvt daemon
 urxvtd -o -q -f
 
+# Start xcompmgr to set window transparency
 xcompmgr &
 devilspie -a &
 
-xset r rate 200 50
-
+# Start udiskie to look for usb devices
 udiskie &
 
+# Adjust keyboard settings
 setxkbmap -option caps:escape
+xset r rate 200 50
 
+# Adjust mouse sensitivity
+xinput set-prop "Logitech Gaming Mouse G502" "Coordinate Transformation Matrix" 0.6 0 0 0 0.6 0 0 0 1
+
+# Start i3
 exec i3

@@ -1,0 +1,6 @@
+require("config/telescope")
+require("config/lspconfig")
+require("config/lsputils")
+require("config/lspinstall")
+require("config/lspkind")
+require("config/devicons")

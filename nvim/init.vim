@@ -1,95 +1,64 @@
-" Plugins
+
+
 call plug#begin('~/.vim/plugged')
+" General Plugins
 Plug 'gruvbox-community/gruvbox'
+Plug 'jdhao/better-escape.vim'
 Plug 'tpope/vim-commentary'
+
+" LSP Plugins
+Plug 'neovim/nvim-lspconfig'
+Plug 'kabouzeid/nvim-lspinstall'
+Plug 'nvim-lua/completion-nvim'
+Plug 'onsails/lspkind-nvim'
+
+" Nvim Tree
+Plug 'kyazdani42/nvim-web-devicons' " for file icons
+Plug 'kyazdani42/nvim-tree.lua'
+
+" Airline
 Plug 'vim-airline/vim-airline'
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
-Plug 'evanleck/vim-svelte', {'branch': 'main'}
-Plug 'ryanoasis/vim-devicons'
+Plug 'vim-airline/vim-airline-themes'
 
 " Telescope
 Plug 'nvim-lua/popup.nvim'
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim'
 
-" Nerdtree
-Plug 'preservim/nerdtree' |
-            \ Plug 'Xuyuanp/nerdtree-git-plugin'
+" Lsp Utils
+Plug 'RishabhRD/popfix'
+Plug 'RishabhRD/nvim-lsputils'
 
+" Ultisnips
+Plug 'SirVer/ultisnips'
+Plug 'honza/vim-snippets'
 call plug#end()
 
 " Color Theme
-syntax enable
+set termguicolors
 colorscheme gruvbox
-highlight Normal ctermbg=none
+let g:gruvbox_invert_selection = 0
+syntax enable
+highlight Normal guibg=none guifg=White
 
-" Telescope
-nnoremap <C-p> :lua require'telescope.builtin'.find_files(require('telescope.themes').get_dropdown({}))<cr>
-nnoremap <C-f> <cmd>Telescope live_grep<cr>
-" nnoremap <leader>fb <cmd>Telescope buffers<cr>
-" nnoremap <leader>fh <cmd>Telescope help_tags<cr>
-lua << EOF
-require('telescope').setup{
-  defaults = {
-    vimgrep_arguments = {
-      'rg',
-      '--color=never',
-      '--no-heading',
-      '--with-filename',
-      '--line-number',
-      '--column',
-      '--smart-case',
-      '--ignore-file',
-      '.gitignore'
-    },
-    prompt_prefix = "> ",
-    selection_caret = "> ",
-    entry_prefix = "  ",
-    initial_mode = "insert",
-    selection_strategy = "reset",
-    sorting_strategy = "ascending",
-    layout_strategy = "horizontal",
-    mappings = {
-      i = {
-            ["<C-j>"] = require'telescope.actions'.move_selection_next,
-            ["<C-k>"] = require'telescope.actions'.move_selection_previous,
-          },
-      },
-    layout_config = {
-      horizontal = {
-        mirror = false,
-      },
-      vertical = {
-        mirror = false,
-      },
-    },
-    file_sorter =  require'telescope.sorters'.get_fuzzy_file,
-    file_ignore_patterns = {"node_modules", "archived_migs"},
-    generic_sorter =  require'telescope.sorters'.get_generic_fuzzy_sorter,
-    winblend = 0,
-    border = {},
-    borderchars = { '─', '│', '─', '│', '╭', '╮', '╯', '╰' },
-    color_devicons = true,
-    use_less = true,
-    path_display = {
-      'tail',
-    },
-    set_env = { ['COLORTERM'] = 'truecolor' }, -- default = nil,
-    file_previewer = require'telescope.previewers'.vim_buffer_cat.new,
-    grep_previewer = require'telescope.previewers'.vim_buffer_vimgrep.new,
-    qflist_previewer = require'telescope.previewers'.vim_buffer_qflist.new,
-  },
-}
-EOF
+" Required for nvim completion
+set completeopt=longest,menuone,noinsert
+inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
 
-" Nerdtree Configuration
-nnoremap <C-b> :NERDTreeClose<CR>
-nnoremap <C-e> :NERDTreeFind<CR>
-let NERDTreeWinSize = 45
-let g:NERDTreeGitStatusUseNerdFonts = 1
-let g:NERDTreeShowHidden=1 
 
-" Split Configuration
+"" Trigger configuration. You need to change this to something other than <tab> if you use one of the following:
+" - https://github.com/Valloric/YouCompleteMe
+" - https://github.com/nvim-lua/completion-nvim
+let g:UltiSnipsExpandTrigger="leader<tab>"
+let g:UltiSnipsJumpForwardTrigger="<c-b>"
+let g:UltiSnipsJumpBackwardTrigger="<c-z>"
+
+let g:completion_enable_snippet = 'UltiSnips'
+
+" If you want :UltiSnipsEdit to split your window.
+":let g:UltiSnipsEditSplit="vertical" 
+
+"Split Configuration
 nnoremap <C-j> :vertical resize -10<CR>
 nnoremap <C-k> :vertical resize +10<CR>
 nnoremap <C-L> <C-W><C-L>
@@ -97,34 +66,17 @@ nnoremap <C-H> <C-W><C-H>
 set splitbelow
 set splitright
 
-" CoC Configuration
-command! -nargs=0 Prettier :CocCommand prettier.formatFile
-inoremap <silent><expr> <c-space> coc#refresh()
-inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+" Disable the auto comment when inserting new line
+au FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
 
-" Remap keys for gotos
-nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gy <Plug>(coc-type-definition)
-nmap <silent> gi <Plug>(coc-implementation)
-nmap <silent> gr <Plug>(coc-references)
+sign define LspDiagnosticsSignError text=
+sign define LspDiagnosticsSignWarning text=
+sign define LspDiagnosticsSignInformation text=כֿ
+sign define LspDiagnosticsSignHint text=
 
-" Remap for codeAction of current line
-nmap <silent> <c-space> <Plug>(coc-codeaction)
-
-" Remap for do codeAction of current line
-nmap gR <Plug>(coc-rename)
-
-" Fix autofix problem of current line
-nmap <leader>qf <Plug>(coc-fix-current)
-
-" You will have bad experience for diagnostic messages when it's default 4000.
-set updatetime=300
-set timeoutlen=150
-
-
-"Set Options 
+"Set Options
 set encoding=UTF-8
-set guifont=Iosevka
+set guifont=InconsolataNerdFontMono
 set smarttab
 set expandtab
 set smartindent
@@ -146,20 +98,14 @@ set incsearch
 set scrolloff=8
 set clipboard+=unnamedplus
 set signcolumn=yes
-
-" Airline Configuration
-let g:airline#extensions#tabline#formatter = 'unique_tail_improved'
+set updatetime=300
 
 " Remaps
 let mapleader = " "
 inoremap jk <ESC>
 nnoremap <leader>w :w<cr>
 
-" ctrl-p Configuration
-" let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git|archived_migs'
 
-" if executable('rg')
-"  set grepprg=rg\ --color=never
-"  let g:ctrlp_user_command = 'rg %s --files --color=never --glob ""'
-"  let g:ctrlp_use_caching = 0
-" endif
+
+" Lua
+lua require 'config'
