@@ -32,6 +32,12 @@ Plug 'RishabhRD/nvim-lsputils'
 " Ultisnips
 Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'
+
+" Pretttier
+Plug 'prettier/vim-prettier', {
+  \ 'do': 'yarn install',
+  \ 'branch': 'release/0.x'
+  \ }
 call plug#end()
 
 " Color Theme
