@@ -1,5 +1,3 @@
-
-
 call plug#begin('~/.vim/plugged')
 " General Plugins
 Plug 'gruvbox-community/gruvbox'
@@ -34,10 +32,11 @@ Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'
 
 " Pretttier
-Plug 'prettier/vim-prettier', {
-  \ 'do': 'yarn install',
-  \ 'branch': 'release/0.x'
-  \ }
+Plug 'mhartington/formatter.nvim'
+
+" Indent Blankline
+Plug 'lukas-reineke/indent-blankline.nvim'
+
 call plug#end()
 
 " Color Theme
@@ -50,7 +49,6 @@ highlight Normal guibg=none guifg=White
 " Required for nvim completion
 set completeopt=longest,menuone,noinsert
 inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
-
 
 "" Trigger configuration. You need to change this to something other than <tab> if you use one of the following:
 " - https://github.com/Valloric/YouCompleteMe
@@ -111,7 +109,10 @@ let mapleader = " "
 inoremap jk <ESC>
 nnoremap <leader>w :w<cr>
 
-
+augroup FormatAutogroup
+  autocmd!
+  autocmd BufWritePost *.js,*.ts,*.rs, FormatWrite
+augroup END
 
 " Lua
 lua require 'config'
