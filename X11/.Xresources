@@ -2,7 +2,7 @@
 ! URxvt Config
 !==============================================================================
 
-URxvt*font: xft:Inconsolata Nerd Font Mono:size=16:antialias=true
+URxvt*font: xft:Inconsolata Nerd Font Mono:size=12:antialias=true
 URxvt*letterSpace: -1
 URxvt*borderLess: false
 URxvt*scrollBar: false
@@ -14,8 +14,6 @@ URxvt.keysym.Shift-Control-V: eval:paste_clipboard
 URxvt.keysym.Shift-Control-C: eval:selection_to_clipboard
 URxvt.iso14755: false
 URxvt.iso14755_52: false
-
-
 
 !==============================================================================
 !Colors
