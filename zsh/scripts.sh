@@ -6,7 +6,11 @@ compress() {
 
 
 gop () {
-  git remote -v | awk '/origin.*push/ {print $2}' | sed "s/git@github.com:/github.com\//g" | xargs firefox-developer-edition
+  git remote -v \
+    | awk '/origin.*push/ {print $2}' \
+    | sed "s/git@github.com:/github.com\//g" \
+    | sed "s/.git//g" \
+    | xargs brave
 }
 
 wp () {
