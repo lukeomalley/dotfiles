@@ -4,6 +4,9 @@ xrdb -merge ~/.config/X11/.Xresources
 # Start urxvt daemon
 urxvtd -o -q -f
 
+# Disable hardware beep
+xset -b
+
 # Start xcompmgr to set window transparency
 xcompmgr &
 devilspie -a &
