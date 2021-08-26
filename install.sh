@@ -6,6 +6,7 @@ mkdir -p "$XDG_CONFIG_HOME/nvim/undo"
 ln -sf "$DOTFILES/nvim/init.vim" "$XDG_CONFIG_HOME/nvim"
 ln -sf "$DOTFILES/nvim/lua" "$XDG_CONFIG_HOME/nvim"
 ln -sf "$DOTFILES/nvim/plugin" "$XDG_CONFIG_HOME/nvim"
+ln -sf "$DOTFILES/nvim/after" "$XDG_CONFIG_HOME/nvim"
 
 # X
 rm -rf "$XDG_CONFIG_HOME/X11"

@@ -15,3 +15,14 @@ wp () {
   feh --bg-scale ~/.config/i3/feh/wallpaper.jpg
 }
 
+dualmon() {
+  xrandr \
+      --output eDP-1 --mode 2560x1440 --scale '0.5x0.5' \
+      --output DP-1 --mode 1920x1080 --scale 2x2
+}
+
+singlemon() {
+  xrandr \
+      --output eDP-1 --mode 2560x1440 \
+      --output DP-1 --off
+}
