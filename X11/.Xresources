@@ -3,8 +3,6 @@
 !==============================================================================
 URxvt.perl-ext-common: resize-font
 
-Xcursor.size: 10
-
 ! Zoom Keybindings (AUR Package: urxvt-resize-font)
 URxvt.keysym.C-minus:     resize-font:smaller
 URxvt.keysym.C-plus:      resize-font:reset
@@ -15,7 +13,7 @@ URxvt.keysym.C-question:  resize-font:show
 ! URxvt Config
 !==============================================================================
 
-URxvt*font: xft:Inconsolata Nerd Font Mono:size=12:antialias=true
+URxvt*font: xft:Inconsolata Nerd Font Mono:size=16:antialias=true
 URxvt*letterSpace: -1
 URxvt*borderLess: false
 URxvt*scrollBar: false

@@ -13,7 +13,7 @@ set $mod Mod1
 
 # Font for window titles. Will also be used by the bar unless a different font
 # is used in the bar {} block below.
-font pango:Inconsolata Nerd Font Mono 12
+font pango:Inconsolata Nerd Font Mono 16
 
 # Set Wallpaper
 exec --no-startup-id feh --bg-scale ~/.config/i3/feh/wallpaper.jpg
@@ -225,14 +225,13 @@ for_window [class="Arandr"] floating enable
 
 
 # i3 Gaps Configuration for_window [class=".*"] border pixel 0 
-for_window [class="^.*"] border pixel 0
+for_window [class="^.*"] border pixel 1
 
 # i3 Rounded
 # border_radius 2
-# smart_gaps inverse_outer
-# smart_borders on
+smart_gaps inverse_outer
+smart_borders on
 gaps inner 12
-
 
 
 # Special

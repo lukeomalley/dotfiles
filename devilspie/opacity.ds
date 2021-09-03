@@ -1,21 +1,13 @@
 ( if
 ( contains ( window_class ) "URxvt" )
 ( begin
-( spawn_async (str "transset-df -i " (window_xid) " 0.95" ))
+( spawn_async (str "transset-df -i " (window_xid) " 0.80" ))
 )
 )
-
-( if
-( contains ( window_class ) "Youtubedl-gui" )
-( begin
-( spawn_async (str "transset-df -i " (window_xid) " 0.95" ))
-)
-)
-
 
 ( if
 ( contains ( window_class ) "Code" )
 ( begin
-( spawn_async (str "transset-df -i " (window_xid) " 0.98" ))
+( spawn_async (str "transset-df -i " (window_xid) " 0.80" ))
 )
 )
