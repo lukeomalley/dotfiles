@@ -12,6 +12,7 @@ alias gpush='git push origin $(git branch --show-current)'
 
 # General
 alias ll='ls -lah'
+alias ls='ls --color=auto'
 alias cl='clear'
 
 # Directories

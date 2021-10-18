@@ -1,7 +1,8 @@
 !==============================================================================
 ! General Config
 !==============================================================================
-URxvt.perl-ext-common: resize-font
+URxvt.perl-ext-common: default,clipboard,resize-font,selection-to-clipboard
+
 
 ! Zoom Keybindings (AUR Package: urxvt-resize-font)
 URxvt.keysym.C-minus:     resize-font:smaller

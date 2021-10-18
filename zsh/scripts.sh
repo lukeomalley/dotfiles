@@ -25,13 +25,14 @@ dualmon() {
       --output DP-1 --mode 1920x1080 --scale 2x2
 }
 
+
+singlemon() {
+  xrandr --output eDP-1 --mode 1920x1080 
+}
+
 trimon() {
   xrandr \
       --output eDP-1 --auto  \
       --output DP-1 --auto --right-of DP-2 \
       --output DP-2 --auto --right-of eDP-1 
-}
-
-singlemon() {
-  xrandr --output eDP-1 --mode 1920x1080 
 }
