@@ -20,7 +20,7 @@ URxvt*letterSpace: -1
 URxvt*borderLess: false
 URxvt*scrollBar: false
 URxvt*externalBorder: 0
-URxvt*internalBorder: 6
+URxvt*internalBorder: 12
 URxvt*saveLines: 5000
 
 URxvt.keysym.Shift-Control-V: eval:paste_clipboard

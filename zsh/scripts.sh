@@ -1,16 +1,11 @@
 #!/bin/bash
 
+# =============================================================================
+# General Scripts
+# =============================================================================
+
 compress() {
   tar cvzf $1.tar.gz $1
-}
-
-
-gop () {
-  git remote -v \
-    | awk '/origin.*push/ {print $2}' \
-    | sed "s/git@github.com:/github.com\//g" \
-    | sed "s/.git//g" \
-    | xargs brave
 }
 
 wp () {
@@ -30,3 +25,20 @@ singlemon() {
       --output eDP-1 --mode 2560x1440 \
       --output DP-1 --off
 }
+
+# =============================================================================
+# Git Scripts/Aliases
+# =============================================================================
+
+gop () {
+  git remote -v \
+    | awk '/origin.*push/ {print $2}' \
+    | sed "s/git@github.com:/github.com\//g" \
+    | sed "s/.git//g" \
+    | xargs brave
+}
+
+gdiff() {
+  git diff main..$(git branch --show-current)
+}
+
