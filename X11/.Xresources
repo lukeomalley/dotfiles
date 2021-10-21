@@ -14,7 +14,7 @@ URxvt.keysym.C-question:  resize-font:show
 ! URxvt Config
 !==============================================================================
 
-URxvt*font: xft:Inconsolata Nerd Font Mono:size=16:antialias=true
+URxvt*font: xft:Inconsolata Nerd Font Mono:size=10:antialias=true
 URxvt*letterSpace: -1
 URxvt*borderLess: false
 URxvt*scrollBar: false
