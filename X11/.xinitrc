@@ -20,6 +20,7 @@ xset r rate 200 50
 
 # Adjust mouse sensitivity
 xinput set-prop "Logitech Gaming Mouse G502" "Coordinate Transformation Matrix" 0.6 0 0 0 0.6 0 0 0 1
-
+xinput set-prop "MX Master 2S Mouse" "Coordinate Transformation Matrix" 0.6 0 0 0 0.6 0 0 0 1
+ 
 # Start i3
 exec i3
