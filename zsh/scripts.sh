@@ -60,6 +60,7 @@ snotes() {
   cd ~/notes
   git add .
   git commit -m "saving notes"
+  git pull origin main
   git push origin main
   cd $CURRENT
 }
