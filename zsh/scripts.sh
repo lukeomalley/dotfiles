@@ -20,6 +20,12 @@ dualmon() {
       --output DP-1 --mode 1920x1080 --scale 2x2
 }
 
+desktop-dual-mon() {
+  xrandr \
+      --output HDMI-1 --auto \
+      --output DP-1 --auto --right-of HDMI-1
+}
+
 
 singlemon() {
   xrandr --output eDP-1 --mode 1920x1080 
