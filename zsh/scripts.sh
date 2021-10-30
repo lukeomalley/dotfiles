@@ -24,11 +24,13 @@ desktop-dual-mon() {
   xrandr \
       --output HDMI-1 --auto \
       --output DP-1 --auto --right-of HDMI-1
+  resetwp;
 }
 
 
 singlemon() {
   xrandr --output eDP-1 --mode 1920x1080 
+  resetwp;
 }
 
 trimon() {
@@ -36,6 +38,11 @@ trimon() {
       --output eDP-1 --auto  \
       --output DP-1 --auto --right-of DP-2 \
       --output DP-2 --auto --right-of eDP-1 
+  resetwp;
+}
+
+resetwp() {
+  feh --bg-scale ~/.config/i3/feh/wallpaper.jpg
 }
 
 # =============================================================================

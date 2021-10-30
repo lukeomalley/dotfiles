@@ -55,7 +55,7 @@ bindsym $mod+q kill
 bindsym $mod+d exec --no-startup-id dmenu_run
 
 # start brave (browser)
-bindsym $mod+b exec brave
+bindsym $mod+b exec chromium
 
 # A more modern dmenu replacement is rofi:
 # bindcode $mod+40 exec "rofi -modi drun,run -show drun"
@@ -146,7 +146,8 @@ bindsym $mod+Shift+9 move container to workspace $9
 
 # assign applications to their specific workspaces
 assign [class="Brave-browser"] $2
-assign [class="code-oss"] $1
+assign [class="Chromium"] $2
+assign [class="Code"] $1
 assign [class="Slack"] $3
 assign [class="discord"] $3
 
