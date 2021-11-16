@@ -73,6 +73,7 @@ nnoremap <C-H> <C-W><C-H>
 set splitbelow
 set splitright
 
+
 " Disable the auto comment when inserting new line
 au FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
 
@@ -107,11 +108,11 @@ set clipboard+=unnamedplus
 set signcolumn=yes
 set updatetime=300
 
-" Remaps
 let mapleader = " "
 inoremap jk <ESC>
 nnoremap <leader>w :w<cr>
 
+" Auto Format
 augroup FormatAutogroup
   autocmd!
   autocmd BufWritePost *.js,*.ts,*.rs, FormatWrite

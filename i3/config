@@ -278,15 +278,15 @@ client.unfocused 	#333333 #222222 #888888 #292d2e #222222
 client.urgent 		# $red1 $red1 $white2 $red1 $red1
 client.placeholder 	#000000 #0c0c0c $white2 #000000 0c0c0c
 
-# Terminal scratchpad
+# term scratchpad
 for_window [instance="urxvt_scratchpad"] move to scratchpad, border none
 bindsym $mod+Shift+t [instance="urxvt_scratchpad"] scratchpad show
 exec urxvtc -name urxvt_scratchpad
 
-# ytop scratchpad
-for_window [instance="ytop_scratchpad"] move to scratchpad, border none
-bindsym $mod+Shift+p [instance="ytop_scratchpad"] scratchpad show
-exec urxvtc -name ytop_scratchpad -e ytop
+# btm scratchpad
+for_window [instance="btm_scratchpad"] move to scratchpad, border none
+bindsym $mod+Shift+p [instance="btm_scratchpad"] scratchpad show
+exec urxvtc -name btm_scratchpad -e btm
 
 # i3 Auto Tiling (https://github.com/nwg-piotr/autotiling)
 exec_always --no-startup-id autotiling
