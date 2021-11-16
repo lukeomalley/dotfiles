@@ -1,13 +1,13 @@
 ( if
 ( contains ( window_class ) "URxvt" )
 ( begin
-( spawn_async (str "transset-df -i " (window_xid) " 0.80" ))
+( spawn_async (str "transset-df -i " (window_xid) " 0.90" ))
 )
 )
 
 ( if
 ( contains ( window_class ) "Code" )
 ( begin
-( spawn_async (str "transset-df -i " (window_xid) " 0.80" ))
+( spawn_async (str "transset-df -i " (window_xid) " 0.90" ))
 )
 )
