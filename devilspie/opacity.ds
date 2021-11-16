@@ -11,3 +11,10 @@
 ( spawn_async (str "transset-df -i " (window_xid) " 0.95" ))
 )
 )
+
+( if
+( contains ( window_class ) "Slack" )
+( begin
+( spawn_async (str "transset-df -i " (window_xid) " 0.95" ))
+)
+)
