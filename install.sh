@@ -46,6 +46,10 @@ ln -sf "$DOTFILES/devilspie/opacity.ds" "$HOME/.devilspie/opacity.ds"
 mkdir -p "$XDG_CONFIG_HOME/zathura"
 ln -sf "$DOTFILES/zathura/zathurarc" "$XDG_CONFIG_HOME/zathura/zathurarc"
 
+# Binary/Scripts
+ln -sf "$DOTFILES/bin" "$HOME/bin"
+
 [ ! -d "$XDG_CONFIG_HOME/tmux/plugins" ] \
 && git clone https://github.com/tmux-plugins/tpm \
 "$XDG_CONFIG_HOME/tmux/plugins/tpm"
+

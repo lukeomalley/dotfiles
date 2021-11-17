@@ -1,7 +1,7 @@
 # For Dotfiles
 export XDG_CONFIG_HOME="$HOME/.config"
 
-# Personal Binaries
+# Personal Binaries/Scripts
 export PATH="$PATH:$HOME/bin"
 
 # For Specific Data
