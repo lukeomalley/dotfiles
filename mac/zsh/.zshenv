@@ -7,13 +7,13 @@ export PATH="$PATH:$HOME/bin"
 # For Specific Data
 export XDG_DATA_HOME="$XDG_CONFIG_HOME/local/share"
 
-# For Specific Data
+# For Cache Files
 export XDG_CACHE_HOME="$XDG_CONFIG_HOME/cache"
 
 export ZDOTDIR="$XDG_CONFIG_HOME/zsh"
 export HISTFILE="$ZDOTDIR/.zhistory"
 
-export DOTFILES="$HOME/dotfiles"
+export DOTFILES="$HOME/dotfiles/mac"
 
 # Maximum events for internal history
 export HISTSIZE=10000
@@ -32,3 +32,6 @@ export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export GOPATH="$HOME/go"
 export PATH="$PATH:$GOPATH/bin"
 export GO111MODULE=on
+
+# Z config
+export _Z_DATA="$XDG_DATA_HOME/.z"
