@@ -47,7 +47,8 @@ set termguicolors
 colorscheme gruvbox
 let g:gruvbox_invert_selection = 0
 syntax enable
-highlight Normal guibg=none guifg=White
+highlight Normal guibg=none guifg=#fffaf0
+
 
 " Required for nvim completion
 set completeopt=longest,menuone,noinsert
