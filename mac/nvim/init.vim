@@ -28,8 +28,8 @@ Plug 'RishabhRD/popfix'
 Plug 'RishabhRD/nvim-lsputils'
 
 " Ultisnips
-Plug 'SirVer/ultisnips'
-Plug 'honza/vim-snippets'
+" Plug 'SirVer/ultisnips'
+" Plug 'honza/vim-snippets'
 
 " Pretttier
 Plug 'mhartington/formatter.nvim'
