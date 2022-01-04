@@ -35,3 +35,11 @@ export GO111MODULE=on
 
 # Z config
 export _Z_DATA="$XDG_DATA_HOME/.z"
+
+# AWS CLI
+export AWS_CONFIG_FILE="$XDG_CONFIG_HOME/aws/config"
+export AWS_SHARED_CREDENTIALS_FILE="$XDG_CONFIG_HOME/aws/credentials"
+
+# Puppeteer/Chromium
+export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+export PUPPETEER_EXECUTABLE_PATH=`which chromium`

@@ -72,3 +72,7 @@ source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zs
 
 # fnm
 eval "$(fnm env)"
+
+# direnv
+export DIRENV_LOG_FORMAT=""
+eval "$(direnv hook zsh)"

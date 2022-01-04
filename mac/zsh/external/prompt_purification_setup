@@ -82,7 +82,7 @@ git_prompt_status() {
   fi
 
   if [[ ! -z "$STATUS" ]]; then
-    echo " [ $STATUS]"
+    echo "[ $STATUS]"
   fi
 }
 
@@ -96,7 +96,7 @@ prompt_git_branch() {
 }
 
 prompt_git_info() {
-    [ ! -z "$vcs_info_msg_0_" ] && echo "$ZSH_THEME_GIT_PROMPT_PREFIX$vcs_info_msg_0_$ZSH_THEME_GIT_PROMPT_SUFFIX"
+    [ ! -z "$vcs_info_msg_0_" ] && echo " $ZSH_THEME_GIT_PROMPT_PREFIX$vcs_info_msg_0_$ZSH_THEME_GIT_PROMPT_SUFFIX"
 }
 
 prompt_purity_precmd() {
@@ -105,8 +105,6 @@ prompt_purity_precmd() {
 }
 
 prompt_purification_setup() {
-    # Display git branch
-
     autoload -Uz add-zsh-hook
     add-zsh-hook precmd prompt_purity_precmd
 
@@ -115,7 +113,7 @@ prompt_purification_setup() {
     ZSH_THEME_GIT_PROMPT_CLEAN=""
 
     ZSH_THEME_GIT_PROMPT_ADDED="%F{green}+%f "
-    ZSH_THEME_GIT_PROMPT_MODIFIED="%F{blue}⌿%f "
+    ZSH_THEME_GIT_PROMPT_MODIFIED="%F{green}⌿%f "
     ZSH_THEME_GIT_PROMPT_DELETED="%F{red}𝘅%f "
     ZSH_THEME_GIT_PROMPT_RENAMED="%F{magenta}➜%f "
     ZSH_THEME_GIT_PROMPT_UNMERGED="%F{yellow}=%f "
@@ -125,7 +123,7 @@ prompt_purification_setup() {
     ZSH_THEME_GIT_PROMPT_AHEAD="%B%F{green}⇢%f%b "
 
     prompt_git_branch
-    RPROMPT='$(prompt_git_info) $(git_prompt_status)'
+    RPROMPT='%F{white}$(prompt_git_info)%f $(git_prompt_status)'
     PROMPT=$'✝ %F{white}%1~ %F{blue}>%f '
 }
 

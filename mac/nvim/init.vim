@@ -6,7 +6,7 @@ Plug 'tpope/vim-commentary'
 
 " LSP Plugins
 Plug 'neovim/nvim-lspconfig'
-Plug 'kabouzeid/nvim-lspinstall'
+Plug 'williamboman/nvim-lsp-installer', {'branch': 'main'}
 Plug 'nvim-lua/completion-nvim'
 Plug 'onsails/lspkind-nvim'
 
@@ -120,3 +120,4 @@ augroup END
 
 " Lua
 lua require 'config'
+
