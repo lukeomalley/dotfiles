@@ -49,6 +49,9 @@ let g:gruvbox_invert_selection = 0
 syntax enable
 highlight Normal guibg=none guifg=#fffaf0
 
+" Hide the ~ character at the end of buffers
+set fillchars=fold:\ ,vert:\│,eob:\ ,msgsep:‾
+
 
 " Required for nvim completion
 set completeopt=longest,menuone,noinsert

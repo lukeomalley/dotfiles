@@ -58,7 +58,8 @@ gop () {
     | awk '/origin.*push/ {print $2}' \
     | sed "s/git@github.com:/github.com\//g" \
     | sed "s/.git//g" \
-    | xargs brave
+    | sed 's/^/https:\/\//' \
+    | xargs open 
 }
 
 gdiff() {
