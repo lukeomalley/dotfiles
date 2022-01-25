@@ -26,6 +26,10 @@ cp -rf "$DOTFILES/fonts" "$XDG_DATA_HOME"
 mkdir -p "$XDG_CONFIG_HOME/ranger"
 ln -sf "$DOTFILES/ranger/rc.conf" "$XDG_CONFIG_HOME/ranger"
 
+# Alacritty
+mkdir -p "$XDG_CONFIG_HOME/alacritty"
+ln -sf "$DOTFILES/alacritty/alacritty.yml" "$XDG_CONFIG_HOME/alacritty"
+
 # Binary/Scripts
 mkdir -p "$HOME/bin"
 ln -sf "$DOTFILES/bin/"* "$HOME/bin"
