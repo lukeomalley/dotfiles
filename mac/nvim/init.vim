@@ -23,9 +23,8 @@ Plug 'nvim-lua/popup.nvim'
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim'
 
-" Lsp Utils
-Plug 'RishabhRD/popfix'
-Plug 'RishabhRD/nvim-lsputils'
+" CoC
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
 " Ultisnips
 " Plug 'SirVer/ultisnips'
