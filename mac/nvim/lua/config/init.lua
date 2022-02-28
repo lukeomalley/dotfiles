@@ -1,5 +1,7 @@
 require("config/telescope")
 require("config/devicons")
-require("config/formatter")
+require("config/nvim-cmp")
 require("config/indent-blankline")
 require("config/nvim-tree")
+require("config/lsp-installer")
+require("config/lsp-config")

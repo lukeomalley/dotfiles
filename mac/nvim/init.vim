@@ -7,8 +7,11 @@ Plug 'tpope/vim-commentary'
 " LSP Plugins
 Plug 'neovim/nvim-lspconfig'
 Plug 'williamboman/nvim-lsp-installer', {'branch': 'main'}
-Plug 'nvim-lua/completion-nvim'
-Plug 'onsails/lspkind-nvim'
+Plug 'hrsh7th/cmp-nvim-lsp'
+Plug 'hrsh7th/cmp-buffer'
+Plug 'hrsh7th/cmp-path'
+Plug 'hrsh7th/cmp-cmdline'
+Plug 'hrsh7th/nvim-cmp'
 
 " Nvim Tree
 Plug 'kyazdani42/nvim-web-devicons' " for file icons
@@ -22,16 +25,6 @@ Plug 'vim-airline/vim-airline-themes'
 Plug 'nvim-lua/popup.nvim'
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim'
-
-" CoC
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
-
-" Ultisnips
-" Plug 'SirVer/ultisnips'
-" Plug 'honza/vim-snippets'
-
-" Pretttier
-Plug 'mhartington/formatter.nvim'
 
 " Indent Blankline
 Plug 'lukas-reineke/indent-blankline.nvim'
@@ -78,7 +71,7 @@ set splitright
 
 
 " Disable the auto comment when inserting new line
-au FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
+" au FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
 
 sign define LspDiagnosticsSignError text=
 sign define LspDiagnosticsSignWarning text=
@@ -115,12 +108,5 @@ let mapleader = " "
 inoremap jk <ESC>
 nnoremap <leader>w :w<cr>
 
-" Auto Format
-augroup FormatAutogroup
-  autocmd!
-  autocmd BufWritePost *.js,*.ts,*.rs, FormatWrite
-augroup END
-
 " Lua
 lua require 'config'
-
