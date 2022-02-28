@@ -91,7 +91,6 @@ set nobackup
 set incsearch
 set scrolloff=8
 set clipboard+=unnamedplus
-set signcolumn=yes
 set updatetime=100
 
 let mapleader = " "
