@@ -1,6 +1,6 @@
 call plug#begin('~/.vim/plugged')
 " General Plugins
-Plug 'gruvbox-community/gruvbox'
+Plug 'sainnhe/gruvbox-material'
 Plug 'jdhao/better-escape.vim'
 Plug 'tpope/vim-commentary'
 
@@ -35,31 +35,22 @@ Plug 'terryma/vim-smooth-scroll'
 call plug#end()
 
 " Color Theme
-set termguicolors
-colorscheme gruvbox
-let g:gruvbox_invert_selection = 0
 syntax enable
+set termguicolors
+set background=dark
 highlight Normal guibg=none guifg=#fffaf0
+let g:gruvbox_material_background = 'hard'
+let g:gruvbox_material_transparent_background = 1
+colorscheme gruvbox-material
 
 " Hide the ~ character at the end of buffers
 set fillchars=fold:\ ,vert:\│,eob:\ ,msgsep:‾
 
-
 " Required for nvim completion
-set completeopt=longest,menuone,noinsert
+" set completeopt=longest,menuone,noinsert
+set completeopt=menu,menuone,noinsert
+
 inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
-
-"" Trigger configuration. You need to change this to something other than <tab> if you use one of the following:
-" - https://github.com/Valloric/YouCompleteMe
-" - https://github.com/nvim-lua/completion-nvim
-let g:UltiSnipsExpandTrigger="leader<tab>"
-let g:UltiSnipsJumpForwardTrigger="<c-b>"
-let g:UltiSnipsJumpBackwardTrigger="<c-z>"
-
-let g:completion_enable_snippet = 'UltiSnips'
-
-" If you want :UltiSnipsEdit to split your window.
-":let g:UltiSnipsEditSplit="vertical" 
 
 "Split Configuration
 nnoremap <C-j> :vertical resize -10<CR>
@@ -69,9 +60,8 @@ nnoremap <C-H> <C-W><C-H>
 set splitbelow
 set splitright
 
-
 " Disable the auto comment when inserting new line
-" au FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
+au FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
 
 sign define LspDiagnosticsSignError text=
 sign define LspDiagnosticsSignWarning text=
@@ -102,7 +92,7 @@ set incsearch
 set scrolloff=8
 set clipboard+=unnamedplus
 set signcolumn=yes
-set updatetime=300
+set updatetime=100
 
 let mapleader = " "
 inoremap jk <ESC>
