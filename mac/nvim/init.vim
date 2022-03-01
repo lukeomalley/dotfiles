@@ -12,10 +12,17 @@ Plug 'hrsh7th/cmp-buffer'
 Plug 'hrsh7th/cmp-path'
 Plug 'hrsh7th/cmp-cmdline'
 Plug 'hrsh7th/nvim-cmp'
+Plug 'onsails/lspkind-nvim'
 
 " Nvim Tree
 Plug 'kyazdani42/nvim-web-devicons' " for file icons
 Plug 'kyazdani42/nvim-tree.lua'
+
+" Prettier - post install (yarn install | npm install) then load plugin only for editing supported files
+Plug 'prettier/vim-prettier', { 'do': 'yarn install --frozen-lockfile --production' }
+
+" Snippets
+Plug 'hrsh7th/vim-vsnip'
 
 " Airline
 Plug 'vim-airline/vim-airline'
@@ -99,3 +106,6 @@ nnoremap <leader>w :w<cr>
 
 " Lua
 lua require 'config'
+
+nmap <Leader>f <Plug>(Prettier)
+
