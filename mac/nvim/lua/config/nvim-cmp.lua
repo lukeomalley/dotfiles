@@ -73,6 +73,10 @@
     capabilities = capabilities
   }
 
+  require('lspconfig')['cssls'].setup {
+    capabilities = capabilities
+  }
+
   -- Setup lspkind
 local lspkind = require('lspkind')
 cmp.setup {

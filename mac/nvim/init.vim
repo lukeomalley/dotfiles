@@ -19,7 +19,7 @@ Plug 'kyazdani42/nvim-web-devicons' " for file icons
 Plug 'kyazdani42/nvim-tree.lua'
 
 " Prettier - post install (yarn install | npm install) then load plugin only for editing supported files
-Plug 'prettier/vim-prettier', { 'do': 'yarn install --frozen-lockfile --production' }
+Plug 'sbdchd/neoformat'
 
 " Snippets
 Plug 'hrsh7th/vim-vsnip'
@@ -67,6 +67,11 @@ nnoremap <C-H> <C-W><C-H>
 set splitbelow
 set splitright
 
+" Quick Fix List Mappings
+nnoremap [q :cprev<cr>
+nnoremap ]q :cnext<cr>
+
+
 " Disable the auto comment when inserting new line
 au FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
 
@@ -102,10 +107,11 @@ set updatetime=100
 
 let mapleader = " "
 inoremap jk <ESC>
-nnoremap <leader>w :w<cr>
+nnoremap <Leader>w :w<CR>
+
+" Neoformat
+let g:neoformat_try_node_exe = 1
+autocmd BufWritePre *.js,*.ts,*.css,*.scss,*.graphql Neoformat
 
 " Lua
 lua require 'config'
-
-nmap <Leader>f <Plug>(Prettier)
-
