@@ -111,7 +111,7 @@ nnoremap <Leader>w :w<CR>
 
 " Neoformat
 let g:neoformat_try_node_exe = 1
-autocmd BufWritePre *.js,*.ts,*.css,*.scss,*.graphql Neoformat
+autocmd BufWritePre *.js,*.ts,*.css,*.scss,*.graphql,*.html Neoformat
 
 " Lua
 lua require 'config'
