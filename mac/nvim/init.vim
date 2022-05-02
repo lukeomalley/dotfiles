@@ -35,6 +35,7 @@ Plug 'nvim-telescope/telescope.nvim'
 
 " Indent Blankline
 Plug 'lukas-reineke/indent-blankline.nvim'
+"Plug 'Yggdroot/indentLine'
 
 " Smooth Scroll
 Plug 'terryma/vim-smooth-scroll'
@@ -54,7 +55,6 @@ colorscheme gruvbox-material
 set fillchars=fold:\ ,vert:\│,eob:\ ,msgsep:‾
 
 " Required for nvim completion
-" set completeopt=longest,menuone,noinsert
 set completeopt=menu,menuone,noinsert
 
 inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
@@ -89,7 +89,7 @@ set smartindent
 set tabstop=2
 set shiftwidth=2
 set nu
-set relativenumber
+" set relativenumber
 set nohlsearch
 set hidden " Keep unsaved buffers in memory
 set nowrap
@@ -111,7 +111,10 @@ nnoremap <Leader>w :w<CR>
 
 " Neoformat
 let g:neoformat_try_node_exe = 1
-autocmd BufWritePre *.js,*.ts,*.css,*.scss,*.graphql,*.html Neoformat
+autocmd BufWritePre *.js,*.ts,*.css,*.scss,*.graphql,*.html,*.tsx Neoformat
+
+" Nvim Tree a list of groups can be found at `:help nvim_tree_highlight`
+highlight NvimTreeFolderIcon guibg=blue
 
 " Lua
 lua require 'config'

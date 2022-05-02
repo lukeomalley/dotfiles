@@ -1,9 +1,5 @@
 require("indent_blankline").setup {
-    char = "▏",
-    buftype_exclude = { "help", "terminal" },
-    filetype_exclude = { "help", "terminal" },
-    show_first_indent_level = false,
-    show_trailing_blankline_indent = false,
-    show_current_context = true
+    -- for example, context is off by default, use this to turn it on
+    show_current_context = true,
+    show_current_context_start = true,
 }
-
