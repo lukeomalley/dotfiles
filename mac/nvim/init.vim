@@ -32,6 +32,7 @@ Plug 'vim-airline/vim-airline-themes'
 Plug 'nvim-lua/popup.nvim'
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim'
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 
 " Indent Blankline
 Plug 'lukas-reineke/indent-blankline.nvim'
@@ -41,6 +42,15 @@ Plug 'lukas-reineke/indent-blankline.nvim'
 Plug 'terryma/vim-smooth-scroll'
 
 call plug#end()
+
+" Disable the python provider
+let g:loaded_python3_provider = 0
+
+" Disable the ruby provider
+let g:loaded_ruby_provider = 0
+
+" Disable the perl provider
+let g:loaded_perl_provider = 0
 
 " Color Theme
 syntax enable

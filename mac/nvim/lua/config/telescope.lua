@@ -24,7 +24,7 @@ telescope.setup {
       layout_config = {
          horizontal = {
             prompt_position = "top",
-            preview_width = 0.55,
+            preview_width = 0.8,
             results_width = 0.8,
          },
          vertical = {
@@ -35,9 +35,9 @@ telescope.setup {
          preview_cutoff = 120,
       },
       file_sorter = require("telescope.sorters").get_fuzzy_file,
-      file_ignore_patterns = {"node_modules", "dist", "migrations", "migrations_backup", "archived_migs", ".git", ".github", ".husky", ".vscode", "coverage", "test_reports", "k8s", ".aws_sam"},
+      file_ignore_patterns = {"generated", "node_modules", "dist", "migrations", "migrations_backup", "archived_migs", ".git", ".github", ".husky", ".vscode", "coverage", "test_reports", "k8s", ".aws_sam"},
       generic_sorter = require("telescope.sorters").get_generic_fuzzy_sorter,
-      path_display = { "tail" },
+      path_display = { "truncate" },
       winblend = 0,
       border = {},
       borderchars = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
@@ -50,6 +50,12 @@ telescope.setup {
       -- Developer configurations: Not meant for general override
       buffer_previewer_maker = require("telescope.previewers").buffer_previewer_maker,
    },
+   pickers = {
+    find_files = {
+      theme = "dropdown",
+    }
+  },
+
    extensions = {
       fzf = {
          fuzzy = true, -- false will only do exact matching
