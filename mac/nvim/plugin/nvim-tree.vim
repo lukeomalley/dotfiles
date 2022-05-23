@@ -74,6 +74,3 @@ let g:nvim_tree_icons = {
 nnoremap <leader>r :NvimTreeRefresh<CR>
 nnoremap <C-e> :NvimTreeFindFile<CR>
 nnoremap <C-b> :NvimTreeClose<CR>
-
-" a list of groups can be found at `:help nvim_tree_highlight`
-highlight NvimTreeFolderIcon guibg=blue

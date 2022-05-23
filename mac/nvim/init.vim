@@ -41,6 +41,9 @@ Plug 'lukas-reineke/indent-blankline.nvim'
 " Smooth Scroll
 Plug 'terryma/vim-smooth-scroll'
 
+" Git Fugitive
+Plug 'tpope/vim-fugitive'
+
 call plug#end()
 
 " Disable the python provider
@@ -124,7 +127,7 @@ let g:neoformat_try_node_exe = 1
 autocmd BufWritePre *.js,*.ts,*.css,*.scss,*.graphql,*.html,*.tsx Neoformat
 
 " Nvim Tree a list of groups can be found at `:help nvim_tree_highlight`
-highlight NvimTreeFolderIcon guibg=blue
+highlight NvimTreeFolderIcon guibg=none
 
 " Lua
 lua require 'config'

@@ -28,6 +28,7 @@ setopt PUSHD_SILENT
 bindkey -v
 export KEYTIMEOUT=1
 zmodload zsh/complist
+bindkey "^?" backward-delete-char
 
 bindkey -M menuselect 'h' vi-backward-char
 bindkey -M menuselect 'j' vi-down-line-or-history

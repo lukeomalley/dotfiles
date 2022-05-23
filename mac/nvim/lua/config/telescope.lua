@@ -14,7 +14,7 @@ telescope.setup {
          "--column",
          "--smart-case",
       },
-      prompt_prefix = " > ",
+      prompt_prefix = "> ",
       selection_caret = "↠ ",
       entry_prefix = "  ",
       initial_mode = "insert",
@@ -37,7 +37,7 @@ telescope.setup {
       file_sorter = require("telescope.sorters").get_fuzzy_file,
       file_ignore_patterns = {"generated", "node_modules", "dist", "migrations", "migrations_backup", "archived_migs", ".git", ".github", ".husky", ".vscode", "coverage", "test_reports", "k8s", ".aws_sam"},
       generic_sorter = require("telescope.sorters").get_generic_fuzzy_sorter,
-      path_display = { "truncate" },
+      path_display = { "tail" },
       winblend = 0,
       border = {},
       borderchars = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
@@ -50,17 +50,11 @@ telescope.setup {
       -- Developer configurations: Not meant for general override
       buffer_previewer_maker = require("telescope.previewers").buffer_previewer_maker,
    },
-   pickers = {
-    find_files = {
-      theme = "dropdown",
-    }
-  },
-
    extensions = {
       fzf = {
          fuzzy = true, -- false will only do exact matching
-         override_generic_sorter = true, -- override the generic sorter
-         override_file_sorter = true, -- override the file sorter
+         override_generic_sorter = false, -- override the generic sorter
+         override_file_sorter = false, -- override the file sorter
          case_mode = "ignore-case", -- or "ignore_case" or "respect_case"
          -- the default case_mode is "smart_case"
       },
