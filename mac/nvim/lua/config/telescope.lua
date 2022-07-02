@@ -1,3 +1,4 @@
+
 local present, telescope = pcall(require, "telescope")
 if not present then
    return
@@ -48,9 +49,28 @@ telescope.setup {
       grep_previewer = require("telescope.previewers").vim_buffer_vimgrep.new,
       qflist_previewer = require("telescope.previewers").vim_buffer_qflist.new,
       -- Developer configurations: Not meant for general override
-      buffer_previewer_maker = require("telescope.previewers").buffer_previewer_maker,
+      -- buffer_previewer_maker = require("telescope.previewers").buffer_previewer_maker,
    },
    extensions = {
+      ["ui-select"] = {
+        require("telescope.themes").get_cursor {
+          -- even more opts
+        }
+      },
+
+      -- pseudo code / specification for writing custom displays, like the one
+      -- for "codeactions"
+      -- specific_opts = {
+      --   [kind] = {
+      --     make_indexed = function(items) -> indexed_items, width,
+      --     make_displayer = function(widths) -> displayer
+      --     make_display = function(displayer) -> function(e)
+      --     make_ordinal = function(e) -> string
+      --   },
+      --   -- for example to disable the custom builtin "codeactions" display
+      --      do the following
+      --   codeactions = false,
+      -- }
       fzf = {
          fuzzy = true, -- false will only do exact matching
          override_generic_sorter = false, -- override the generic sorter
@@ -64,3 +84,5 @@ telescope.setup {
       },
    },
 }
+
+require("telescope").load_extension("ui-select")

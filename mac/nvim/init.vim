@@ -1,5 +1,6 @@
 call plug#begin('~/.vim/plugged')
 " General Plugins
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'sainnhe/gruvbox-material'
 Plug 'jdhao/better-escape.vim'
 Plug 'tpope/vim-commentary'
@@ -7,22 +8,14 @@ Plug 'tpope/vim-commentary'
 " LSP Plugins
 Plug 'neovim/nvim-lspconfig'
 Plug 'williamboman/nvim-lsp-installer', {'branch': 'main'}
-Plug 'hrsh7th/cmp-nvim-lsp'
-Plug 'hrsh7th/cmp-buffer'
-Plug 'hrsh7th/cmp-path'
-Plug 'hrsh7th/cmp-cmdline'
-Plug 'hrsh7th/nvim-cmp'
-Plug 'onsails/lspkind-nvim'
+Plug 'ms-jpq/coq_nvim', {'branch': 'coq'}
 
 " Nvim Tree
 Plug 'kyazdani42/nvim-web-devicons' " for file icons
 Plug 'kyazdani42/nvim-tree.lua'
 
-" Prettier - post install (yarn install | npm install) then load plugin only for editing supported files
+" Code Formatter
 Plug 'sbdchd/neoformat'
-
-" Snippets
-Plug 'hrsh7th/vim-vsnip'
 
 " Airline
 Plug 'vim-airline/vim-airline'
@@ -32,7 +25,9 @@ Plug 'vim-airline/vim-airline-themes'
 Plug 'nvim-lua/popup.nvim'
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim'
-Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+Plug 'nvim-telescope/telescope-fzf-native.nvim'
+Plug 'nvim-telescope/telescope-ui-select.nvim'
+Plug 'BurntSushi/ripgrep'
 
 " Indent Blankline
 Plug 'lukas-reineke/indent-blankline.nvim'
@@ -60,30 +55,35 @@ syntax enable
 set termguicolors
 set background=dark
 highlight Normal guibg=none guifg=#fffaf0
+
 let g:gruvbox_material_background = 'hard'
+let g:gruvbox_material_foreground = 'material'
 let g:gruvbox_material_transparent_background = 1
+let g:gruvbox_material_better_performance = 1
+let g:airline_theme = 'gruvbox_material'
 colorscheme gruvbox-material
 
 " Hide the ~ character at the end of buffers
 set fillchars=fold:\ ,vert:\│,eob:\ ,msgsep:‾
 
 " Required for nvim completion
-set completeopt=menu,menuone,noinsert
-
+" set completeopt=menu,menuone,noinsert
 inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
 
 "Split Configuration
-nnoremap <C-j> :vertical resize -10<CR>
-nnoremap <C-k> :vertical resize +10<CR>
-nnoremap <C-L> <C-W><C-L>
-nnoremap <C-H> <C-W><C-H>
 set splitbelow
 set splitright
+" nnoremap <C-j> :vertical resize -10<CR>
+" nnoremap <C-k> :vertical resize +10<CR>
+nnoremap <C-L> <C-W><C-L>
+nnoremap <C-H> <C-W><C-H>
+
+" Highlight on yank
+au TextYankPost * silent! lua vim.highlight.on_yank()
 
 " Quick Fix List Mappings
 nnoremap [q :cprev<cr>
 nnoremap ]q :cnext<cr>
-
 
 " Disable the auto comment when inserting new line
 au FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
@@ -121,10 +121,6 @@ set updatetime=100
 let mapleader = " "
 inoremap jk <ESC>
 nnoremap <Leader>w :w<CR>
-
-" Neoformat
-let g:neoformat_try_node_exe = 1
-autocmd BufWritePre *.js,*.ts,*.css,*.scss,*.graphql,*.html,*.tsx Neoformat
 
 " Nvim Tree a list of groups can be found at `:help nvim_tree_highlight`
 highlight NvimTreeFolderIcon guibg=none

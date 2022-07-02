@@ -51,6 +51,7 @@ source $DOTFILES/zsh/scripts.sh
 
 # fzf
 if [ $(command -v "fzf") ]; then
+  echo "completions and bindings"
   source /usr/share/fzf/completion.zsh
   source /usr/share/fzf/key-bindings.zsh
 fi
