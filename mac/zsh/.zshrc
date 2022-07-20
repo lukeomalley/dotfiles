@@ -50,11 +50,15 @@ source $DOTFILES/zsh/external/bd.zsh
 source $DOTFILES/zsh/scripts.sh
 
 # fzf
-if [ $(command -v "fzf") ]; then
-  echo "completions and bindings"
-  source /usr/share/fzf/completion.zsh
-  source /usr/share/fzf/key-bindings.zsh
+if [[ ! "$PATH" == */opt/homebrew/opt/fzf/bin* ]]; then
+  export PATH="${PATH:+${PATH}:}/opt/homebrew/opt/fzf/bin"
 fi
+
+# Auto-completion
+[[ $- == *i* ]] && source "/opt/homebrew/opt/fzf/shell/completion.zsh" 2> /dev/null
+
+# Key bindings
+source "/opt/homebrew/opt/fzf/shell/key-bindings.zsh"
 
 # Clear the terminal
 bindkey -r '^l'
@@ -79,3 +83,4 @@ eval "$(fnm env)"
 # direnv
 export DIRENV_LOG_FORMAT=""
 eval "$(direnv hook zsh)"
+

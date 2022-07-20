@@ -1,10 +1,3 @@
--- vim.g.coq_settings = {
---   auto_start = "shut-up",
---   keymap = {
---     pre_select = true
---   }
--- }
-
 vim.g.coq_settings = {
     auto_start = 'shut-up',
     keymap = {
@@ -13,6 +6,6 @@ vim.g.coq_settings = {
     display = {
       ghost_text = { enabled = false }, 
       icons = { mode = "none" }, 
-      preview = { border = "shadow" }
+      preview = { border = "rounded" }
     }
 }

@@ -31,7 +31,6 @@ Plug 'BurntSushi/ripgrep'
 
 " Indent Blankline
 Plug 'lukas-reineke/indent-blankline.nvim'
-"Plug 'Yggdroot/indentLine'
 
 " Smooth Scroll
 Plug 'terryma/vim-smooth-scroll'
@@ -40,15 +39,6 @@ Plug 'terryma/vim-smooth-scroll'
 Plug 'tpope/vim-fugitive'
 
 call plug#end()
-
-" Disable the python provider
-let g:loaded_python3_provider = 0
-
-" Disable the ruby provider
-let g:loaded_ruby_provider = 0
-
-" Disable the perl provider
-let g:loaded_perl_provider = 0
 
 " Color Theme
 syntax enable
@@ -66,17 +56,13 @@ colorscheme gruvbox-material
 " Hide the ~ character at the end of buffers
 set fillchars=fold:\ ,vert:\│,eob:\ ,msgsep:‾
 
-" Required for nvim completion
-" set completeopt=menu,menuone,noinsert
-inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
-
-"Split Configuration
+" Split Configuration
 set splitbelow
 set splitright
 " nnoremap <C-j> :vertical resize -10<CR>
 " nnoremap <C-k> :vertical resize +10<CR>
-nnoremap <C-L> <C-W><C-L>
-nnoremap <C-H> <C-W><C-H>
+nnoremap <C-l> <C-W><C-L>
+nnoremap <C-h> <C-W><C-H>
 
 " Highlight on yank
 au TextYankPost * silent! lua vim.highlight.on_yank()
@@ -88,6 +74,7 @@ nnoremap ]q :cnext<cr>
 " Disable the auto comment when inserting new line
 au FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
 
+" Icons for LSP
 sign define LspDiagnosticsSignError text=
 sign define LspDiagnosticsSignWarning text=
 sign define LspDiagnosticsSignInformation text=כֿ
@@ -99,14 +86,14 @@ set guifont=InconsolataNerdFontMono
 set smarttab
 set expandtab
 set smartindent
+set ignorecase " Make search case in-sensitive
 set tabstop=2
 set shiftwidth=2
 set nu
-" set relativenumber
+set relativenumber
 set nohlsearch
 set hidden " Keep unsaved buffers in memory
 set nowrap
-set smartcase
 set expandtab " always uses spaces instead of tab characters
 set signcolumn=yes " always show signcolumns
 set undodir=~/.vim/undodir
@@ -124,6 +111,11 @@ nnoremap <Leader>w :w<CR>
 
 " Nvim Tree a list of groups can be found at `:help nvim_tree_highlight`
 highlight NvimTreeFolderIcon guibg=none
+
+" Disable the python, ruby and perl provider
+let g:loaded_python3_provider = 0
+let g:loaded_ruby_provider = 0
+let g:loaded_perl_provider = 0
 
 " Lua
 lua require 'config'
