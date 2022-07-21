@@ -61,8 +61,8 @@ set splitbelow
 set splitright
 " nnoremap <C-j> :vertical resize -10<CR>
 " nnoremap <C-k> :vertical resize +10<CR>
-nnoremap <C-l> <C-W><C-L>
-nnoremap <C-h> <C-W><C-H>
+" nnoremap <C-l> <C-W><C-L>
+" nnoremap <C-h> <C-W><C-H>
 
 " Highlight on yank
 au TextYankPost * silent! lua vim.highlight.on_yank()
