@@ -30,6 +30,10 @@ ln -sf "$DOTFILES/ranger/rc.conf" "$XDG_CONFIG_HOME/ranger"
 mkdir -p "$XDG_CONFIG_HOME/alacritty"
 ln -sf "$DOTFILES/alacritty/alacritty.yml" "$XDG_CONFIG_HOME/alacritty"
 
+# Helix
+mkdir -p "$XDG_CONFIG_HOME/helix"
+ln -sf "$DOTFILES/helix/config.toml" "$XDG_CONFIG_HOME/helix"
+
 # Binary/Scripts
 mkdir -p "$HOME/bin"
 ln -sf "$DOTFILES/bin/"* "$HOME/bin"
