@@ -82,6 +82,7 @@ eval "$(fnm env)"
 
 # History
 setopt share_history
+setopt inc_append_history
 export HISTFILE="$ZDOTDIR/.zhistory"
 export HISTSIZE=50000
 export HISTFILESIZE=$HISTSIZE
