@@ -10,17 +10,13 @@ export XDG_DATA_HOME="$XDG_CONFIG_HOME/local/share"
 # For Cache Files
 export XDG_CACHE_HOME="$XDG_CONFIG_HOME/cache"
 
+# Z Config File Dir
 export ZDOTDIR="$XDG_CONFIG_HOME/zsh"
-export HISTFILE="$ZDOTDIR/.zhistory"
 
+# Dotfile Dir
 export DOTFILES="$HOME/dotfiles/mac"
 
-# Maximum events for internal history
-export HISTSIZE=10000
-
-# Maximum events in history file
-export SAVEHIST=10000
-
+# Editor
 export EDITOR="nvim"
 export VISUAL="nvim"
 

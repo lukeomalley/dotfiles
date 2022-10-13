@@ -2,6 +2,7 @@ call plug#begin('~/.vim/plugged')
 " General Plugins
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'sainnhe/gruvbox-material'
+Plug 'folke/tokyonight.nvim', { 'branch': 'main' }
 Plug 'jdhao/better-escape.vim'
 Plug 'tpope/vim-commentary'
 
@@ -39,19 +40,6 @@ Plug 'terryma/vim-smooth-scroll'
 Plug 'tpope/vim-fugitive'
 
 call plug#end()
-
-" Color Theme
-syntax enable
-set termguicolors
-set background=dark
-highlight Normal guibg=none guifg=#fffaf0
-
-let g:gruvbox_material_background = 'hard'
-let g:gruvbox_material_foreground = 'material'
-let g:gruvbox_material_transparent_background = 1
-let g:gruvbox_material_better_performance = 1
-let g:airline_theme = 'gruvbox_material'
-colorscheme gruvbox-material
 
 " Hide the ~ character at the end of buffers
 set fillchars=fold:\ ,vert:\│,eob:\ ,msgsep:‾
@@ -119,3 +107,18 @@ let g:loaded_perl_provider = 0
 
 " Lua
 lua require 'config'
+
+" Color Theme
+syntax enable
+set termguicolors
+set background=dark
+highlight Normal guibg=none guifg=#fffaf0
+
+let g:gruvbox_material_background = 'hard'
+let g:gruvbox_material_foreground = 'material'
+let g:gruvbox_material_transparent_background = 1
+let g:gruvbox_material_better_performance = 1
+let g:airline_theme = 'gruvbox_material'
+
+" colorscheme tokyonight-moon
+colorscheme gruvbox-material

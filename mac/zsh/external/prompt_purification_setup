@@ -124,7 +124,7 @@ prompt_purification_setup() {
 
     prompt_git_branch
     RPROMPT='%F{white}$(prompt_git_info)%f $(git_prompt_status)'
-    PROMPT=$'✝ %F{white}%1~ %F{blue}>%f '
+    PROMPT=$'✝︎ %F{blue}%1~ %F{white}~ %f'
 }
 
 prompt_purification_setup
