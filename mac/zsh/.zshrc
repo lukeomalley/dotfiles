@@ -81,11 +81,11 @@ source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zs
 eval "$(fnm env)"
 
 # History
+setopt share_history
 export HISTFILE="$ZDOTDIR/.zhistory"
 export HISTSIZE=50000
 export HISTFILESIZE=$HISTSIZE
 export SAVEHIST=$HISTSIZE
-
 
 # direnv
 export DIRENV_LOG_FORMAT=""
