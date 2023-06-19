@@ -39,6 +39,6 @@ ln -sf "$DOTFILES/helix/themes" "$XDG_CONFIG_HOME/helix"
 mkdir -p "$HOME/bin"
 ln -sf "$DOTFILES/bin/"* "$HOME/bin"
 
-# Jetbrains/Datagrip
-mkdir -p "$XDG_CONFIG_HOME/ideavim"
-ln -sf "$DOTFILES/ideavim/ideavimrc" "$XDG_CONFIG_HOME/ideavim"
+# Wezterm
+mkdir -p "$XDG_CONFIG_HOME/wezterm"
+ln -sf "$DOTFILES/wezterm/wezterm.lua" "$XDG_CONFIG_HOME/wezterm"
