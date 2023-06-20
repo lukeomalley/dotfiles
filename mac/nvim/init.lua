@@ -52,6 +52,9 @@ require('packer').startup(function(use)
   use 'numToStr/Comment.nvim' -- "gc" to comment visual regions/lines
   use 'tpope/vim-sleuth' -- Detect tabstop and shiftwidth automatically
 
+  use 'nvim-tree/nvim-tree.lua'
+  use 'nvim-tree/nvim-web-devicons'
+
   -- Fuzzy Finder (files, lsp, etc)
   use { 'nvim-telescope/telescope.nvim', branch = '0.1.x', requires = { 'nvim-lua/plenary.nvim' } }
 
@@ -90,8 +93,12 @@ vim.api.nvim_create_autocmd('BufWritePost', {
   pattern = vim.fn.expand '$MYVIMRC',
 })
 
+
 -- [[ Setting options ]]
 -- See `:help vim.o`
+
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
 
 -- Set highlight on search
 vim.o.hlsearch = false
@@ -171,7 +178,7 @@ require('Comment').setup()
 require('indent_blankline').setup {
   show_trailing_blankline_indent = false,
   show_current_context = true,
-  show_current_context_start = true,
+  show_current_context_start = false,
 }
 
 -- Gitsigns
@@ -198,6 +205,33 @@ require('telescope').setup {
     },
   },
 }
+
+local function nvim_tree_on_attach(bufnr)
+  -- local api = require "nvim-tree.api"
+
+  -- local function opts(desc)
+  --   return { desc = "nvim-tree: " .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
+  -- end
+
+  -- TODO: FIX THESE custom mappings 
+  -- vim.keymap.set('n', '<C-b>', ":NvimTreeToggle", opts("Toggle"))
+  -- vim.keymap.set('n', '<C-e>', ":NvimTreeFindFile", opts("Find File"))
+end
+
+-- [[ Configure Nvim Tree ]]
+require("nvim-tree").setup({
+  sort_by = "case_sensitive",
+  on_attach = nvim_tree_on_attach,
+  view = {
+    width = 30,
+  },
+  renderer = {
+    group_empty = true,
+  },
+  filters = {
+    dotfiles = true,
+  },
+})
 
 -- Enable telescope fzf native, if installed
 pcall(require('telescope').load_extension, 'fzf')
@@ -434,51 +468,3 @@ cmp.setup {
   },
 }
 
--- -- catppuccin setup
--- require("catppuccin").setup({
---     flavour = "mocha", -- latte, frappe, macchiato, mocha
---     background = { -- :h background
---         light = "latte",
---         dark = "mocha",
---     },
---     transparent_background = true,
---     term_colors = false,
---     dim_inactive = {
---         enabled = false,
---         shade = "dark",
---         percentage = 0.15,
---     },
---     no_italic = false, -- Force no italic
---     no_bold = false, -- Force no bold
---     styles = {
---         comments = { "italic" },
---         conditionals = { "italic" },
---         loops = {},
---         functions = {},
---         keywords = {},
---         strings = {},
---         variables = {},
---         numbers = {},
---         booleans = {},
---         properties = {},
---         types = {},
---         operators = {},
---     },
---     color_overrides = {},
---     custom_highlights = {},
---     integrations = {
---         cmp = true,
---         gitsigns = true,
---         nvimtree = true,
---         telescope = true,
---         notify = false,
---         mini = false,
---         -- For more plugins integrations please scroll down (https://github.com/catppuccin/nvim#integrations)
---     },
--- })
---
--- -- setup must be called before loading
--- vim.cmd.colorscheme "catppuccin"
-
--- The line beneath this is called `modeline`. See `:help modeline`
--- vim: ts=2 sts=2 sw=2 et
