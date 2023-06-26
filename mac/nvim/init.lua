@@ -115,6 +115,9 @@ vim.o.breakindent = true
 -- Save undo history
 vim.o.undofile = true
 
+-- Use the system clipboard
+vim.opt.clipboard = "unnamedplus"
+
 -- Case insensitive searching UNLESS /C or capital in search
 vim.o.ignorecase = true
 vim.o.smartcase = true
@@ -206,19 +209,14 @@ require('telescope').setup {
   },
 }
 
+-- [[ Configure Nvim Tree ]]
 local function nvim_tree_on_attach(bufnr)
-  -- local api = require "nvim-tree.api"
+  local api = require "nvim-tree.api"
 
-  -- local function opts(desc)
-  --   return { desc = "nvim-tree: " .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
-  -- end
-
-  -- TODO: FIX THESE custom mappings 
-  -- vim.keymap.set('n', '<C-b>', ":NvimTreeToggle", opts("Toggle"))
-  -- vim.keymap.set('n', '<C-e>', ":NvimTreeFindFile", opts("Find File"))
+  -- Default mappings
+  api.config.mappings.default_on_attach(bufnr)
 end
 
--- [[ Configure Nvim Tree ]]
 require("nvim-tree").setup({
   sort_by = "case_sensitive",
   on_attach = nvim_tree_on_attach,
@@ -229,10 +227,14 @@ require("nvim-tree").setup({
     group_empty = true,
   },
   filters = {
-    dotfiles = true,
+    dotfiles = false,
   },
 })
 
+vim.keymap.set('n', '<C-b>', ":NvimTreeClose<cr>", { desc = 'Close Nvim Tree' })
+vim.keymap.set('n', '<C-e>', ":NvimTreeFindFile<cr>", { desc = 'Close Nvim Tree' })
+
+-- [[ Configure Telescope ]]
 -- Enable telescope fzf native, if installed
 pcall(require('telescope').load_extension, 'fzf')
 
@@ -468,3 +470,51 @@ cmp.setup {
   },
 }
 
+-- -- catppuccin setup
+-- require("catppuccin").setup({
+--     flavour = "mocha", -- latte, frappe, macchiato, mocha
+--     background = { -- :h background
+--         light = "latte",
+--         dark = "mocha",
+--     },
+--     transparent_background = true,
+--     term_colors = false,
+--     dim_inactive = {
+--         enabled = false,
+--         shade = "dark",
+--         percentage = 0.15,
+--     },
+--     no_italic = false, -- Force no italic
+--     no_bold = false, -- Force no bold
+--     styles = {
+--         comments = { "italic" },
+--         conditionals = { "italic" },
+--         loops = {},
+--         functions = {},
+--         keywords = {},
+--         strings = {},
+--         variables = {},
+--         numbers = {},
+--         booleans = {},
+--         properties = {},
+--         types = {},
+--         operators = {},
+--     },
+--     color_overrides = {},
+--     custom_highlights = {},
+--     integrations = {
+--         cmp = true,
+--         gitsigns = true,
+--         nvimtree = true,
+--         telescope = true,
+--         notify = false,
+--         mini = false,
+--         -- For more plugins integrations please scroll down (https://github.com/catppuccin/nvim#integrations)
+--     },
+-- })
+--
+-- -- setup must be called before loading
+-- vim.cmd.colorscheme "catppuccin"
+
+-- The line beneath this is called `modeline`. See `:help modeline`
+-- vim: ts=2 sts=2 sw=2 et
