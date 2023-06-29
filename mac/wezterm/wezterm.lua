@@ -12,7 +12,7 @@ local config = {
 	},
 	window_decorations = "RESIZE",
 	font = wezterm.font("Inconsolata Nerd Font Mono", { weight = "Regular" }),
-	font_size = 16,
+	font_size = 12,
 	native_macos_fullscreen_mode = true,
 	macos_window_background_blur = 20,
 	keys = {
