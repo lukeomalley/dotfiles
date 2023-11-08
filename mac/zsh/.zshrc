@@ -92,3 +92,9 @@ export SAVEHIST=$HISTSIZE
 export DIRENV_LOG_FORMAT=""
 eval "$(direnv hook zsh)"
 
+# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
+export PATH="$PATH:$HOME/.rvm/bin"
+
+# rbenv
+export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@3)"
+

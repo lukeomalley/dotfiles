@@ -177,12 +177,8 @@ require('lualine').setup {
 require('Comment').setup()
 
 -- Enable `lukas-reineke/indent-blankline.nvim`
--- See `:help indent_blankline.txt`
-require('indent_blankline').setup {
-  show_trailing_blankline_indent = false,
-  show_current_context = true,
-  show_current_context_start = false,
-}
+-- See :help ibl.config
+require('ibl').setup()
 
 -- Gitsigns
 -- See `:help gitsigns.txt`
@@ -378,7 +374,7 @@ require('mason').setup()
 
 -- Enable the following language servers
 -- Feel free to add/remove any LSPs that you want here. They will automatically be installed
-local servers = { 'clangd', 'rust_analyzer', 'pyright', 'tsserver', 'sumneko_lua', 'gopls' }
+local servers = { 'clangd', 'rust_analyzer', 'pyright', 'tsserver', 'lua_ls', 'gopls' }
 
 -- Ensure the servers above are installed
 require('mason-lspconfig').setup {
@@ -400,13 +396,12 @@ end
 require('fidget').setup()
 
 -- Example custom configuration for lua
---
 -- Make runtime files discoverable to the server
 local runtime_path = vim.split(package.path, ';')
 table.insert(runtime_path, 'lua/?.lua')
 table.insert(runtime_path, 'lua/?/init.lua')
 
-require('lspconfig').sumneko_lua.setup {
+require('lspconfig').lua_ls.setup {
   on_attach = on_attach,
   capabilities = capabilities,
   settings = {
@@ -469,52 +464,3 @@ cmp.setup {
     { name = 'luasnip' },
   },
 }
-
--- -- catppuccin setup
--- require("catppuccin").setup({
---     flavour = "mocha", -- latte, frappe, macchiato, mocha
---     background = { -- :h background
---         light = "latte",
---         dark = "mocha",
---     },
---     transparent_background = true,
---     term_colors = false,
---     dim_inactive = {
---         enabled = false,
---         shade = "dark",
---         percentage = 0.15,
---     },
---     no_italic = false, -- Force no italic
---     no_bold = false, -- Force no bold
---     styles = {
---         comments = { "italic" },
---         conditionals = { "italic" },
---         loops = {},
---         functions = {},
---         keywords = {},
---         strings = {},
---         variables = {},
---         numbers = {},
---         booleans = {},
---         properties = {},
---         types = {},
---         operators = {},
---     },
---     color_overrides = {},
---     custom_highlights = {},
---     integrations = {
---         cmp = true,
---         gitsigns = true,
---         nvimtree = true,
---         telescope = true,
---         notify = false,
---         mini = false,
---         -- For more plugins integrations please scroll down (https://github.com/catppuccin/nvim#integrations)
---     },
--- })
---
--- -- setup must be called before loading
--- vim.cmd.colorscheme "catppuccin"
-
--- The line beneath this is called `modeline`. See `:help modeline`
--- vim: ts=2 sts=2 sw=2 et
