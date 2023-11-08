@@ -97,4 +97,5 @@ export PATH="$PATH:$HOME/.rvm/bin"
 
 # rbenv
 export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@3)"
+if which rbenv > /dev/null; then eval "$(rbenv init -)"; fi
 
