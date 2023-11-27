@@ -99,3 +99,7 @@ export PATH="$PATH:$HOME/.rvm/bin"
 export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@3)"
 if which rbenv > /dev/null; then eval "$(rbenv init -)"; fi
 
+# pnpm completion setup
+source <(pnpm completion)
+
+
