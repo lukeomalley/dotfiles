@@ -35,9 +35,6 @@ bindkey -M menuselect 'j' vi-down-line-or-history
 bindkey -M menuselect 'k' vi-up-line-or-history
 bindkey -M menuselect 'l' vi-forward-char
 
-# ssh agent
-eval "$(ssh-agent -s)"
-
 # Vim Cursor
 autoload -Uz cursor_mode && cursor_mode
 
