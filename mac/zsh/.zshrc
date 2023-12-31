@@ -13,7 +13,8 @@ source $DOTFILES/zsh/external/completion.zsh
 fpath=($ZDOTDIR/external $fpath)
 
 # Pretify Prompt
-autoload -Uz prompt_purification_setup; prompt_purification_setup
+autoload -Uz prompt_purification_setup
+prompt_purification_setup
 
 # Push the current directory visited on to the stack
 setopt AUTO_PUSHD
@@ -55,7 +56,7 @@ if [[ ! "$PATH" == */opt/homebrew/opt/fzf/bin* ]]; then
 fi
 
 # Auto-completion
-[[ $- == *i* ]] && source "/opt/homebrew/opt/fzf/shell/completion.zsh" 2> /dev/null
+[[ $- == *i* ]] && source "/opt/homebrew/opt/fzf/shell/completion.zsh" 2>/dev/null
 
 # Key bindings
 source "/opt/homebrew/opt/fzf/shell/key-bindings.zsh"
@@ -91,16 +92,6 @@ export SAVEHIST=$HISTSIZE
 # direnv
 export DIRENV_LOG_FORMAT=""
 eval "$(direnv hook zsh)"
-
-# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
-export PATH="$PATH:$HOME/.rvm/bin"
-
-# rbenv
-export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@3)"
-if which rbenv > /dev/null; then eval "$(rbenv init -)"; fi
-
-# pnpm completion setup
-source <(pnpm completion)
 
 # pnpm
 export PNPM_HOME="/Users/luke/.config/local/share/pnpm"
