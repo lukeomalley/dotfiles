@@ -42,3 +42,7 @@ export PUPPETEER_EXECUTABLE_PATH=$(which chromium)
 
 # Rust Config
 . "$HOME/.cargo/env"
+
+# LLVM Config
+export LDFLAGS="-L/opt/homebrew/opt/llvm/lib"
+export CPPFLAGS="-I/opt/homebrew/opt/llvm/include"
