@@ -1,0 +1,32 @@
+session: psci
+
+root: ~/code/psci
+
+before_start:
+
+env:
+
+stop:
+  - docker stop $(docker ps -q)
+
+windows:
+  - name: node
+    root:  psci-node # a relative path to root
+    manual: true # you can start this window only manually, using the -w arg
+    layout: main-vertical
+    commands:
+    panes:
+      - type: horizontal
+        root: .
+        commands:
+          - nvim .
+          - clear
+
+  - name: vue
+    root: psci-app
+    layout: tiled
+    panes:
+      - type: horizontal
+        root: .
+        commands:
+          - npm run stag
