@@ -30,15 +30,9 @@ ln -sf "$DOTFILES/ranger/rc.conf" "$XDG_CONFIG_HOME/ranger"
 mkdir -p "$XDG_CONFIG_HOME/alacritty"
 ln -sf "$DOTFILES/alacritty/alacritty.yml" "$XDG_CONFIG_HOME/alacritty"
 
-# Helix
-mkdir -p "$XDG_CONFIG_HOME/helix"
-ln -sf "$DOTFILES/helix/config.toml" "$XDG_CONFIG_HOME/helix"
-ln -sf "$DOTFILES/helix/themes" "$XDG_CONFIG_HOME/helix"
-
 # Binary/Scripts
 mkdir -p "$HOME/bin"
 ln -sf "$DOTFILES/bin/"* "$HOME/bin"
 
-# Wezterm
-mkdir -p "$XDG_CONFIG_HOME/wezterm"
-ln -sf "$DOTFILES/wezterm/wezterm.lua" "$XDG_CONFIG_HOME/wezterm"
+# Smug - tmux session manager
+ln -sf "$DOTFILES/smug" "$XDG_CONFIG_HOME"

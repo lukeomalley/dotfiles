@@ -1,0 +1,20 @@
+session: greenlight
+
+root: ~/code/greenlight
+
+windows:
+  - name: server
+    root: . # a relative path to root
+    manual: false # you can start this window only manually, using the -w arg
+    layout: main-vertical
+    commands:
+      - go run -v ./cmd/api
+
+  - name: code
+    root: .
+    manual: false 
+    layout: main-vertical
+    commands:
+      - open ~/Documents/books/lets-go-further/pdf/lets-go-further.pdf
+      - nvim .
+
