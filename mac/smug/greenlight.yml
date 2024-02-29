@@ -3,12 +3,13 @@ session: greenlight
 root: ~/code/greenlight
 
 windows:
-  - name: server
-    root: . # a relative path to root
-    manual: false # you can start this window only manually, using the -w arg
+  - name: term
+    root: .
+    manual: false 
     layout: main-vertical
     commands:
-      - go run -v ./cmd/api
+      - docker run -d --name postgres15 -e POSTGRES_PASSWORD=greenlight -p 5432:5432 postgres:15
+      - clear
 
   - name: code
     root: .
@@ -17,4 +18,11 @@ windows:
     commands:
       - open ~/Documents/books/lets-go-further/pdf/lets-go-further.pdf
       - nvim .
+
+  - name: server
+    root: . # a relative path to root
+    manual: false # you can start this window only manually, using the -w arg
+    layout: main-vertical
+    commands:
+      - go run -v ./cmd/api
 

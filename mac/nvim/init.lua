@@ -61,6 +61,17 @@ require('packer').startup(function(use)
   -- Fuzzy Finder Algorithm which requires local dependencies to be built. Only load if `make` is available
   use { 'nvim-telescope/telescope-fzf-native.nvim', run = 'make', cond = vim.fn.executable 'make' == 1 }
 
+  -- Surround
+  use({
+    "kylechui/nvim-surround",
+    tag = "*", -- Use for stability; omit to use `main` branch for the latest features
+    config = function()
+        require("nvim-surround").setup({
+            -- Configuration here, or leave empty to use defaults
+        })
+    end
+})
+
   -- Add custom plugins to packer from ~/.config/nvim/lua/custom/plugins.lua
   local has_plugins, plugins = pcall(require, 'custom.plugins')
   if has_plugins then
@@ -109,11 +120,18 @@ vim.wo.number = true
 -- Enable mouse mode
 vim.o.mouse = 'a'
 
+-- Set the tab width
+vim.opt.tabstop = 2
+vim.opt.shiftwidth = 2
+
 -- Enable break indent
 vim.o.breakindent = true
 
 -- Save undo history
 vim.o.undofile = true
+
+-- Set nowrap
+vim.opt.wrap = false
 
 -- Use the system clipboard
 vim.opt.clipboard = "unnamedplus"
@@ -369,6 +387,8 @@ local on_attach = function(_, bufnr)
   end, { desc = 'Format current buffer with LSP' })
 end
 
+vim.cmd [[autocmd BufWritePre * lua vim.lsp.buf.format()]]
+
 -- Setup mason so it can manage external tooling
 require('mason').setup()
 
@@ -393,7 +413,7 @@ for _, lsp in ipairs(servers) do
 end
 
 -- Turn on lsp status information
-require('fidget').setup()
+require('fidget').setup({})
 
 -- Example custom configuration for lua
 -- Make runtime files discoverable to the server
@@ -464,3 +484,4 @@ cmp.setup {
     { name = 'luasnip' },
   },
 }
+

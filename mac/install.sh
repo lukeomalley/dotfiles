@@ -34,5 +34,9 @@ ln -sf "$DOTFILES/alacritty/alacritty.yml" "$XDG_CONFIG_HOME/alacritty"
 mkdir -p "$HOME/bin"
 ln -sf "$DOTFILES/bin/"* "$HOME/bin"
 
+# tmux - tmux session manager
+ln -sf "$DOTFILES/tmux" "$XDG_CONFIG_HOME"
+
 # Smug - tmux session manager
 ln -sf "$DOTFILES/smug" "$XDG_CONFIG_HOME"
+
