@@ -47,10 +47,10 @@ require('packer').startup(function(use)
 
   -- use { "catppuccin/nvim", as = "catppuccin" }
   use 'sainnhe/gruvbox-material'
-  use 'nvim-lualine/lualine.nvim' -- Fancier statusline
+  use 'nvim-lualine/lualine.nvim'           -- Fancier statusline
   use 'lukas-reineke/indent-blankline.nvim' -- Add indentation guides even on blank lines
-  use 'numToStr/Comment.nvim' -- "gc" to comment visual regions/lines
-  use 'tpope/vim-sleuth' -- Detect tabstop and shiftwidth automatically
+  use 'numToStr/Comment.nvim'               -- "gc" to comment visual regions/lines
+  use 'tpope/vim-sleuth'                    -- Detect tabstop and shiftwidth automatically
 
   use 'nvim-tree/nvim-tree.lua'
   use 'nvim-tree/nvim-web-devicons'
@@ -169,17 +169,6 @@ vim.keymap.set('i', 'jk', "<Esc>", { silent = true })
 vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
 vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
 
--- Remap pane navigation
-vim.api.nvim_set_keymap('n', '<C-h>', '<C-w>h', {})
-vim.api.nvim_set_keymap('n', '<C-j>', '<C-w>j', {})
-vim.api.nvim_set_keymap('n', '<C-k>', '<C-w>k', {})
-vim.api.nvim_set_keymap('n', '<C-l>', '<C-w>l', {})
-
-vim.api.nvim_set_keymap('i', '<C-h>', '<C-w>h', {})
-vim.api.nvim_set_keymap('i', '<C-j>', '<C-w>j', {})
-vim.api.nvim_set_keymap('i', '<C-k>', '<C-w>k', {})
-vim.api.nvim_set_keymap('i', '<C-l>', '<C-w>l', {})
-
 -- Change the resize pane size
 vim.api.nvim_set_keymap('n', '<C-w>>', '5<C-w>>', { noremap = true })
 vim.api.nvim_set_keymap('n', '<C-w><', '5<C-w><', { noremap = true })
@@ -211,7 +200,11 @@ require('Comment').setup()
 
 -- Enable `lukas-reineke/indent-blankline.nvim`
 -- See :help ibl.config
-require('ibl').setup()
+require('ibl').setup({
+  scope = {
+    show_start = false
+  }
+})
 
 -- Gitsigns
 -- See `:help gitsigns.txt`
@@ -381,7 +374,7 @@ local on_attach = function(_, bufnr)
   -- nmap('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
 
   -- See `:help K` for why this keymap
-  nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
+  nmap('gh', vim.lsp.buf.hover, 'Hover Documentation')
   nmap('<C-k>', vim.lsp.buf.signature_help, 'Signature Documentation')
 
   -- Lesser used LSP functionality
@@ -402,7 +395,6 @@ local on_attach = function(_, bufnr)
   end, { desc = 'Format current buffer with LSP' })
 end
 
-vim.cmd [[autocmd BufWritePre * lua vim.lsp.buf.format()]]
 
 -- Setup mason so it can manage external tooling
 require('mason').setup()
@@ -436,6 +428,7 @@ local runtime_path = vim.split(package.path, ';')
 table.insert(runtime_path, 'lua/?.lua')
 table.insert(runtime_path, 'lua/?/init.lua')
 
+-- Setup lua_ls congig
 require('lspconfig').lua_ls.setup {
   on_attach = on_attach,
   capabilities = capabilities,
@@ -456,6 +449,20 @@ require('lspconfig').lua_ls.setup {
     },
   },
 }
+
+require('lspconfig').emmet_ls.setup({
+  -- on_attach = on_attach,
+  capabilities = capabilities,
+  filetypes = { 'html', 'typescriptreact', 'javascriptreact', 'css', 'sass', 'scss', 'less' },
+  init_options = {
+    html = {
+      options = {
+        -- For possible options, see: https://github.com/emmetio/emmet/blob/master/src/config.ts#L79-L267
+        ["bem.enabled"] = true,
+      },
+    },
+  }
+})
 
 -- nvim-cmp setup
 local cmp = require 'cmp'
@@ -499,3 +506,73 @@ cmp.setup {
     { name = 'luasnip' },
   },
 }
+
+-- formatter.nvim config
+-- Utilities for creating configurations
+local util = require "formatter.util"
+
+-- Provides the Format, FormatWrite, FormatLock, and FormatWriteLock commands
+require("formatter").setup {
+  -- Enable or disable logging
+  logging = true,
+  -- Set the log level
+  log_level = vim.log.levels.WARN,
+  -- All formatter configurations are opt-in
+  filetype = {
+    -- Formatter configurations for filetype "lua" go here
+    -- and will be executed in order
+    javascript = {
+      require("formatter.filetypes.lua").prettier,
+    },
+    javascriptreact = {
+      require("formatter.filetypes.lua").prettier,
+    },
+    html = {
+      require("formatter.filetypes.lua").prettier,
+    },
+    typescript = {
+      require("formatter.filetypes.lua").prettier,
+    },
+    typescriptreact = {
+      require("formatter.filetypes.lua").prettier,
+    },
+
+    lua = {
+      -- "formatter.filetypes.lua" defines default configurations for the
+      -- "lua" filetype
+      require("formatter.filetypes.lua").stylua,
+
+      -- You can also define your own configuration
+      function()
+        -- Supports conditional formatting
+        if util.get_current_buffer_file_name() == "special.lua" then
+          return nil
+        end
+
+        -- Full specification of configurations is down below and in Vim help
+        -- files
+        return {
+          exe = "stylua",
+          args = {
+            "--search-parent-directories",
+            "--stdin-filepath",
+            util.escape_path(util.get_current_buffer_file_path()),
+            "--",
+            "-",
+          },
+          stdin = true,
+        }
+      end
+    },
+
+    -- Use the special "*" filetype for defining formatter configurations on
+    -- any filetype
+    ["*"] = {
+      -- "formatter.filetypes.any" defines default configurations for any
+      -- filetype
+      require("formatter.filetypes.any").remove_trailing_whitespace
+    }
+  }
+}
+-- Format on safe
+vim.cmd [[autocmd BufWritePre * lua vim.lsp.buf.format()]]
