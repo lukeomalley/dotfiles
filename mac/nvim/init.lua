@@ -23,6 +23,13 @@ require('packer').startup(function(use)
     },
   }
 
+  use {
+    "folke/trouble.nvim",
+    requires = {
+      "nvim-tree/nvim-web-devicons"
+    }
+  }
+
   use { -- Autocompletion
     'hrsh7th/nvim-cmp',
     requires = { 'hrsh7th/cmp-nvim-lsp', 'L3MON4D3/LuaSnip', 'saadparwaiz1/cmp_luasnip' },
@@ -507,72 +514,13 @@ cmp.setup {
   },
 }
 
--- formatter.nvim config
--- Utilities for creating configurations
-local util = require "formatter.util"
-
--- Provides the Format, FormatWrite, FormatLock, and FormatWriteLock commands
-require("formatter").setup {
-  -- Enable or disable logging
-  logging = true,
-  -- Set the log level
-  log_level = vim.log.levels.WARN,
-  -- All formatter configurations are opt-in
-  filetype = {
-    -- Formatter configurations for filetype "lua" go here
-    -- and will be executed in order
-    javascript = {
-      require("formatter.filetypes.lua").prettier,
-    },
-    javascriptreact = {
-      require("formatter.filetypes.lua").prettier,
-    },
-    html = {
-      require("formatter.filetypes.lua").prettier,
-    },
-    typescript = {
-      require("formatter.filetypes.lua").prettier,
-    },
-    typescriptreact = {
-      require("formatter.filetypes.lua").prettier,
-    },
-
-    lua = {
-      -- "formatter.filetypes.lua" defines default configurations for the
-      -- "lua" filetype
-      require("formatter.filetypes.lua").stylua,
-
-      -- You can also define your own configuration
-      function()
-        -- Supports conditional formatting
-        if util.get_current_buffer_file_name() == "special.lua" then
-          return nil
-        end
-
-        -- Full specification of configurations is down below and in Vim help
-        -- files
-        return {
-          exe = "stylua",
-          args = {
-            "--search-parent-directories",
-            "--stdin-filepath",
-            util.escape_path(util.get_current_buffer_file_path()),
-            "--",
-            "-",
-          },
-          stdin = true,
-        }
-      end
-    },
-
-    -- Use the special "*" filetype for defining formatter configurations on
-    -- any filetype
-    ["*"] = {
-      -- "formatter.filetypes.any" defines default configurations for any
-      -- filetype
-      require("formatter.filetypes.any").remove_trailing_whitespace
-    }
-  }
-}
 -- Format on safe
 vim.cmd [[autocmd BufWritePre * lua vim.lsp.buf.format()]]
+
+-- Trouble (error viewer) settings
+vim.keymap.set("n", "<leader>xx", function() require("trouble").toggle() end)
+vim.keymap.set("n", "<leader>xw", function() require("trouble").toggle("workspace_diagnostics") end)
+vim.keymap.set("n", "<leader>xd", function() require("trouble").toggle("document_diagnostics") end)
+vim.keymap.set("n", "<leader>xq", function() require("trouble").toggle("quickfix") end)
+vim.keymap.set("n", "<leader>xl", function() require("trouble").toggle("loclist") end)
+-- vim.keymap.set("n", "gR", function() require("trouble").toggle("lsp_references") end)
