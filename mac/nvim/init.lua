@@ -251,6 +251,11 @@ end
 require("nvim-tree").setup({
   sort_by = "case_sensitive",
   on_attach = nvim_tree_on_attach,
+  update_focused_file = {
+    enable = true,
+    update_root = true,
+    ignore_list = { "help" },
+  },
   view = {
     width = 30,
   },
