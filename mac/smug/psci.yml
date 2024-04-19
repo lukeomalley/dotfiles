@@ -36,4 +36,4 @@ windows:
     manual: false 
     layout: main-vertical
     commands:
-      - npm run stag
+      - VITE_NODE_URL="http://localhost:8081" npm run stag

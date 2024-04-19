@@ -97,9 +97,3 @@ eval "$(direnv hook zsh)"
 export PNPM_HOME="/Users/luke/.config/local/share/pnpm"
 export PATH="$PNPM_HOME:$PATH"
 
-# Pyenv
-alias brew='env PATH="${PATH//$(pyenv root)\/shims:/}" brew'
-export PYENV_ROOT="$HOME/.pyenv"
-[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init -)"
-
