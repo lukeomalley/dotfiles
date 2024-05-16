@@ -10,30 +10,17 @@ windows:
     commands:
       - notes
 
-  - name: node-vim
-    root:  psci-node # a relative path to root
+  - name: ranger
+    root:  /Users/luke/Desktop # a relative path to root
     manual: false # you can start this window only manually, using the -w arg
     layout: main-vertical
     commands:
-      - nvim .
+      - ranger
 
-  - name: node-server
-    root: psci-node
-    manual: false 
+  - name: chatbot-ui
+    root:  chatbot-ui # a relative path to root
+    manual: false # you can start this window only manually, using the -w arg
     layout: main-vertical
     commands:
-      - npm run dev
-
-  - name: vue-vim
-    root: psci-app
-    manual: false 
-    layout: main-vertical
-    commands:
-      - nvim .
-
-  - name: vue-server
-    root: psci-app
-    manual: false 
-    layout: main-vertical
-    commands:
-      - VITE_NODE_URL="http://localhost:8081" npm run stag
+      - fnm use && npm run dev
+      - code .

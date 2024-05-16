@@ -467,7 +467,7 @@ require('lspconfig').lua_ls.setup {
 require('lspconfig').emmet_ls.setup({
   -- on_attach = on_attach,
   capabilities = capabilities,
-  filetypes = { 'html', 'typescriptreact', 'javascriptreact', 'css', 'sass', 'scss', 'less' },
+  filetypes = { 'html', 'typescriptreact', 'javascriptreact', 'css', 'sass', 'scss', 'less', 'vue' },
   init_options = {
     html = {
       options = {
@@ -476,6 +476,21 @@ require('lspconfig').emmet_ls.setup({
       },
     },
   }
+})
+
+require('lspconfig').volar.setup({
+  -- on_attach = on_attach,
+  capabilities = capabilities,
+  filetypes = { 'vue' },
+  init_options = {}
+})
+
+
+require('lspconfig').tsserver.setup({
+  -- on_attach = on_attach,
+  capabilities = capabilities,
+  filetypes = { 'typescript', 'typescriptreact', 'vue', 'jsx', 'tsx' },
+  init_options = {}
 })
 
 -- nvim-cmp setup
