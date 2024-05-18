@@ -22,5 +22,5 @@ windows:
     manual: false # you can start this window only manually, using the -w arg
     layout: main-vertical
     commands:
-      - fnm use && npm run dev
       - code .
+      - fnm use && npm run dev
