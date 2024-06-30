@@ -97,3 +97,7 @@ eval "$(direnv hook zsh)"
 export PNPM_HOME="/Users/luke/.config/local/share/pnpm"
 export PATH="$PNPM_HOME:$PATH"
 
+export PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH"
+
+# Created by `pipx` on 2024-06-30 17:37:54
+export PATH="$PATH:/Users/luke/.local/bin"
