@@ -1,1 +1,1 @@
-# Unix Configurations
+# Mac Configuration Files
