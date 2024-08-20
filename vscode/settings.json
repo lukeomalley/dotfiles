@@ -1,0 +1,335 @@
+{
+  "workbench.tree.indent": 8,
+  "git.mergeEditor": false,
+  "workbench.startupEditor": "none",
+  "zenMode.fullScreen": false,
+  "workbench.editor.showTabs": "none",
+  "breadcrumbs.icons": false,
+  "breadcrumbs.filePath": "on",
+  "breadcrumbs.symbolPath": "off",
+  "workbench.colorCustomizations": {
+    "editor.background": "#0f1216",
+    "editorGutter.background": "#0f1216",
+    "welcomePage.background": "#0f1216",
+    "terminal.background": "#0f1216",
+    "breadcrumb.background": "#0f1216",
+    "panel.background": "#0f1216",
+    "statusBar.background": "#0f1216",
+    "titleBar.activeBackground": "#0f1216",
+    "titleBar.inactiveBackground": "#0f1216",
+    "editorWidget.background": "#0f1216",
+    "tab.activeBackground": "#0f1216",
+    "tab.inactiveBackground": "#0f1216",
+    "editorGroupHeader.tabsBackground": "#0f1216",
+    "editorHoverWidget.background": "#0f1216",
+    "editorGroupHeader.noTabsBackground": "#0f1216",
+    "sideBar.background": "#0f1216",
+    "editorLineNumber.foreground": "#808285",
+    "notifications.background": "#0f1216",
+    "notificationCenterHeader.background": "#0f1216",
+    "activityBar.background": "#0f1216",
+    "sideBar.border": "#333333",
+    "panel.border": "#333333"
+  },
+
+  // ==========================================================================
+  // Editor
+  // ==========================================================================
+  "window.commandCenter": false,
+  "editor.scrollbar.horizontal": "hidden",
+  "editor.scrollbar.vertical": "hidden",
+  "editor.cursorStyle": "line",
+  "editor.lineNumbers": "on",
+  "editor.insertSpaces": false,
+  "editor.wordSeparators": "/\\()\"':,.;<>~!@#$%^&*|+=[]{}`?-",
+  "editor.wordWrap": "off",
+  "editor.linkedEditing": false,
+  "editor.fontFamily": "'Inconsolata Nerd Font Mono', monospace",
+  "editor.fontSize": 12,
+  "editor.formatOnSave": true,
+  "editor.quickSuggestionsDelay": 0,
+  "editor.renderWhitespace": "none",
+  "editor.tabSize": 2,
+  "editor.minimap.enabled": false,
+  "editor.suggestSelection": "first",
+  "editor.quickSuggestions": {
+    "other": true,
+    "comments": false,
+    "strings": false
+  },
+  "telemetry.telemetryLevel": "off",
+  "editor.accessibilitySupport": "off",
+  "editor.inlineSuggest.enabled": true,
+  "window.titleBarStyle": "custom",
+  "terminal.integrated.fontSize": 14,
+  "terminal.integrated.defaultProfile.osx": "zsh",
+  "terminal.integrated.gpuAcceleration": "on",
+  "explorer.compactFolders": false,
+  "typescript.preferences.importModuleSpecifier": "shortest",
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "javascript.updateImportsOnFileMove.enabled": "always",
+
+  // ==========================================================================
+  // Prettier
+  // ==========================================================================
+  "prettier.singleQuote": true,
+  "prettier.disableLanguages": ["dockerfile"],
+  "prettier.printWidth": 110,
+  "emmet.includeLanguages": {
+    "javascript": "javascriptreact",
+    "erb": "html"
+  },
+  "[rust]": {
+    "editor.formatOnSave": true
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[svelte]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[scss]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[vue]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+
+  // ==========================================================================
+  // Vim
+  // ==========================================================================
+  "vim.easymotion": false,
+  "vim.camelCaseMotion.enable": true,
+  "vim.highlightedyank.enable": true,
+  "vim.smartRelativeLine": false,
+  "vim.scroll": 0,
+  "vim.sneak": true,
+  "vim.sneakUseIgnorecaseAndSmartcase": true,
+  "vim.ignorecase": true,
+  "vim.incsearch": true,
+  "vim.useSystemClipboard": true,
+  "vim.useCtrlKeys": true,
+  "vim.hlsearch": true,
+  "vim.leader": " ",
+  "vim.surround": true,
+  "editor.cursorSurroundingLines": 8, // vim scrolloff
+  "vim.insertModeKeyBindings": [
+    {
+      "before": ["j", "k"],
+      "after": ["<Esc>"]
+    }
+  ],
+  "vim.normalModeKeyBindings": [
+    {
+      "before": ["<leader>", "w"],
+      "after": [],
+      "commands": [
+        {
+          "command": "workbench.action.files.save",
+          "args": []
+        }
+      ]
+    },
+    {
+      "before": ["<leader>", "p"],
+      "after": [],
+      "commands": [
+        {
+          "command": "workbench.action.quickOpen",
+          "args": []
+        }
+      ]
+    },
+    {
+      "before": ["<leader>", "s", "f"],
+      "after": [],
+      "commands": [
+        {
+          "command": "workbench.action.quickOpen",
+          "args": []
+        }
+      ]
+    },
+    {
+      "before": ["<leader>", "s", "g"],
+      "after": [],
+      "commands": [{ "command": "workbench.action.quickTextSearch" }]
+    },
+    {
+      "before": ["<leader>", "q"],
+      "after": [],
+      "commands": [
+        {
+          "command": "workbench.action.closeActiveEditor",
+          "args": []
+        }
+      ]
+    },
+    {
+      "before": ["<leader>", "f", "f"],
+      "after": [],
+      "commands": [
+        {
+          "command": "workbench.action.findInFiles",
+          "args": []
+        }
+      ]
+    },
+    {
+      "before": ["<leader>", "b"],
+      "after": [],
+      "commands": [
+        {
+          "command": "workbench.action.showAllEditorsByMostRecentlyUsed",
+          "args": []
+        }
+      ]
+    },
+    {
+      "before": ["<leader>", "i"],
+      "after": ["y", "i", "\""]
+    },
+    {
+      "before": ["Y"],
+      "after": ["y", "$"]
+    },
+    {
+      "before": ["g", "R"],
+      "after": [],
+      "commands": [
+        {
+          "command": "editor.action.rename",
+          "args": []
+        }
+      ]
+    },
+    {
+      "before": ["g", "r"],
+      "after": [],
+      "commands": [
+        {
+          "command": "editor.action.goToReferences",
+          "args": []
+        }
+      ]
+    }
+  ],
+
+  "vim.visualModeKeyBindings": [
+    {
+      "before": ["K"],
+      "after": ["leader", "leader", "k"]
+    },
+    {
+      "before": ["J"],
+      "after": ["leader", "leader", "j"]
+    },
+    {
+      "before": ["<leader>", "p"],
+      "after": ["_dP"]
+    }
+  ],
+
+  // ==========================================================================
+  // Vim Easymotion
+  // ==========================================================================
+  "vim.easymotionMarkerBackgroundColor": "yellow",
+  "vim.easymotionKeys": "hklyuiopnm,qwertzxcvbasdgjf:",
+  "vim.easymotionMarkerForegroundColorOneChar": "black",
+  "vim.easymotionMarkerForegroundColorTwoCharFirst": "black",
+  "vim.easymotionMarkerForegroundColorTwoCharSecond": "black",
+
+  // ==========================================================================
+  // Rust
+  // ==========================================================================
+  "rust-analyzer.inlayHints.typeHints.enable": false,
+  "rust-analyzer.inlayHints.chainingHints.enable": false,
+  "rust-analyzer.inlayHints.closingBraceHints.enable": false,
+
+  // ==========================================================================
+  // C & C++
+  // ==========================================================================
+  "C_Cpp.default.cppStandard": "c++17",
+  "C_Cpp.default.cStandard": "c17",
+  "C_Cpp.clang_format_style": "Google",
+  "C_Cpp.clang_format_fallbackStyle": "LLVM",
+  "C_Cpp.codeAnalysis.updateDelay": 100,
+  "[cpp]": {
+    "editor.wordBasedSuggestions": "off",
+    "editor.suggest.insertMode": "replace",
+    "editor.semanticHighlighting.enabled": true
+  },
+
+  // ==========================================================================
+  // Tailwind CSS
+  // ==========================================================================
+  "tailwindCSS.codeActions": true,
+  "tailwindCSS.includeLanguages": {
+    "Svelte": "html",
+    "Vue": "html",
+    "Angular": "html",
+    "templ": "html"
+  },
+
+  // ==========================================================================
+  // Misc
+  // ==========================================================================
+  "git.autofetch": true,
+  "extensions.ignoreRecommendations": true,
+  "workbench.iconTheme": "vscode-icons",
+  "vsicons.dontShowNewVersionMessage": true,
+  "workbench.colorTheme": "Dark Rock",
+  "graphql-config.load.filePath": "apps/agileonboarding/src/generated/graphql.ts",
+  "workbench.activityBar.location": "hidden",
+  "python.analysis.extraPaths": ["/Users/luke/.vscode/extensions/continue.continue-0.6.8-darwin-arm64"],
+  "python.autoComplete.extraPaths": ["/Users/luke/.vscode/extensions/continue.continue-0.6.8-darwin-arm64"],
+  "shellformat.effectLanguages": [
+    "shellscript",
+    "dockerfile",
+    "dotenv",
+    "hosts",
+    "jvmoptions",
+    "ignore",
+    "gitignore",
+    "properties",
+    "spring-boot-properties",
+    "azcli",
+    "bats"
+  ],
+  "[shellscript]": {
+    "editor.defaultFormatter": "foxundermoon.shell-format"
+  },
+
+  "yaml.schemas": {
+    "https://raw.githubusercontent.com/knative/func/main/schema/func_yaml-schema.json": "func.yaml"
+  },
+
+  "shellformat.useEditorConfig": true,
+  "[gotmpl]": {},
+  "editor.inlineSuggest.suppressSuggestions": true,
+  "svelte.enable-ts-plugin": true,
+  "supermaven.enable": {
+    "*": true
+  }
+}
