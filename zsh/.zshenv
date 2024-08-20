@@ -24,23 +24,16 @@ export FZF_DEFAULT_COMMAND="rg --files --hidden --glob '!.git'"
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 
 # Git Config
-export GIT_CONFIG="~/.config/.gitconfig"
+export GIT_CONFIG="$HOME/.config/.gitconfig"
+
+# Kube Config
+export KUBECONFIG="$HOME/.config/.kube/config"
 
 # Go config
-# export GOPATH="$HOME/go"
-# export PATH="$PATH:$GOPATH/bin"
-# export GO111MODULE=on
+export GOPATH="$HOME/go"
+export PATH="$PATH:$GOPATH/bin"
+export GO111MODULE=on
 
 # Z config
 export _Z_DATA="$XDG_DATA_HOME/.z"
 
-# AWS CLI
-# export AWS_CONFIG_FILE="$XDG_CONFIG_HOME/aws/config"
-# export AWS_SHARED_CREDENTIALS_FILE="$XDG_CONFIG_HOME/aws/credentials"
-
-# Puppeteer/Chromium
-# export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-# export PUPPETEER_EXECUTABLE_PATH=$(which chromium)
-
-# Rust Config
-# . "$HOME/.cargo/env"
