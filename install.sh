@@ -22,6 +22,9 @@ ln -sf "$DOTFILES/zsh/external" "$XDG_CONFIG_HOME/zsh"
 mkdir -p "$XDG_DATA_HOME"
 cp -rf "$DOTFILES/fonts" "$XDG_DATA_HOME"
 
+# git config
+ln -sf "$DOTFILES/git/.gitconfig" "$HOME/.gitconfig"
+
 # Ranger
 mkdir -p "$XDG_CONFIG_HOME/ranger"
 ln -sf "$DOTFILES/ranger/rc.conf" "$XDG_CONFIG_HOME/ranger"
