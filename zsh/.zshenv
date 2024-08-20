@@ -23,6 +23,9 @@ export VISUAL="nvim"
 export FZF_DEFAULT_COMMAND="rg --files --hidden --glob '!.git'"
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 
+# Git Config
+export GIT_CONFIG="~/.config/.gitconfig"
+
 # Go config
 # export GOPATH="$HOME/go"
 # export PATH="$PATH:$GOPATH/bin"
