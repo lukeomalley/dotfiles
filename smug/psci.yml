@@ -20,10 +20,11 @@ windows:
   - name: chatbot-ui
     root:  chatbot-ui # a relative path to root
     manual: false # you can start this window only manually, using the -w arg
-    layout: main-vertical
+    layout: main-horizontal
     commands:
-      - code .
       - fnm use && npm run dev
+    panes:
+      - type: horizontal
 
   - name: k9s
     root:  chatbot-ui # a relative path to root
