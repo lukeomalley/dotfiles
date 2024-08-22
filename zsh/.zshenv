@@ -23,9 +23,6 @@ export VISUAL="nvim"
 export FZF_DEFAULT_COMMAND="rg --files --hidden --glob '!.git'"
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 
-# Git Config
-export GIT_CONFIG="$HOME/.config/.gitconfig"
-
 # Kube Config
 export KUBECONFIG="$HOME/.config/.kube/config"
 
