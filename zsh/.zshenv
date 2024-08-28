@@ -18,6 +18,7 @@ export DOTFILES="$HOME/dotfiles"
 
 # Editor export EDITOR="nvim"
 export VISUAL="nvim"
+export EDITOR="nvim"
 
 # Fzf config
 export FZF_DEFAULT_COMMAND="rg --files --hidden --glob '!.git'"
