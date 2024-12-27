@@ -40,3 +40,6 @@ ln -sf "$DOTFILES/tmux" "$XDG_CONFIG_HOME"
 # Smug - tmux session manager
 ln -sf "$DOTFILES/smug" "$XDG_CONFIG_HOME"
 
+# ghostty
+ln -sf "$DOTFILES/ghostty" "$XDG_CONFIG_HOME"
+
