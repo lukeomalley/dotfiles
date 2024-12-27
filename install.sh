@@ -43,3 +43,6 @@ ln -sf "$DOTFILES/smug" "$XDG_CONFIG_HOME"
 # ghostty
 ln -sf "$DOTFILES/ghostty" "$XDG_CONFIG_HOME"
 
+# k9s
+ln -sfn "$DOTFILES/k9s" "$XDG_CONFIG_HOME"
+
