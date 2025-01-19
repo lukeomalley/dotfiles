@@ -4,7 +4,7 @@ root: ~/code/psci
 
 windows:
   - name: notes
-    root:  psci-node # a relative path to root
+    root:  chatbot-ui # a relative path to root
     manual: false # you can start this window only manually, using the -w arg
     layout: main-vertical
     commands:
@@ -32,3 +32,17 @@ windows:
     layout: main-vertical
     commands:
       - k9s
+
+  - name: admin
+    root:  awardedai-gitops # a relative path to root
+    manual: false # you can start this window only manually, using the -w arg
+    layout: main-vertical
+    commands:
+      - nvim .
+
+  - name: admin
+    root:  awarded-ai-admin-dashboard # a relative path to root
+    manual: false # you can start this window only manually, using the -w arg
+    layout: main-vertical
+    commands:
+      - pnpm dev
