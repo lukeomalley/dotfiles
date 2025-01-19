@@ -33,12 +33,14 @@ windows:
     commands:
       - k9s
 
-  - name: admin
+  - name: sql
     root:  awardedai-gitops # a relative path to root
     manual: false # you can start this window only manually, using the -w arg
     layout: main-vertical
     commands:
       - nvim .
+    panes:
+      - type: horizontal
 
   - name: admin
     root:  awarded-ai-admin-dashboard # a relative path to root
