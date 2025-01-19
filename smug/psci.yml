@@ -5,21 +5,18 @@ root: ~/code/psci
 windows:
   - name: notes
     root:  chatbot-ui # a relative path to root
-    manual: false # you can start this window only manually, using the -w arg
     layout: main-vertical
     commands:
       - notes
 
   - name: ranger
     root:  /Users/luke/Desktop # a relative path to root
-    manual: false # you can start this window only manually, using the -w arg
     layout: main-vertical
     commands:
       - ranger
 
   - name: chatbot-ui
     root:  chatbot-ui # a relative path to root
-    manual: false # you can start this window only manually, using the -w arg
     layout: main-horizontal
     commands:
       - fnm use && npm run dev
@@ -28,23 +25,22 @@ windows:
 
   - name: k9s
     root:  chatbot-ui # a relative path to root
-    manual: false # you can start this window only manually, using the -w arg
     layout: main-vertical
     commands:
       - k9s
 
   - name: sql
-    root:  awardedai-gitops # a relative path to root
-    manual: false # you can start this window only manually, using the -w arg
-    layout: main-vertical
+    root: awardedai-gitops
+    layout: main-horizontal  # Changed from main-vertical to main-horizontal
     commands:
       - nvim .
     panes:
       - type: horizontal
+        commands:
+          - clear  # Added to ensure clean bottom pane
 
   - name: admin
     root:  awarded-ai-admin-dashboard # a relative path to root
-    manual: false # you can start this window only manually, using the -w arg
     layout: main-vertical
     commands:
       - pnpm dev
