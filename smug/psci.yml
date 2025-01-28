@@ -33,7 +33,7 @@ windows:
     root: awardedai-gitops
     layout: main-horizontal  # Changed from main-vertical to main-horizontal
     commands:
-      - nvim .
+      - nvim scripts/ops/playground.sql
     panes:
       - type: horizontal
         commands:

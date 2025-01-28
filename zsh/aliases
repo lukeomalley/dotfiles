@@ -21,7 +21,7 @@ for index ({1..9}) alias "$index"="cd +${index}"; unset index
 
 # Opening Programs
 alias n="nvim ."
-alias c="code ."
+alias c="cursor ."
 
 # Going Home
 alias h="cd ~"
