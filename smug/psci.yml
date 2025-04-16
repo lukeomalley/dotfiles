@@ -43,4 +43,4 @@ windows:
     root:  awarded-ai-admin-dashboard # a relative path to root
     layout: main-vertical
     commands:
-      - pnpm dev
+      - pnpm start:dev
