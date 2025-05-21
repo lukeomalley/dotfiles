@@ -1,9 +1,68 @@
-#! /bin/bash
+#!/bin/bash
 
-CURRENT=$(pwd)
-cd ~/notes
-git add .  
-git commit -m "syncing notes"
-git pull origin main
-git push origin main
-cd $CURRENT
+set -euo pipefail
+
+NOTES_DIR="${1:-$HOME/notes}"
+GIT_REMOTE="origin"
+GIT_BRANCH="main"
+CURRENT="$(pwd)"
+
+log_error() {
+  echo "$(date '+%Y-%m-%d %H:%M:%S %Z') [ERROR] $1" >&2
+}
+
+cleanup() {
+  if [ "$CURRENT" != "$(pwd)" ]; then
+    cd "$CURRENT" || echo "$(date '+%Y-%m-%d %H:%M:%S %Z') [WARNING] Failed to change back to original directory ($CURRENT). You are still in $(pwd)." >&2
+  fi
+}
+
+# Call the cleanup function on EXIT
+trap cleanup EXIT
+
+handle_error() {
+  log_error "$1"
+  exit 1
+}
+
+if ! command -v git &> /dev/null; then
+  handle_error "git command not found. Please install git."
+fi
+
+if [ ! -d "$NOTES_DIR" ]; then
+  handle_error "Notes directory '$NOTES_DIR' not found or is not a directory."
+fi
+
+cd "$NOTES_DIR" || handle_error "Could not change directory to $NOTES_DIR."
+
+if [ ! -d ".git" ]; then
+  handle_error "'$NOTES_DIR' is not a git repository."
+fi
+
+# Check if we actually have an update to commit
+status_output=$(git status --porcelain 2>/dev/null)
+if [ -z "$status_output" ]; then
+  echo "Working tree in $NOTES_DIR is clean, nothing to commit." # Kept this specific echo
+  exit 0
+fi
+
+git add . > /dev/null 2>&1 || handle_error "git add failed in $NOTES_DIR."
+
+commit_message="Automated sync: $(date '+%Y-%m-%d %H:%M:%S %Z')"
+git commit -m "$commit_message" >/dev/null || handle_error "git commit failed in $NOTES_DIR."
+
+pull_output=$(git pull "$GIT_REMOTE" "$GIT_BRANCH" 2>&1)
+if [ $? -ne 0 ]; then
+  handle_error "git pull from $GIT_REMOTE $GIT_BRANCH failed. Details: $pull_output"
+fi
+
+push_output=$(git push "$GIT_REMOTE" "$GIT_BRANCH" 2>&1)
+if [ $? -ne 0 ]; then
+  handle_error "git push to $GIT_REMOTE $GIT_BRANCH failed. Details: $push_output"
+fi
+
+# The trap will handle changing directory
+
+echo "Synced notes in $NOTES_DIR."
+
+exit 0
