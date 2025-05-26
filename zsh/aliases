@@ -14,6 +14,7 @@ alias gpush='git push origin $(git branch --show-current)'
 alias ll='ls -lah'
 alias ls='ls --color=auto'
 alias cl='clear'
+alias cat='bat'
 
 # Directories
 alias d='dirs -v'
