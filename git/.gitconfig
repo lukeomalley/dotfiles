@@ -17,7 +17,7 @@
 	autoSetupRemote = true
 	default = current
 	followTags = true
-	gpgSign = true
+	gpgSign = false
 
 [pull]
 	default = current
