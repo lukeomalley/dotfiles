@@ -25,6 +25,7 @@ cp -rf "$DOTFILES/fonts" "$XDG_DATA_HOME"
 # git config
 mkdir -p "$XDG_CONFIG_HOME/git"
 ln -sf "$DOTFILES/git/.gitconfig" "$XDG_CONFIG_HOME"
+ln -sf "$DOTFILES/git/.gitignore" "$XDG_CONFIG_HOME"
 
 # Ranger
 mkdir -p "$XDG_CONFIG_HOME/ranger"

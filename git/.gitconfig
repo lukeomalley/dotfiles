@@ -1,16 +1,42 @@
 # This is Git's per-user configuration file.
 [user]
-	name = Luke O'Malley
+	name = Luke OMalley
 	email = luke@lukeomalley.xyz
+	signingkey = DFA0451B7B713F49
+
 [core]
 	pager = "diff-so-fancy | less --tabs=4 -RFX"
+
 [color]
 	ui = true
+
+[commit]
+	gpgSign = true
+
+[push]
+	autoSetupRemote = true
+	default = current
+	followTags = true
+	gpgSign = true
+
+[pull]
+	default = current
+	rebase = true
+
+[blame]
+	coloring = highlightRecent
+	date = relative
+
+[log]
+	abbrevCommit = true  # short commits
+	graphColors = blue,yellow,cyan,magenta,green,red
+
 [color "diff-highlight"]
 	oldNormal = red bold
 	oldHighlight = red bold 52
 	newNormal = green bold
 	newHighlight = green bold 22
+
 [color "diff"]
 	meta = 11
 	frag = magenta bold
@@ -19,12 +45,16 @@
 	old = red bold
 	new = green bold
 	whitespace = red reverse
+
 [init]
 	defaultBranch = main
+
 [filter "lfs"]
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
 	required = true
+
 [rerere]
 	enabled = true
+
