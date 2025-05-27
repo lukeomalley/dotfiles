@@ -32,8 +32,7 @@ mkdir -p "$XDG_CONFIG_HOME/ranger"
 ln -sf "$DOTFILES/ranger/rc.conf" "$XDG_CONFIG_HOME/ranger"
 
 # gnupg
-mkdir -p "$XDG_CONFIG_HOME/gnupg"
-ln -sf "$DOTFILES/gnupg/gpg-agent.conf" "$XDG_CONFIG_HOME/gnupg"
+ln -sf "$DOTFILES/gnupg" "$XDG_CONFIG_HOME"
 
 # Binary/Scripts
 mkdir -p "$HOME/bin"

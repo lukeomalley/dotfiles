@@ -89,9 +89,6 @@ export HISTSIZE=50000
 export HISTFILESIZE=$HISTSIZE
 export SAVEHIST=$HISTSIZE
 
-# git
-export GPG_TTY=$(tty)
-
 # direnv
 export DIRENV_LOG_FORMAT=""
 eval "$(direnv hook zsh)"
@@ -110,6 +107,8 @@ export PYENV_ROOT="$HOME/.pyenv"
 [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
 
+# gnupg
+export GPG_TTY=$(tty)
 
 # Homebrew completions
 # https://docs.brew.sh/Shell-Completion
