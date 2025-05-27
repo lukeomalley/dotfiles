@@ -89,6 +89,9 @@ export HISTSIZE=50000
 export HISTFILESIZE=$HISTSIZE
 export SAVEHIST=$HISTSIZE
 
+# git
+export GPG_TTY=$(tty)
+
 # direnv
 export DIRENV_LOG_FORMAT=""
 eval "$(direnv hook zsh)"

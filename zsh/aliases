@@ -11,8 +11,10 @@ alias gpull='git pull origin $(git branch --show-current)'
 alias gpush='git push origin $(git branch --show-current)'
 
 # General
+alias ls='eza -l --git --icons --group-directories-first'
+alias lst='eza -l --git -T --icons --group-directories-first'
 alias ll='ls -lah'
-alias ls='ls --color=auto'
+#alias ls='ls --color=auto'
 alias cl='clear'
 alias cat='bat'
 

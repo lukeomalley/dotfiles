@@ -160,4 +160,4 @@ automatically-unhide-macos-hidden-apps = true
 [workspace-to-monitor-force-assignment]
     "term" = 'main'      # Terminal (Ghostty) on main monitor
     "code" = 'main'      # Code editors on main monitor  
-    "browser" = 'secondary' # Browsers on secondary monitor if available
+    "browser" = 'main' # Browsers on secondary monitor if available
