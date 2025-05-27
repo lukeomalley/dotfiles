@@ -31,6 +31,10 @@ ln -sf "$DOTFILES/git/.gitignore" "$XDG_CONFIG_HOME"
 mkdir -p "$XDG_CONFIG_HOME/ranger"
 ln -sf "$DOTFILES/ranger/rc.conf" "$XDG_CONFIG_HOME/ranger"
 
+# gnupg
+mkdir -p "$XDG_CONFIG_HOME/gnupg"
+ln -sf "$DOTFILES/gnupg/gpg-agent.conf" "$XDG_CONFIG_HOME/gnupg"
+
 # Binary/Scripts
 mkdir -p "$HOME/bin"
 ln -sf "$DOTFILES/bin/"* "$HOME/bin"
