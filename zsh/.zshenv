@@ -35,3 +35,4 @@ export GO111MODULE=on
 # Z config
 export _Z_DATA="$XDG_DATA_HOME/.z"
 
+. "$HOME/.cargo/env"
