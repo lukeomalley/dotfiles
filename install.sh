@@ -37,7 +37,8 @@ ln -sf "$DOTFILES/bin/"* "$HOME/bin"
 ln -sf "$DOTFILES/tmux" "$XDG_CONFIG_HOME"
 
 # Claude - claude code swe agent
-ln -sf "$DOTFILES/claude" "$XDG_CONFIG_HOME"
+mkdir -p "$HOME/.claude"
+ln -sf "$DOTFILES/claude/"* "$HOME/.claude"
 
 # Smug - tmux session manager
 ln -sf "$DOTFILES/smug" "$XDG_CONFIG_HOME"
