@@ -31,7 +31,7 @@ font-family = Inconsolata Nerd Font Mono
 macos-titlebar-style = hidden
 
 # Background transparency and blur
-background-opacity = 0.95
+background-opacity = 0.80
 background-blur = true
 
 window-padding-x = 8
