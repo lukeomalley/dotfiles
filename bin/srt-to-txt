@@ -1,0 +1,62 @@
+#!/bin/bash
+
+# Function to extract text from SRT file with better filtering
+extract_srt_text() {
+    local srt_file="$1"
+    
+    # Convert Windows line endings to Unix, then filter out unwanted lines
+    tr -d '\r' < "$srt_file" | \
+    awk '
+    # Skip lines that are just numbers (sequence numbers)
+    /^[0-9]+$/ { next }
+    
+    # Skip timestamp lines (format: HH:MM:SS,mmm --> HH:MM:SS,mmm)
+    /^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{3} --> [0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{3}$/ { next }
+    
+    # Skip empty lines
+    /^$/ { next }
+    
+    # Process remaining lines (actual subtitle text)
+    {
+        # Remove HTML tags
+        gsub(/<[^>]*>/, "")
+        
+        # Remove any remaining carriage returns
+        gsub(/\r/, "")
+        
+        # Print non-empty lines
+        if (length($0) > 0) {
+            print $0
+        }
+    }
+    '
+}
+
+# Main script
+main() {
+    local output_file="${1:-combined_subtitles.txt}"
+    local search_dir="${2:-.}"
+    
+    > "$output_file"
+    
+    echo "Searching for SRT files in: $search_dir"
+    echo "Output file: $output_file"
+    echo "Processing..."
+    
+    find "$search_dir" -type f -name "*.srt" -print0 | while IFS= read -r -d '' srt_file; do
+        echo "Processing: $srt_file"
+        
+        # Add filename as header
+        echo "=== $(basename "$srt_file") ===" >> "$output_file"
+        
+        # Extract text and append to output file
+        extract_srt_text "$srt_file" >> "$output_file"
+        
+        # Add newline separator between files
+        echo "" >> "$output_file"
+    done
+    
+    echo "Done! All subtitle text has been saved to: $output_file"
+}
+
+main "$@"
