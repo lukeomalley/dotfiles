@@ -10,6 +10,6 @@
       "environment": {
         "DEFAULT_MINIMUM_TOKENS": "10000"
       }
-    },
+    }
   }
 }
