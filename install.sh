@@ -46,6 +46,9 @@ ln -sf "$DOTFILES/smug" "$XDG_CONFIG_HOME"
 # ghostty
 ln -sf "$DOTFILES/ghostty" "$XDG_CONFIG_HOME"
 
+# opencode
+ln -sf "$DOTFILES/opencode" "$XDG_CONFIG_HOME"
+
 # aerospace
 ln -sf "$DOTFILES/aerospace" "$XDG_CONFIG_HOME"
 
