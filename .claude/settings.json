@@ -1,0 +1,9 @@
+{
+  "env": {},
+  "permissions": {
+    "allow": ["Bash(npm run lint)", "Bash(npm run test:*)", "Read(~/.zshrc)"]
+  },
+  "feedbackSurveyState": {
+    "lastShownTime": 1753928186805
+  }
+}

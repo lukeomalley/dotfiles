@@ -1,0 +1,271 @@
+#!/bin/bash
+
+# sdocs - Sync Documents with rclone bisync
+# Production-grade script for managing two-way sync between local directories and Backblaze B2
+# 
+# Author: Generated for Luke's dotfiles
+# Usage: sdocs [command] [options]
+
+set -euo pipefail  # Exit on error, undefined vars, pipe failures
+
+# Configuration
+readonly REMOTE_NAME="b2"
+readonly BASE_REMOTE_PATH="Documents"
+readonly SCRIPT_NAME="$(basename "$0")"
+
+# Directories to sync - Edit this array to add/remove directories
+readonly SYNC_DIRS=(
+    "$HOME/Documents/important-project"
+    "$HOME/Documents/personal-files"
+    "$HOME/Documents/work-stuff"
+    # Add new directories here
+)
+
+# Colors for output
+readonly RED='\033[0;31m'
+readonly GREEN='\033[0;32m'
+readonly YELLOW='\033[1;33m'
+readonly BLUE='\033[0;34m'
+readonly NC='\033[0m' # No Color
+
+# Logging functions
+log_info() {
+    echo -e "${BLUE}[INFO]${NC} $1"
+}
+
+log_success() {
+    echo -e "${GREEN}[SUCCESS]${NC} $1"
+}
+
+log_warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1"
+}
+
+log_error() {
+    echo -e "${RED}[ERROR]${NC} $1" >&2
+}
+
+# Check if rclone is installed and configured
+check_prerequisites() {
+    if ! command -v rclone >/dev/null 2>&1; then
+        log_error "rclone is not installed or not in PATH"
+        exit 1
+    fi
+
+    if ! rclone listremotes | grep -q "^${REMOTE_NAME}:$"; then
+        log_error "Remote '${REMOTE_NAME}' is not configured in rclone"
+        log_info "Run 'rclone config' to set up your Backblaze B2 remote"
+        exit 1
+    fi
+}
+
+# Validate that a directory exists
+validate_directory() {
+    local dir="$1"
+    if [[ ! -d "$dir" ]]; then
+        log_error "Directory does not exist: $dir"
+        return 1
+    fi
+    return 0
+}
+
+# Get the remote path for a local directory
+get_remote_path() {
+    local local_dir="$1"
+    local basename
+    basename="$(basename "$local_dir")"
+    echo "${REMOTE_NAME}:${BASE_REMOTE_PATH}/${basename}"
+}
+
+# Sync all configured directories
+sync_all() {
+    log_info "Starting sync for all configured directories..."
+    
+    local failed_syncs=0
+    local successful_syncs=0
+    
+    for local_dir in "${SYNC_DIRS[@]}"; do
+        if ! validate_directory "$local_dir"; then
+            log_warning "Skipping $local_dir (directory not found)"
+            ((failed_syncs++))
+            continue
+        fi
+        
+        local remote_path
+        remote_path="$(get_remote_path "$local_dir")"
+        
+        log_info "Syncing: $local_dir ↔ $remote_path"
+        
+        if rclone bisync "$local_dir" "$remote_path" -v; then
+            log_success "Successfully synced: $(basename "$local_dir")"
+            ((successful_syncs++))
+        else
+            log_error "Failed to sync: $local_dir"
+            ((failed_syncs++))
+        fi
+        
+        echo # Empty line for readability
+    done
+    
+    # Summary
+    log_info "Sync completed: $successful_syncs successful, $failed_syncs failed"
+    
+    if [[ $failed_syncs -gt 0 ]]; then
+        exit 1
+    fi
+}
+
+# Perform initial resync for a directory (required for new directories)
+resync_directory() {
+    local target_dir="$1"
+    
+    if [[ -z "$target_dir" ]]; then
+        log_error "Please specify a directory to resync"
+        show_usage
+        exit 1
+    fi
+    
+    # Expand tilde and resolve path
+    target_dir="$(eval echo "$target_dir")"
+    
+    if ! validate_directory "$target_dir"; then
+        exit 1
+    fi
+    
+    local remote_path
+    remote_path="$(get_remote_path "$target_dir")"
+    
+    log_info "Performing initial resync for: $target_dir"
+    log_info "Remote path: $remote_path"
+    log_warning "This will make the remote match the local directory exactly"
+    
+    read -p "Continue? (y/N): " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        log_info "Resync cancelled"
+        exit 0
+    fi
+    
+    if rclone bisync "$target_dir" "$remote_path" --resync -v; then
+        log_success "Resync completed successfully"
+        log_info "You can now add this directory to the SYNC_DIRS array in the script"
+    else
+        log_error "Resync failed"
+        exit 1
+    fi
+}
+
+# List all configured directories
+list_directories() {
+    log_info "Configured sync directories:"
+    echo
+    
+    local i=1
+    for dir in "${SYNC_DIRS[@]}"; do
+        local status="✓"
+        local color="$GREEN"
+        
+        if [[ ! -d "$dir" ]]; then
+            status="✗"
+            color="$RED"
+        fi
+        
+        printf "%s%2d. %s %s%s\n" "$color" "$i" "$status" "$dir" "$NC"
+        ((i++))
+    done
+    echo
+    
+    log_info "Total: ${#SYNC_DIRS[@]} directories configured"
+}
+
+# Show detailed help
+show_help() {
+    cat << EOF
+${BLUE}$SCRIPT_NAME${NC} - Sync Documents with rclone bisync
+
+${YELLOW}DESCRIPTION${NC}
+    A production-grade script for managing two-way sync between local directories
+    and Backblaze B2 using rclone bisync. Handles multiple directories with 
+    error checking and logging.
+
+${YELLOW}USAGE${NC}
+    $SCRIPT_NAME [COMMAND] [OPTIONS]
+
+${YELLOW}COMMANDS${NC}
+    sync, (no args)    Sync all configured directories (default action)
+    resync <dir>       Perform initial resync for a directory
+    list              List all configured directories and their status
+    help              Show this help message
+
+${YELLOW}EXAMPLES${NC}
+    $SCRIPT_NAME                           # Sync all directories
+    $SCRIPT_NAME sync                      # Same as above
+    $SCRIPT_NAME list                      # Show configured directories
+    $SCRIPT_NAME resync ~/Documents/new    # Initial sync for new directory
+    $SCRIPT_NAME help                      # Show this help
+
+${YELLOW}ADDING NEW DIRECTORIES${NC}
+    To add a new directory for sync:
+    
+    1. First, perform an initial resync:
+       $SCRIPT_NAME resync ~/Documents/new-project
+       
+    2. Edit this script and add the directory to the SYNC_DIRS array:
+       nano ${BASH_SOURCE[0]}
+       
+    3. Add your directory to the array:
+       readonly SYNC_DIRS=(
+           "\$HOME/Documents/existing-dir"
+           "\$HOME/Documents/new-project"    # <-- Add this line
+       )
+       
+    4. Save and run: $SCRIPT_NAME sync
+
+${YELLOW}CONFIGURATION${NC}
+    Remote: $REMOTE_NAME
+    Base Path: $BASE_REMOTE_PATH
+    Script Location: ${BASH_SOURCE[0]}
+
+${YELLOW}PREREQUISITES${NC}
+    - rclone must be installed and configured
+    - Backblaze B2 remote must be set up as '$REMOTE_NAME'
+    - Initial bisync --resync must be run for each directory
+
+EOF
+}
+
+# Show basic usage
+show_usage() {
+    echo "Usage: $SCRIPT_NAME [sync|resync <dir>|list|help]"
+    echo "Run '$SCRIPT_NAME help' for detailed information"
+}
+
+# Main function
+main() {
+    # Check prerequisites before doing anything
+    check_prerequisites
+    
+    # Parse command line arguments
+    case "${1:-sync}" in
+        sync|"")
+            sync_all
+            ;;
+        resync)
+            resync_directory "${2:-}"
+            ;;
+        list|ls)
+            list_directories
+            ;;
+        help|--help|-h)
+            show_help
+            ;;
+        *)
+            log_error "Unknown command: $1"
+            show_usage
+            exit 1
+            ;;
+    esac
+}
+
+# Run main function with all arguments
+main "$@"

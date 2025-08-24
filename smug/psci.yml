@@ -19,7 +19,7 @@ windows:
     root:  chatbot-ui # a relative path to root
     layout: main-horizontal
     commands:
-      - fnm use && npm run dev
+      - fnm use
     panes:
       - type: horizontal
 
@@ -29,18 +29,3 @@ windows:
     commands:
       - k9s
 
-  - name: sql
-    root: awardedai-gitops
-    layout: main-horizontal  # Changed from main-vertical to main-horizontal
-    commands:
-      - nvim scripts/ops/playground.sql
-    panes:
-      - type: horizontal
-        commands:
-          - clear  # Added to ensure clean bottom pane
-
-  - name: admin
-    root:  awarded-ai-admin-dashboard # a relative path to root
-    layout: main-vertical
-    commands:
-      - pnpm start:dev

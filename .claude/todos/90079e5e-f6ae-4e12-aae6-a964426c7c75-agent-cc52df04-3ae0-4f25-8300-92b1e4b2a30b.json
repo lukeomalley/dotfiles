@@ -1,0 +1,42 @@
+[
+  {
+    "content": "Analyze AI Review screen PDF export button and functionality",
+    "status": "completed",
+    "id": "analyze_ai_review_screen"
+  },
+  {
+    "content": "Analyze History Panel export dropdown functionality",
+    "status": "completed",
+    "id": "analyze_history_panel"
+  },
+  {
+    "content": "Examine PDF export API route and implementation",
+    "status": "completed",
+    "id": "analyze_export_api"
+  },
+  {
+    "content": "Check shared services PDF generation functionality",
+    "status": "completed",
+    "id": "analyze_shared_services"
+  },
+  {
+    "content": "Identify all UI locations where PDF export is available",
+    "status": "completed",
+    "id": "identify_export_locations"
+  },
+  {
+    "content": "Analyze error handling and potential failure points",
+    "status": "completed",
+    "id": "analyze_error_handling"
+  },
+  {
+    "content": "Research PDF generation libraries and dependencies (Puppeteer, TipTap)",
+    "status": "completed",
+    "id": "research_dependencies"
+  },
+  {
+    "content": "Create comprehensive codebase analysis report with findings",
+    "status": "in_progress",
+    "id": "create_comprehensive_report"
+  }
+]

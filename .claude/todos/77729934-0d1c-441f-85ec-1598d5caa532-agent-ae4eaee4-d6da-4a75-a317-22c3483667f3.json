@@ -1,0 +1,32 @@
+[
+  {
+    "content": "Modify FilesTableDialog to implement local selection state without triggering immediate attachment",
+    "status": "completed",
+    "id": "1"
+  },
+  {
+    "content": "Add isConfirming state to FilesTableDialog for confirmation loading only",
+    "status": "completed",
+    "id": "2"
+  },
+  {
+    "content": "Update FilesTable to support deferred selection mode and remove loading states during file selection",
+    "status": "completed",
+    "id": "3"
+  },
+  {
+    "content": "Implement confirmation handler that performs actual API calls when Confirm Selection is clicked",
+    "status": "completed",
+    "id": "4"
+  },
+  {
+    "content": "Ensure modal close behavior discards local selection without triggering attachment",
+    "status": "completed",
+    "id": "5"
+  },
+  {
+    "content": "Test bulk actions work properly within modal without triggering confirmation loading",
+    "status": "completed",
+    "id": "6"
+  }
+]

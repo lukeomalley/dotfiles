@@ -35,4 +35,6 @@ export GO111MODULE=on
 # Z config
 export _Z_DATA="$XDG_DATA_HOME/.z"
 
-. "$HOME/.cargo/env"
+# vckpg
+export VCPKG_ROOT=/Users/luke/code/vcpkg
+export PATH=$VCPKG_ROOT:$PATH

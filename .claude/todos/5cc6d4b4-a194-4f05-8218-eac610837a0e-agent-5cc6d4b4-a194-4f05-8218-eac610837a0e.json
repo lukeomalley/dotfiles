@@ -1,0 +1,22 @@
+[
+  {
+    "content": "Research Firecrawl V2 migration requirements from provided documentation",
+    "status": "completed",
+    "id": "1"
+  },
+  {
+    "content": "Analyze current web scraper implementation in the codebase",
+    "status": "completed",
+    "id": "2"
+  },
+  {
+    "content": "Draft comprehensive Jira ticket description with all required sections",
+    "status": "completed",
+    "id": "3"
+  },
+  {
+    "content": "Update existing DEV-5907 ticket with detailed description",
+    "status": "completed",
+    "id": "4"
+  }
+]

@@ -31,27 +31,14 @@ ln -sf "$DOTFILES/ranger/rc.conf" "$XDG_CONFIG_HOME/ranger"
 
 # Binary/Scripts
 mkdir -p "$HOME/bin"
+
+
 ln -sf "$DOTFILES/bin/"* "$HOME/bin"
-
-# tmux - tmux session manager
 ln -sf "$DOTFILES/tmux" "$XDG_CONFIG_HOME"
-
-# Claude - claude code swe agent
-mkdir -p "$HOME/.claude"
-ln -sf "$DOTFILES/claude/"* "$HOME/.claude"
-
-# Smug - tmux session manager
+ln -sf "$DOTFILES/.claude" "$HOME"
 ln -sf "$DOTFILES/smug" "$XDG_CONFIG_HOME"
-
-# ghostty
 ln -sf "$DOTFILES/ghostty" "$XDG_CONFIG_HOME"
-
-# opencode
 ln -sf "$DOTFILES/opencode" "$XDG_CONFIG_HOME"
-
-# aerospace
 ln -sf "$DOTFILES/aerospace" "$XDG_CONFIG_HOME"
-
-# k9s
 ln -sfn "$DOTFILES/k9s" "$XDG_CONFIG_HOME"
 

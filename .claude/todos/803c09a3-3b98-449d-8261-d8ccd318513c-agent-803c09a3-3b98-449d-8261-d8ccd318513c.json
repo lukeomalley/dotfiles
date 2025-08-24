@@ -1,0 +1,17 @@
+[
+  {
+    "content": "Explore chat screen components and structure",
+    "status": "in_progress",
+    "id": "1"
+  },
+  {
+    "content": "Identify how icons are currently implemented",
+    "status": "pending",
+    "id": "2"
+  },
+  {
+    "content": "Add the new icon to the chat screen",
+    "status": "pending",
+    "id": "3"
+  }
+]

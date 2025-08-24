@@ -1,0 +1,10 @@
+{"type":"summary","summary":"DataHub File Deletion Bug: Fixing Index Mismatch","leafUuid":"13ec3256-3129-4c48-9f2c-8e966cce4461"}
+{"type":"summary","summary":"DataHub File Deletion Bug Fix Implementation Plan","leafUuid":"e9435853-3f64-4a3e-ab20-dffe7748ac8b"}
+{"type":"summary","summary":"File Deletion Race Condition: Synchronization Solution","leafUuid":"ecedf921-541e-470c-901b-23e013a80e1b"}
+{"type":"summary","summary":"File Deletion Safety: Validation and Selection Fixes","leafUuid":"261863d5-a4dc-41ef-967d-195588db8e09"}
+{"type":"summary","summary":"Git Setup for DEV-5560 Feature Branch","leafUuid":"ec3e4b2e-52ca-42c1-92a7-bf992b71737e"}
+{"type":"summary","summary":"File Deletion Bug Fix: Multi-Layer Validation Approach","leafUuid":"db45bf66-e79b-47ce-8658-a60810c0235e"}
+{"type":"summary","summary":"DEV-5560: File Deletion Bug Fix Quality Review","leafUuid":"553a51df-21a9-4d80-ba8d-d76222ea4b52"}
+{"type":"summary","summary":"DEV-5560: File Deletion Bug Fix Implementation","leafUuid":"89124246-c107-4adf-9120-8f1a0ce27ed8"}
+{"type":"summary","summary":"Fix File Deletion Bug in DataHub Management","leafUuid":"7f5b9511-18a7-43ae-97b0-7f662bfc8f5a"}
+{"type":"summary","summary":"File Deletion Bug Fix in DataHub File Management","leafUuid":"ee04d572-2132-4295-813c-90f1a376ae5d"}

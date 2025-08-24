@@ -2,7 +2,6 @@
   "$schema": "https://opencode.ai/config.json",
   "theme": "system",
   "model": "anthropic/claude-sonnet-4-20250514",
-  "autoshare": false,
   "mcp": {
     "context7": {
       "type": "local",
@@ -10,6 +9,39 @@
       "environment": {
         "DEFAULT_MINIMUM_TOKENS": "10000"
       }
+    },
+    "atlassian": {
+      "type": "remote",
+      "url": "http://localhost:9000/sse"
+    }
+  },
+  "agent": {
+    "create-jira-issue": {
+      "description": "Creates detailed, actionable Jira tickets with proper formatting and comprehensive requirements analysis",
+    },
+    "work-jira-ticket": {
+      "description": "Complete end-to-end Jira ticket workflow from analysis to pull request creation using specialized subagents",
+    },
+    "jira-analyst": {
+      "description": "Analyzes Jira tickets to understand requirements and generate descriptive change titles",
+    },
+    "codebase-analyst": {
+      "description": "Analyzes the codebase to find relevant files and creates implementation plans for Jira tickets",
+    },
+    "developer": {
+      "description": "Core development specialist for implementing features and code changes based on requirements",
+    },
+    "qa-engineer": {
+      "description": "Quality assurance specialist for running tests, linting, and type checking",
+    },
+    "git-manager": {
+      "description": "Handles all git repository operations including branch creation, syncing, and checkout",
+    },
+    "code-reviewer": {
+      "description": "Expert code review specialist for presenting changes and gathering user approval",
+    },
+    "pr-creator": {
+      "description": "Creates professional pull requests with proper commit messages and descriptions",
     }
   }
 }

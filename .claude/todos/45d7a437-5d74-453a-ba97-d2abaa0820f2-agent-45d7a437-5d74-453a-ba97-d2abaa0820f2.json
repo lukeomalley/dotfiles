@@ -1,0 +1,42 @@
+[
+  {
+    "content": "Gather initial information (branch name, base branch, ticket number)",
+    "status": "completed",
+    "id": "1"
+  },
+  {
+    "content": "Delegate to jira-analyst for ticket analysis",
+    "status": "completed",
+    "id": "2"
+  },
+  {
+    "content": "Delegate to codebase-analyst for implementation planning",
+    "status": "in_progress",
+    "id": "3"
+  },
+  {
+    "content": "Delegate to git-manager for environment setup",
+    "status": "pending",
+    "id": "4"
+  },
+  {
+    "content": "Delegate to developer for implementation",
+    "status": "pending",
+    "id": "5"
+  },
+  {
+    "content": "Delegate to qa-engineer for quality assurance",
+    "status": "pending",
+    "id": "6"
+  },
+  {
+    "content": "Delegate to code-reviewer for user approval",
+    "status": "pending",
+    "id": "7"
+  },
+  {
+    "content": "Delegate to pr-creator for commit and PR creation",
+    "status": "pending",
+    "id": "8"
+  }
+]

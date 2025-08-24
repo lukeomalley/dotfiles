@@ -1,0 +1,52 @@
+[
+  {
+    "content": "Gather branch name from user",
+    "status": "completed",
+    "id": "1"
+  },
+  {
+    "content": "Gather base branch from user",
+    "status": "completed",
+    "id": "2"
+  },
+  {
+    "content": "Gather ticket/issue number from user",
+    "status": "completed",
+    "id": "3"
+  },
+  {
+    "content": "Delegate to codebase-analyst for discovery and planning",
+    "status": "in_progress",
+    "id": "4"
+  },
+  {
+    "content": "Delegate to jira-analyst for task analysis",
+    "status": "pending",
+    "id": "5"
+  },
+  {
+    "content": "Delegate to git-manager for environment setup",
+    "status": "pending",
+    "id": "6"
+  },
+  {
+    "content": "Delegate to developer for implementation",
+    "status": "pending",
+    "id": "7"
+  },
+  {
+    "content": "Delegate to qa-engineer for quality checks",
+    "status": "pending",
+    "id": "8"
+  },
+  {
+    "content": "Delegate to code-reviewer for user approval",
+    "status": "pending",
+    "id": "9"
+  },
+  {
+    "content": "Delegate to pr-creator for commit and PR creation",
+    "status": "pending",
+    "id": "10"
+  }
+]

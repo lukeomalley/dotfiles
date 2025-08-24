@@ -1,0 +1,52 @@
+[
+  {
+    "content": "Gather branch name from user",
+    "status": "completed",
+    "id": "1"
+  },
+  {
+    "content": "Get base branch information",
+    "status": "completed",
+    "id": "2"
+  },
+  {
+    "content": "Obtain ticket/issue number",
+    "status": "completed",
+    "id": "3"
+  },
+  {
+    "content": "Analyze Jira ticket with jira-analyst",
+    "status": "completed",
+    "id": "4"
+  },
+  {
+    "content": "Create implementation plan with codebase-analyst",
+    "status": "in_progress",
+    "id": "5"
+  },
+  {
+    "content": "Set up git environment with git-manager",
+    "status": "pending",
+    "id": "6"
+  },
+  {
+    "content": "Implement code changes with developer",
+    "status": "pending",
+    "id": "7"
+  },
+  {
+    "content": "Run quality checks with qa-engineer",
+    "status": "pending",
+    "id": "8"
+  },
+  {
+    "content": "Get user approval with code-reviewer",
+    "status": "pending",
+    "id": "9"
+  },
+  {
+    "content": "Create commit and PR with pr-creator",
+    "status": "pending",
+    "id": "10"
+  }
+]

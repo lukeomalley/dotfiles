@@ -1,0 +1,27 @@
+[
+  {
+    "content": "Add File Selection Validation in Delete Dialog - validate selected files exist before deletion, add detailed logging, show user exactly which files will be deleted",
+    "status": "completed",
+    "id": "1"
+  },
+  {
+    "content": "Enhance API Route Validation - add detailed logging of file paths being processed, add validation that file paths match expected user ownership",
+    "status": "completed",
+    "id": "2"
+  },
+  {
+    "content": "Fix Row Selection State Management - add selection validation before opening delete dialog, clear stale selections when data refreshes",
+    "status": "completed",
+    "id": "3"
+  },
+  {
+    "content": "Add Pre-Delete Confirmation Details - show actual file names/paths that will be deleted, add file count validation",
+    "status": "completed",
+    "id": "4"
+  },
+  {
+    "content": "Add Selection Consistency Checks in DataGrid - add validation that selected items exist in current data, clear invalid selections automatically",
+    "status": "completed",
+    "id": "5"
+  }
+]

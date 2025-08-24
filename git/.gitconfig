@@ -2,7 +2,7 @@
 [user]
 	name = Luke OMalley
 	email = luke@lukeomalley.xyz
-	signingKey = /Users/luke/.ssh/id_ed25519.pub
+	signingkey = /Users/luke/.ssh/id_ed25519
 
 
 [gpg]
@@ -76,3 +76,5 @@
 [diff-so-fancy]
     markEmptyLines = false
 
+[gpg "ssh"]
+	allowedSignersFile = /Users/luke/.ssh/allowed_signers
