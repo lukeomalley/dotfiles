@@ -13,7 +13,7 @@ alias gpush='git push'
 # General
 alias ls='eza -al --git --icons --group-directories-first'
 alias lst='eza -al --git -T --icons --group-directories-first'
-alias ll='ls -lah'
+alias ll='eza -lah'
 alias cl='clear'
 alias cat='bat'
 
