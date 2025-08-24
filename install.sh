@@ -31,14 +31,20 @@ ln -sf "$DOTFILES/ranger/rc.conf" "$XDG_CONFIG_HOME/ranger"
 
 # Binary/Scripts
 mkdir -p "$HOME/bin"
-
-
 ln -sf "$DOTFILES/bin/"* "$HOME/bin"
-ln -sf "$DOTFILES/tmux" "$XDG_CONFIG_HOME"
-ln -sf "$DOTFILES/.claude" "$HOME"
-ln -sf "$DOTFILES/smug" "$XDG_CONFIG_HOME"
-ln -sf "$DOTFILES/ghostty" "$XDG_CONFIG_HOME"
-ln -sf "$DOTFILES/opencode" "$XDG_CONFIG_HOME"
-ln -sf "$DOTFILES/aerospace" "$XDG_CONFIG_HOME"
-ln -sfn "$DOTFILES/k9s" "$XDG_CONFIG_HOME"
 
+ln -sf "$DOTFILES/tmux" "$XDG_CONFIG_HOME"
+
+ln -sf "$DOTFILES/.claude" "$HOME"
+
+ln -sf "$DOTFILES/rclone" "$XDG_CONFIG_HOME"
+
+ln -sf "$DOTFILES/smug" "$XDG_CONFIG_HOME"
+
+ln -sf "$DOTFILES/ghostty" "$XDG_CONFIG_HOME"
+
+ln -sf "$DOTFILES/opencode" "$XDG_CONFIG_HOME"
+
+ln -sf "$DOTFILES/aerospace" "$XDG_CONFIG_HOME"
+
+ln -sfn "$DOTFILES/k9s" "$XDG_CONFIG_HOME"

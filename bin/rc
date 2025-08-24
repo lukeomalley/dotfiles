@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# Single API call to get everything from RCLONE_B2_ENCRYPTION_KEYS
+ITEM_JSON=$(op item get "RCLONE_B2_ENCRYPTION_KEYS" --format json)
+
+# Extract all values using jq and set environment variables
+export RCLONE_B2_ACCOUNT=$(echo "$ITEM_JSON" | jq -r '.fields[] | select(.label=="personal_b2_key_id") | .value')
+export RCLONE_B2_KEY=$(echo "$ITEM_JSON" | jq -r '.fields[] | select(.label=="personal_b2_key") | .value')
+export RCLONE_CONFIG_B2_PASSWORD=$(echo "$ITEM_JSON" | jq -r '.fields[] | select(.label=="password_encrypted") | .value')
+export RCLONE_CONFIG_B2_PASSWORD2=$(echo "$ITEM_JSON" | jq -r '.fields[] | select(.label=="password2_encrypted") | .value')
+
+# Execute rclone with all arguments
+exec rclone "$@"

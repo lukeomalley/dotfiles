@@ -65,7 +65,7 @@ automatically-unhide-macos-hidden-apps = true
     cmd-backtick = 'workspace term'  # Terminal workspace
     cmd-1 = 'workspace code'         # Code editor workspace
     cmd-2 = 'workspace browser'      # Browser workspace
-    cmd-3 = 'workspace draw'
+    cmd-3 = 'workspace docs'
     cmd-4 = 'workspace chat'
     cmd-5 = 'workspace music'
     cmd-6 = 'workspace 7'
@@ -74,16 +74,16 @@ automatically-unhide-macos-hidden-apps = true
     cmd-9 = 'workspace 0'
     
     # Move windows to workspaces (option+shift+number)
-    alt-shift-backtick = 'move-node-to-workspace term'
-    alt-shift-1 = 'move-node-to-workspace code'
-    alt-shift-2 = 'move-node-to-workspace browser'
-    alt-shift-3 = 'move-node-to-workspace draw'
-    alt-shift-4 = 'move-node-to-workspace chat'
-    alt-shift-5 = 'move-node-to-workspace music'
-    alt-shift-6 = 'move-node-to-workspace 7'
-    alt-shift-7 = 'move-node-to-workspace 8'
-    alt-shift-8 = 'move-node-to-workspace 9'
-    alt-shift-9 = 'move-node-to-workspace 0'
+    alt-shift-backtick = 'move-node-to-workspace term --focus-follows-window'
+    alt-shift-1 = 'move-node-to-workspace code --focus-follows-window'
+    alt-shift-2 = 'move-node-to-workspace browser --focus-follows-window'
+    alt-shift-3 = 'move-node-to-workspace docs --focus-follows-window'
+    alt-shift-4 = 'move-node-to-workspace chat --focus-follows-window'
+    alt-shift-5 = 'move-node-to-workspace music --focus-follows-window'
+    alt-shift-6 = 'move-node-to-workspace 7 --focus-follows-window'
+    alt-shift-7 = 'move-node-to-workspace 8 --focus-follows-window'
+    alt-shift-8 = 'move-node-to-workspace 9 --focus-follows-window'
+    alt-shift-9 = 'move-node-to-workspace 0 --focus-follows-window'
     
     # Switch between monitors (screens)
     cmd-shift-left = 'move-workspace-to-monitor --wrap-around prev'
@@ -129,14 +129,18 @@ automatically-unhide-macos-hidden-apps = true
 
 [[on-window-detected]]
     if.app-name-regex-substring = 'tldraw'
-    run = 'move-node-to-workspace draw'
+    run = 'move-node-to-workspace docs'
+
+[[on-window-detected]]
+    if.app-name-regex-substring = 'notion'
+    run = 'move-node-to-workspace docs'
 
 [[on-window-detected]]
     if.app-name-regex-substring = 'slack'
     run = 'move-node-to-workspace chat'
 
 [[on-window-detected]]
-    if.app-name-regex-substring = 'slack'
+    if.app-name-regex-substring = 'teams'
     run = 'move-node-to-workspace chat'
 
 [[on-window-detected]]
