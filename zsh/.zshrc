@@ -44,12 +44,6 @@ autoload -Uz edit-command-line
 zle -N edit-command-line
 bindkey -M vicmd v edit-command-line
 
-# bd
-source $DOTFILES/zsh/external/bd.zsh
-
-# Scripts
-source $DOTFILES/zsh/scripts.sh
-
 # fzf
 if [[ ! "$PATH" == */opt/homebrew/opt/fzf/bin* ]]; then
   export PATH="${PATH:+${PATH}:}/opt/homebrew/opt/fzf/bin"
