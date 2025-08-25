@@ -25,7 +25,7 @@ export FZF_DEFAULT_COMMAND="rg --files --hidden --glob '!.git'"
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 
 # Kube Config
-export KUBECONFIG="$HOME/.config/.kube/config"
+export KUBECONFIG="$HOME/.kube/config"
 
 # Go config
 export GOPATH="$HOME/go"
