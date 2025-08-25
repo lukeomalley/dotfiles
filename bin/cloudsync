@@ -9,6 +9,7 @@ set -euo pipefail
 # Parse command line arguments
 SHOW_PROGRESS=false
 INIT_MODE=false
+PROFILE="${CLOUDSYNC_PROFILE:-}"
 for arg in "$@"; do
     case $arg in
         --progress)
@@ -19,10 +20,16 @@ for arg in "$@"; do
             INIT_MODE=true
             shift
             ;;
+        --profile=*)
+            PROFILE="${arg#--profile=}"
+            shift
+            ;;
         --help|-h)
-            echo "Usage: cloud-sync [--progress] [--init]"
+            echo "Usage: cloud-sync [--progress] [--init] [--profile=NAME]"
             echo "  --progress  Show sync progress (default: hidden)"
             echo "  --init      Initialize sync directories with --resync (DESTRUCTIVE)"
+            echo "  --profile   Use a subset of directories (e.g., --profile=work)."
+            echo "             Or set CLOUDSYNC_PROFILE=work"
             echo "  --help      Show this help message"
             echo ""
             echo "WARNING: --init uses --resync which can overwrite data!"
@@ -48,6 +55,17 @@ SYNC_DIRS=(
     "/Users/luke/Documents/papers:b2:papers"
 )
 
+# Optional: work profile excludes the jobs folder
+SYNC_DIRS_WORK=(
+    "/Users/luke/Documents/books:b2:books"
+    "/Users/luke/Documents/wallpapers:b2:wallpapers"
+    "/Users/luke/Documents/taxes:b2:taxes"
+    "/Users/luke/Documents/images:b2:images"
+    "/Users/luke/Documents/papers:b2:papers"
+)
+
+ACTIVE_SYNC_DIRS=()
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -68,6 +86,17 @@ log_error() {
 
 log_warning() {
     echo -e "\033[1;33m[$(date +'%Y-%m-%d %H:%M:%S')] ⚠${NC} $1"
+}
+
+select_active_dirs() {
+    case "${PROFILE:-default}" in
+        work)
+            ACTIVE_SYNC_DIRS=("${SYNC_DIRS_WORK[@]}")
+            ;;
+        default|*)
+            ACTIVE_SYNC_DIRS=("${SYNC_DIRS[@]}")
+            ;;
+    esac
 }
 
 # Function to initialize a single directory pair
@@ -142,7 +171,7 @@ confirm_init() {
     echo "The --resync flag can OVERWRITE data on either side!"
     echo
     echo "Directories to initialize:"
-    for sync_pair in "${SYNC_DIRS[@]}"; do
+    for sync_pair in "${ACTIVE_SYNC_DIRS[@]}"; do
         local local_dir="${sync_pair%%:*}"
         local remote_path="${sync_pair#*:}"
         echo "  • $local_dir → $remote_path"
@@ -163,6 +192,9 @@ main() {
         exit 1
     fi
     
+    # Resolve active directory set before any actions
+    select_active_dirs
+
     if [[ "$INIT_MODE" == "true" ]]; then
         log "Starting sync directory initialization..."
         confirm_init
@@ -170,7 +202,7 @@ main() {
         log "Initializing sync directories with --resync..."
         
         # Use GNU parallel to run init jobs
-        printf '%s\n' "${SYNC_DIRS[@]}" | \
+        printf '%s\n' "${ACTIVE_SYNC_DIRS[@]}" | \
             parallel -j0 --halt soon,fail=1 --line-buffer init_job
         
         if [[ $? -eq 0 ]]; then
@@ -187,7 +219,7 @@ main() {
         log "Starting cloud sync with GNU Parallel..."
         
         # Use GNU parallel to run sync jobs
-        printf '%s\n' "${SYNC_DIRS[@]}" | \
+        printf '%s\n' "${ACTIVE_SYNC_DIRS[@]}" | \
             parallel -j0 --halt soon,fail=1 --line-buffer sync_job
         
         if [[ $? -eq 0 ]]; then
