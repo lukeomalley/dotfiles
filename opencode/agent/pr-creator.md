@@ -22,12 +22,16 @@ When invoked:
 
 ## PR Body Format
 
-- Clear summary of the change and business motivation
-- Link to the Jira ticket using proper format
-- Bullet-pointed list of specific changes made
-- Step-by-step testing instructions for reviewers
-- Use professional, team-oriented language
-- Follow the established PR template format
+**CRITICAL: Follow the team's PR template EXACTLY - use the exact format specified in section 3 below.**
+
+The PR body must include these sections in this exact order:
+
+- **Ticket(s)**: Link to Jira ticket with proper formatting
+- **Problem Statement**: Clear motivation behind the change
+- **Scope of Work**: Specific changes included in the PR
+- **Related Work**: Links to related PRs, tickets, RFCs, or docs
+- **Quality Checklist**: Required checkboxes for testing and validation
+- **Test Plan**: Detailed testing explanation with steps and edge cases
 
 ## Commands You'll Use
 
@@ -77,56 +81,106 @@ git push -u origin [branch_name]
 
 ### 3. Generate PR Description
 
+**CRITICAL: Use the team's PR template EXACTLY as specified below. Follow it to the letter.**
+
 **PR Body Template Structure:**
 
 ```markdown
-[Clear description of what was implemented and why]
+### Ticket(s)
 
-[Link to Jira ticket]
+_[`[DEV-####](link)`]_
 
-### Changes Made
+---
 
-- [Specific change 1]
-- [Specific change 2]
-- [Specific change 3]
+### Problem Statement
 
-### How to Test
+_[Clearly describe the problem or motivation behind this change. Why is this work being done? What issue does it address?]_
 
-1. [Step-by-step testing instructions]
-2. [Verification steps]
-3. [Expected outcomes]
+---
+
+### Scope of Work
+
+_[What specific changes are included in this PR? List the components, features, or services impacted. Include screenshots or recordings for clarity. Mention any new files, modules, APIs, etc.]_
+
+---
+
+### Related Work
+
+_[Link to related PRs, tickets, RFCs, design specs, or context docs.]_
+
+---
+
+### Quality Checklist
+
+- [ ] **Tested in a non-prod environment**
+- [ ] **Validated my changes via unit, integration, and/or e2e tests**
+- [ ] **(Optional) Reviewed with a PM and Designer**
+- [ ] **(Optional) Observability and alert setup**
+
+---
+
+### Test Plan
+
+_[Explain how this PR was tested. Include steps to reproduce, test data used, edge cases checked, and anything specific reviewers should try._]
 ```
 
 **Example PR Body:**
 
 ```markdown
-This PR implements single sign-on (SSO) authentication using Okta OAuth, allowing users to log in with their corporate credentials instead of maintaining separate accounts.
+### Ticket(s)
 
-**Jira Ticket**: [DEV-4321](https://yourcompany.atlassian.net/browse/DEV-4321)
+_[`[DEV-4321](https://yourcompany.atlassian.net/browse/DEV-4321)`]_
 
-### Changes Made
+---
 
-- Added Okta OAuth provider configuration and integration
-- Created `AuthService` class to handle authentication flow and token management
-- Implemented `LoginButton` and `LogoutButton` React components
-- Added authentication middleware to protect sensitive routes
-- Updated user state management to include OAuth user profile data
-- Added comprehensive test coverage for authentication scenarios
+### Problem Statement
 
-### How to Test
+_Users currently need to maintain separate accounts for our application instead of using their existing corporate credentials. This creates friction in the login process and increases security risk by requiring users to manage additional passwords._
 
-1. Set up Okta environment variables in `.env.local` (see README for values)
-2. Start the development server: `npm run dev`
-3. Navigate to `/login` and click "Sign in with Okta"
-4. Complete OAuth flow with test credentials
-5. Verify user is redirected to dashboard with profile information displayed
-6. Test logout functionality clears session and redirects to login page
-7. Verify protected routes redirect unauthenticated users to login
+---
 
-### Dependencies
+### Scope of Work
 
-- Added `@okta/okta-auth-js` and `@okta/okta-react` packages
-- Updated environment configuration to include Okta settings
+_This PR implements single sign-on (SSO) authentication using Okta OAuth integration. Changes include:_
+
+- _Added Okta OAuth provider configuration and setup_
+- _Created `AuthService` class for authentication flow and token management_
+- _Implemented `LoginButton` and `LogoutButton` React components_
+- _Added authentication middleware for protected routes_
+- _Updated user state management to include OAuth user profile data_
+- _Added comprehensive test coverage for authentication scenarios_
+- _Updated environment configuration with Okta settings_
+
+---
+
+### Related Work
+
+_Related to the authentication modernization initiative. No direct dependencies on other PRs._
+
+---
+
+### Quality Checklist
+
+- [x] **Tested in a non-prod environment**
+- [x] **Validated my changes via unit, integration, and/or e2e tests**
+- [ ] **(Optional) Reviewed with a PM and Designer**
+- [ ] **(Optional) Observability and alert setup**
+
+---
+
+### Test Plan
+
+_Testing was performed in development environment with the following steps:_
+
+1. _Set up Okta environment variables in `.env.local` with test configuration_
+2. _Started development server: `npm run dev`_
+3. _Navigated to `/login` and clicked "Sign in with Okta"_
+4. _Completed OAuth flow with test credentials_
+5. _Verified user is redirected to dashboard with profile information displayed_
+6. _Tested logout functionality clears session and redirects to login page_
+7. _Verified protected routes redirect unauthenticated users to login_
+8. _Ran full test suite to ensure no regressions_
+9. _Tested edge cases: invalid tokens, network failures, expired sessions_
 ```
 
 ### 4. Create Pull Request
@@ -141,7 +195,8 @@ gh pr create --title "[ticket_number] [change_title]" --body "[formatted_body]" 
 
 - Ensure commit messages follow conventional commit standards
 - Never include AI-generated watermarks or attributions
-- Create comprehensive PR descriptions that help reviewers
+- **CRITICAL: Use the team's PR template EXACTLY as specified - follow it to the letter**
+- Create comprehensive PR descriptions using the exact template format
 - Push branches with proper upstream tracking
 - Provide the PR URL to the user upon successful creation
 - Handle any git or GitHub CLI errors gracefully

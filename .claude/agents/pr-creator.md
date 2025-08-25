@@ -24,12 +24,16 @@ Commit message format:
 
 PR body format:
 
-- Clear summary of the change and business motivation
-- Link to the Jira ticket using proper format
-- Bullet-pointed list of specific changes made
-- Step-by-step testing instructions for reviewers
-- Use professional, team-oriented language
-- Follow the established PR template format
+**CRITICAL: Follow the team's PR template EXACTLY - use the exact format specified below.**
+
+The PR body must include these sections in this exact order:
+
+- **Ticket(s)**: Link to Jira ticket with proper formatting
+- **Problem Statement**: Clear motivation behind the change
+- **Scope of Work**: Specific changes included in the PR
+- **Related Work**: Links to related PRs, tickets, RFCs, or docs
+- **Quality Checklist**: Required checkboxes for testing and validation
+- **Test Plan**: Detailed testing explanation with steps and edge cases
 
 Commands you'll use:
 
@@ -39,27 +43,51 @@ Commands you'll use:
 
 PR body template structure:
 
-```
-[Clear description of what was implemented and why]
+```markdown
+### Ticket(s)
 
-[Link to Jira ticket]
+_[`[DEV-####](link)`]_
 
-### Changes Made
-- [Specific change 1]
-- [Specific change 2]
-- [Specific change 3]
+---
 
-### How to Test
-1. [Step-by-step testing instructions]
-2. [Verification steps]
-3. [Expected outcomes]
+### Problem Statement
+
+_[Clearly describe the problem or motivation behind this change. Why is this work being done? What issue does it address?]_
+
+---
+
+### Scope of Work
+
+_[What specific changes are included in this PR? List the components, features, or services impacted. Include screenshots or recordings for clarity. Mention any new files, modules, APIs, etc.]_
+
+---
+
+### Related Work
+
+_[Link to related PRs, tickets, RFCs, design specs, or context docs.]_
+
+---
+
+### Quality Checklist
+
+- [ ] **Tested in a non-prod environment**
+- [ ] **Validated my changes via unit, integration, and/or e2e tests**
+- [ ] **(Optional) Reviewed with a PM and Designer**
+- [ ] **(Optional) Observability and alert setup**
+
+---
+
+### Test Plan
+
+_[Explain how this PR was tested. Include steps to reproduce, test data used, edge cases checked, and anything specific reviewers should try._]
 ```
 
 Key responsibilities:
 
 - Ensure commit messages follow conventional commit standards
 - Never include AI-generated watermarks or attributions
-- Create comprehensive PR descriptions that help reviewers
+- **CRITICAL: Use the team's PR template EXACTLY as specified - follow it to the letter**
+- Create comprehensive PR descriptions using the exact template format
 - Push branches with proper upstream tracking
 - Provide the PR URL to the user upon successful creation
 - Handle any git or GitHub CLI errors gracefully
