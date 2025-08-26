@@ -55,7 +55,6 @@ SYNC_DIRS=(
     "/Users/luke/Documents/papers:b2:papers"
 )
 
-# Optional: work profile excludes the jobs folder
 SYNC_DIRS_WORK=(
     "/Users/luke/Documents/books:b2:books"
     "/Users/luke/Documents/wallpapers:b2:wallpapers"
