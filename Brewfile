@@ -21,6 +21,7 @@ brew "lazydocker"
 brew "bottom"
 
 cask "1password-cli"
+cask "karabiner-elements"
 cask "nikitabobko/tap/aerospace"
 cask "font-inconsolata-nerd-font"
 cask "ghostty"
