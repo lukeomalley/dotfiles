@@ -9,12 +9,15 @@ compinit -i
 
 # Autocomplete hidden files
 _comp_options+=(globdots)
-source $DOTFILES/zsh/external/completion.zsh
-fpath=($ZDOTDIR/external $fpath)
+
 
 # Pretify Prompt
-autoload -Uz prompt_purification_setup
-prompt_purification_setup
+# autoload -Uz prompt_purification_setup
+# prompt_purification_setup
+
+# Starship
+export STARSHIP_CONFIG="$HOME/.config/starship.toml"
+eval "$(starship init zsh)"
 
 # Push the current directory visited on to the stack
 setopt AUTO_PUSHD
@@ -37,7 +40,7 @@ bindkey -M menuselect 'k' vi-up-line-or-history
 bindkey -M menuselect 'l' vi-forward-char
 
 # Vim Cursor
-autoload -Uz cursor_mode && cursor_mode
+# autoload -Uz cursor_mode && cursor_mode
 
 # Edit commands in nvim
 autoload -Uz edit-command-line
@@ -69,8 +72,8 @@ source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 # Zsh Syntax Highlighting
 source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
-# Z
-. $(brew --prefix)/etc/profile.d/z.sh
+# Zoxide (better cd)
+eval "$(zoxide init zsh)"
 
 # fnm
 eval "$(fnm env)"
@@ -95,11 +98,6 @@ export PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH"
 
 # Created by `pipx` on 2024-06-30 17:37:54
 export PATH="$PATH:/Users/luke/.local/bin"
-
-# Pyenv setup
-export PYENV_ROOT="$HOME/.pyenv"
-[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init -)"
 
 # gnupg
 export GPG_TTY=$(tty)

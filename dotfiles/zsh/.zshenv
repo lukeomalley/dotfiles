@@ -14,7 +14,7 @@ export XDG_CACHE_HOME="$XDG_CONFIG_HOME/cache"
 export ZDOTDIR="$XDG_CONFIG_HOME/zsh"
 
 # Dotfile Dir
-export DOTFILES="$HOME/dotfiles"
+export DOTFILES="$HOME/code/dotfiles"
 
 # Editor export EDITOR="nvim"
 export VISUAL="nvim"
@@ -38,3 +38,4 @@ export _Z_DATA="$XDG_DATA_HOME/.z"
 # vckpg
 export VCPKG_ROOT=/Users/luke/code/vcpkg
 export PATH=$VCPKG_ROOT:$PATH
+
