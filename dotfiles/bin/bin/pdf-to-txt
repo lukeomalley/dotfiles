@@ -1,0 +1,76 @@
+#!/bin/bash
+
+# PDF to Text Converter Script
+# Usage: ./pdf_to_txt.sh [directory] [output_file]
+
+# Set default values
+INPUT_DIR="${1:-.}"  # Use current directory if no argument provided
+OUTPUT_FILE="${2:-combined_text.txt}"  # Default output filename
+
+# Check if pdftotext is installed
+if ! command -v pdftotext &> /dev/null; then
+    echo "Error: pdftotext is not installed. Please install it with 'brew install poppler'"
+    exit 1
+fi
+
+# Check if input directory exists
+if [ ! -d "$INPUT_DIR" ]; then
+    echo "Error: Directory '$INPUT_DIR' does not exist."
+    exit 1
+fi
+
+# Remove existing output file if it exists
+if [ -f "$OUTPUT_FILE" ]; then
+    rm "$OUTPUT_FILE"
+    echo "Removed existing output file: $OUTPUT_FILE"
+fi
+
+# Initialize counters
+pdf_count=0
+success_count=0
+error_count=0
+
+echo "Starting PDF to text conversion..."
+echo "Input directory: $INPUT_DIR"
+echo "Output file: $OUTPUT_FILE"
+echo "----------------------------------------"
+
+# Find all PDF files recursively and process them
+while IFS= read -r -d '' pdf_file; do
+    ((pdf_count++))
+    
+    echo "Processing: $pdf_file"
+    
+    # Add separator and filename to output file
+    echo "" >> "$OUTPUT_FILE"
+    echo "========================================" >> "$OUTPUT_FILE"
+    echo "FILE: $pdf_file" >> "$OUTPUT_FILE"
+    echo "========================================" >> "$OUTPUT_FILE"
+    echo "" >> "$OUTPUT_FILE"
+    
+    # Convert PDF to text and append to output file
+    if pdftotext -layout "$pdf_file" - >> "$OUTPUT_FILE" 2>/dev/null; then
+        ((success_count++))
+        echo "  ✓ Successfully converted"
+    else
+        ((error_count++))
+        echo "  ✗ Failed to convert"
+        echo "ERROR: Could not convert $pdf_file" >> "$OUTPUT_FILE"
+    fi
+    
+done < <(find "$INPUT_DIR" -type f -iname "*.pdf" -print0)
+
+# Print summary
+echo "----------------------------------------"
+echo "Conversion complete!"
+echo "Total PDFs found: $pdf_count"
+echo "Successfully converted: $success_count"
+echo "Failed conversions: $error_count"
+echo "Combined output saved to: $OUTPUT_FILE"
+
+# Show file size of output
+if [ -f "$OUTPUT_FILE" ]; then
+    file_size=$(du -h "$OUTPUT_FILE" | cut -f1)
+    echo "Output file size: $file_size"
+fi
+

@@ -1,0 +1,259 @@
+#!/bin/bash
+
+# start-atlassian-mcp - Start Atlassian MCP Server with 1Password integration
+# Fetches API keys from 1Password and starts the MCP server container
+#
+# Author: Generated for Luke's dotfiles
+# Usage: start-atlassian-mcp [options]
+
+set -euo pipefail  # Exit on error, undefined vars, pipe failures
+
+# Configuration
+readonly SCRIPT_NAME="$(basename "$0")"
+readonly CONTAINER_NAME="atlassian-mcp-server"
+readonly IMAGE_NAME="ghcr.io/sooperset/mcp-atlassian:latest"
+readonly PORT="9000"
+readonly OP_ITEM_NAME="ATLASSIAN_KEYS"
+
+# Atlassian configuration
+readonly CONFLUENCE_URL="https://procurementsciences.atlassian.net/wiki"
+readonly CONFLUENCE_USERNAME="luke@procurementsciences.com"
+readonly JIRA_URL="https://procurementsciences.atlassian.net"
+readonly JIRA_USERNAME="luke@procurementsciences.com"
+readonly READ_ONLY_MODE="false"
+
+# Colors for output
+readonly RED='\033[0;31m'
+readonly GREEN='\033[0;32m'
+readonly YELLOW='\033[1;33m'
+readonly BLUE='\033[0;34m'
+readonly NC='\033[0m' # No Color
+
+# Logging functions
+log_info() {
+    echo -e "${BLUE}[INFO]${NC} $1"
+}
+
+log_success() {
+    echo -e "${GREEN}[SUCCESS]${NC} $1"
+}
+
+log_warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1"
+}
+
+log_error() {
+    echo -e "${RED}[ERROR]${NC} $1" >&2
+}
+
+# Check if required tools are installed
+check_prerequisites() {
+    local missing_tools=()
+    
+    if ! command -v op >/dev/null 2>&1; then
+        missing_tools+=("1Password CLI (op)")
+    fi
+    
+    if ! command -v podman >/dev/null 2>&1; then
+        missing_tools+=("podman")
+    fi
+    
+    if [[ ${#missing_tools[@]} -gt 0 ]]; then
+        log_error "Missing required tools:"
+        printf '%s\n' "${missing_tools[@]}" | sed 's/^/  - /'
+        exit 1
+    fi
+}
+
+# Check if 1Password CLI is signed in
+check_op_signin() {
+    if ! op account get >/dev/null 2>&1; then
+        log_error "1Password CLI is not signed in"
+        log_info "Please run: eval \$(op signin)"
+        exit 1
+    fi
+}
+
+# Fetch API keys from 1Password
+fetch_api_keys() {
+    log_info "Fetching API keys from 1Password..."
+    
+    local confluence_api_token
+    local jira_api_token
+    
+    # Fetch Confluence API key
+    if ! confluence_api_token=$(op item get "$OP_ITEM_NAME" --field "CONFLUENCE_API_KEY" 2>/dev/null); then
+        log_error "Failed to fetch CONFLUENCE_API_KEY from 1Password item '$OP_ITEM_NAME'"
+        log_info "Make sure the item exists and has a field named 'CONFLUENCE_API_KEY'"
+        exit 1
+    fi
+    
+    # Fetch Jira API key
+    if ! jira_api_token=$(op item get "$OP_ITEM_NAME" --field "JIRA_API_KEY" 2>/dev/null); then
+        log_error "Failed to fetch JIRA_API_KEY from 1Password item '$OP_ITEM_NAME'"
+        log_info "Make sure the item exists and has a field named 'JIRA_API_KEY'"
+        exit 1
+    fi
+    
+    # Validate that keys are not empty
+    if [[ -z "$confluence_api_token" ]]; then
+        log_error "CONFLUENCE_API_KEY is empty in 1Password"
+        exit 1
+    fi
+    
+    if [[ -z "$jira_api_token" ]]; then
+        log_error "JIRA_API_KEY is empty in 1Password"
+        exit 1
+    fi
+    
+    log_success "Successfully fetched API keys from 1Password"
+    
+    # Export for use in container
+    export CONFLUENCE_API_TOKEN="$confluence_api_token"
+    export JIRA_API_TOKEN="$jira_api_token"
+}
+
+# Check if container is already running
+check_existing_container() {
+    if podman ps --format "{{.Names}}" | grep -q "^${CONTAINER_NAME}$"; then
+        log_warning "Container '$CONTAINER_NAME' is already running"
+        
+        read -p "Stop and restart? (y/N): " -n 1 -r
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            log_info "Stopping existing container..."
+            podman stop "$CONTAINER_NAME" >/dev/null 2>&1 || true
+            sleep 2
+        else
+            log_info "Exiting without changes"
+            exit 0
+        fi
+    fi
+}
+
+# Start the Atlassian MCP server container
+start_container() {
+    log_info "Starting Atlassian MCP server container..."
+    log_info "Container name: $CONTAINER_NAME"
+    log_info "Port: $PORT"
+    log_info "Image: $IMAGE_NAME"
+    
+    # Run the podman command
+    if podman run \
+        -d \
+        --rm \
+        --name "$CONTAINER_NAME" \
+        -p "${PORT}:${PORT}" \
+        -e "CONFLUENCE_URL=$CONFLUENCE_URL" \
+        -e "CONFLUENCE_USERNAME=$CONFLUENCE_USERNAME" \
+        -e "CONFLUENCE_API_TOKEN=$CONFLUENCE_API_TOKEN" \
+        -e "JIRA_URL=$JIRA_URL" \
+        -e "JIRA_USERNAME=$JIRA_USERNAME" \
+        -e "JIRA_API_TOKEN=$JIRA_API_TOKEN" \
+        -e "READ_ONLY_MODE=$READ_ONLY_MODE" \
+        "$IMAGE_NAME" \
+        --transport sse \
+        --port "$PORT"; then
+        
+        log_success "Container started successfully"
+        log_info "MCP server is running on port $PORT"
+        log_info "Container logs: podman logs -f $CONTAINER_NAME"
+        log_info "Stop container: podman stop $CONTAINER_NAME"
+    else
+        log_error "Failed to start container"
+        exit 1
+    fi
+}
+
+# Show container status
+show_status() {
+    log_info "Container status:"
+    if podman ps --filter "name=$CONTAINER_NAME" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"; then
+        echo
+        log_info "Server should be accessible at: http://localhost:$PORT"
+    else
+        log_warning "Container not found or not running"
+    fi
+}
+
+# Show help
+show_help() {
+    cat << EOF
+${BLUE}$SCRIPT_NAME${NC} - Start Atlassian MCP Server
+
+${YELLOW}DESCRIPTION${NC}
+    Fetches Atlassian API keys from 1Password and starts the MCP server
+    container with the required environment variables.
+
+${YELLOW}USAGE${NC}
+    $SCRIPT_NAME [OPTIONS]
+
+${YELLOW}OPTIONS${NC}
+    -h, --help     Show this help message
+    --status       Show container status only
+
+${YELLOW}EXAMPLES${NC}
+    $SCRIPT_NAME           # Start the MCP server
+    $SCRIPT_NAME --status  # Check if container is running
+
+${YELLOW}PREREQUISITES${NC}
+    - 1Password CLI (op) installed and signed in
+    - podman installed
+    - 1Password item '$OP_ITEM_NAME' with fields:
+      - CONFLUENCE_API_KEY
+      - JIRA_API_KEY
+
+${YELLOW}1PASSWORD SETUP${NC}
+    Create an item named '$OP_ITEM_NAME' with these fields:
+    - CONFLUENCE_API_KEY: Your Confluence API token
+    - JIRA_API_KEY: Your Jira API token
+
+${YELLOW}CONFIGURATION${NC}
+    Confluence URL: $CONFLUENCE_URL
+    Confluence User: $CONFLUENCE_USERNAME
+    Jira URL: $JIRA_URL
+    Jira User: $JIRA_USERNAME
+    Container Port: $PORT
+    Read-Only Mode: $READ_ONLY_MODE
+
+EOF
+}
+
+# Main function
+main() {
+    # Parse command line arguments
+    case "${1:-}" in
+        -h|--help)
+            show_help
+            exit 0
+            ;;
+        --status)
+            show_status
+            exit 0
+            ;;
+        "")
+            # Default action - start server
+            ;;
+        *)
+            log_error "Unknown option: $1"
+            echo "Run '$SCRIPT_NAME --help' for usage information"
+            exit 1
+            ;;
+    esac
+    
+    # Check prerequisites
+    check_prerequisites
+    check_op_signin
+    check_existing_container
+    
+    # Fetch API keys and start container
+    fetch_api_keys
+    start_container
+    
+    # Show final status
+    echo
+    show_status
+}
+
+# Run main function with all arguments
+main "$@"

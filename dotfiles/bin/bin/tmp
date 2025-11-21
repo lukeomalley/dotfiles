@@ -1,0 +1,9 @@
+#!/bin/bash
+set -e
+
+tempfile=$(mktemp) || { echo "Failed to create temp file"; exit 1; }
+
+# Ensure the temp file gets removed on script exit.
+trap 'rm -f "$tempfile"' EXIT
+
+nvim "$tempfile"

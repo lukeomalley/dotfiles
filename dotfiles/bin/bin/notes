@@ -1,0 +1,6 @@
+#! /bin/bash
+
+CURRENT=$(pwd)
+cd ~/notes
+nvim .
+cd $CURRENT

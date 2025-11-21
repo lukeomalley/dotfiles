@@ -1,0 +1,29 @@
+session: arches
+
+root: ~/code/nnts
+
+before_start:
+  - cd arches-monorepo && cursor .
+  - cd arches-monorepo && docker compose up -d
+
+windows:
+  - name: arcng
+    root: arcng
+    layout: even-vertical
+    panes:
+      - type: vertical
+        root: arcd
+      - type: vertical
+        root: .
+
+  - name: arches
+    root: arches-monorepo
+    layout: even-vertical
+    selected: true
+    panes:
+      - type: vertical
+        commands:
+          - pnpm dev
+      - type: vertical
+        commands:
+          - mqttx sub -h localhost -p 1883 -u nnts -P nntsdata -t "#"
