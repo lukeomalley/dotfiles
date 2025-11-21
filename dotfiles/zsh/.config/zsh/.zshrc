@@ -5,7 +5,9 @@ setopt AUTO_PARAM_SLASH
 unsetopt CASE_GLOB
 
 autoload -Uz compinit
-compinit -i
+# Save compdump to cache directory instead of config directory
+compinit -d "$XDG_CACHE_HOME/zsh/zcompdump"
+
 
 # Autocomplete hidden files
 _comp_options+=(globdots)
@@ -81,7 +83,9 @@ eval "$(fnm env)"
 # History
 setopt share_history
 setopt inc_append_history
-export HISTFILE="$ZDOTDIR/.zhistory"
+# Store history in data directory instead of config directory to avoid git pollution
+[[ ! -d "$XDG_DATA_HOME/zsh" ]] && mkdir -p "$XDG_DATA_HOME/zsh"
+export HISTFILE="$XDG_DATA_HOME/zsh/history"
 export HISTSIZE=50000
 export HISTFILESIZE=$HISTSIZE
 export SAVEHIST=$HISTSIZE
@@ -121,5 +125,5 @@ export GPG_TTY=$(tty)
 # The following lines have been added by Docker Desktop to enable Docker CLI completions.
 fpath=(/Users/luke/.docker/completions $fpath)
 autoload -Uz compinit
-compinit
+compinit -d "$XDG_CACHE_HOME/zsh/zcompdump"
 # End of Docker CLI completions

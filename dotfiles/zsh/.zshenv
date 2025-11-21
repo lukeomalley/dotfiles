@@ -13,6 +13,9 @@ export XDG_CACHE_HOME="$XDG_CONFIG_HOME/cache"
 # Z Config File Dir
 export ZDOTDIR="$XDG_CONFIG_HOME/zsh"
 
+# Disable macOS shell sessions (prevents .zsh_sessions directory)
+export SHELL_SESSION_HISTORY=0
+
 # Dotfile Dir
 export DOTFILES="$HOME/code/dotfiles"
 
