@@ -1,3 +1,5 @@
+brew "jq"
+brew "parallel"
 brew "stow"
 brew "git"
 brew "neovim"
@@ -18,9 +20,11 @@ brew "zsh-syntax-highlighting"
 brew "lazydocker"
 brew "bottom"
 
+cask "1password-cli"
 cask "nikitabobko/tap/aerospace"
 cask "font-inconsolata-nerd-font"
 cask "ghostty"
-cask "docker"
+cask "docker-desktop"
 cask "notion"
+cask "spotify"
 
