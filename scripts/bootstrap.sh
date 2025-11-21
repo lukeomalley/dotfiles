@@ -22,5 +22,9 @@ echo "Stowing dotfiles..."
 echo "Configuring keyboard..."
 ./scripts/keyboard.sh
 
+# Configure Tmux
+echo "Configuring tmux..."
+./scripts/setup-tmux.sh
+
 echo "Bootstrap complete!"
 
