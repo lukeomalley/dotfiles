@@ -26,5 +26,13 @@ echo "Configuring keyboard..."
 echo "Configuring tmux..."
 ./scripts/setup-tmux.sh
 
+# Configure Secrets
+echo "Configuring secrets..."
+if [ -x "$HOME/bin/update-secrets" ]; then
+    "$HOME/bin/update-secrets" || echo "Warning: Secrets configuration failed."
+else
+    echo "Warning: update-secrets script not found in $HOME/bin"
+fi
+
 echo "Bootstrap complete!"
 

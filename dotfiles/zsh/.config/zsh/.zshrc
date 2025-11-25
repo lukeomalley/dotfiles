@@ -1,6 +1,9 @@
 # Aliases
 source "$XDG_CONFIG_HOME/zsh/aliases"
 
+# Secrets
+source "$XDG_CONFIG_HOME/zsh/secrets.zsh"
+
 setopt AUTO_PARAM_SLASH
 unsetopt CASE_GLOB
 
