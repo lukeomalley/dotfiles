@@ -36,5 +36,6 @@ cask "font-inconsolata-nerd-font"
 cask "ghostty"
 cask "docker-desktop"
 cask "notion"
+cask "notion-calendar"
 cask "spotify"
 
