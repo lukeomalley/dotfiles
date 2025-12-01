@@ -1,6 +1,9 @@
 # ~/.aerospace.toml
 # Custom AeroSpace config with cmd+num for monitor switching and cmd+backtick/cmd+1 for first windows
 
+# Config version for compatibility (enables persistent-workspaces and other v2 features)
+config-version = 2
+
 # Start AeroSpace at login
 start-at-login = true
 
@@ -27,141 +30,161 @@ automatically-unhide-macos-hidden-apps = true
 
 # Use QWERTY key layout
 [key-mapping]
-    preset = 'qwerty'
+preset = 'qwerty'
 
 # Window gaps settings
 [gaps]
-    inner.horizontal = 5
-    inner.vertical = 5
-    outer.left = 5
-    outer.bottom = 5
-    outer.top = 5
-    outer.right = 5
+inner.horizontal = 5
+inner.vertical = 5
+outer.left = 5
+outer.bottom = 5
+outer.top = 5
+outer.right = 5
 
 # Main binding mode
 [mode.main.binding]
-    # Layout controls
-    alt-slash = 'layout tiles horizontal vertical'
-    alt-comma = 'layout accordion horizontal vertical'
-    
-    # Window focus
-    alt-h = 'focus left'
-    alt-j = 'focus down'
-    alt-k = 'focus up'
-    alt-l = 'focus right'
-    
-    # Window movement
-    alt-shift-h = 'move left'
-    alt-shift-j = 'move down'
-    alt-shift-k = 'move up'
-    alt-shift-l = 'move right'
-    
-    # Resize windows
-    alt-minus = 'resize smart -100'
-    alt-equal = 'resize smart +100'
-    
-    # Workspace switching with cmd (⌘) key
-    # Named workspaces
-    cmd-backtick = 'workspace term'  # Terminal workspace
-    cmd-1 = 'workspace code'         # Code editor workspace
-    cmd-2 = 'workspace browser'      # Browser workspace
-    cmd-3 = 'workspace docs'
-    cmd-4 = 'workspace chat'
-    cmd-5 = 'workspace music'
-    cmd-6 = 'workspace 7'
-    cmd-7 = 'workspace 8'
-    cmd-8 = 'workspace 9'
-    cmd-9 = 'workspace 0'
-    
-    # Move windows to workspaces (option+shift+number)
-    alt-shift-backtick = 'move-node-to-workspace term --focus-follows-window'
-    alt-shift-1 = 'move-node-to-workspace code --focus-follows-window'
-    alt-shift-2 = 'move-node-to-workspace browser --focus-follows-window'
-    alt-shift-3 = 'move-node-to-workspace docs --focus-follows-window'
-    alt-shift-4 = 'move-node-to-workspace chat --focus-follows-window'
-    alt-shift-5 = 'move-node-to-workspace music --focus-follows-window'
-    alt-shift-6 = 'move-node-to-workspace 7 --focus-follows-window'
-    alt-shift-7 = 'move-node-to-workspace 8 --focus-follows-window'
-    alt-shift-8 = 'move-node-to-workspace 9 --focus-follows-window'
-    alt-shift-9 = 'move-node-to-workspace 0 --focus-follows-window'
-    
-    # Switch between monitors (screens)
-    cmd-shift-left = 'move-workspace-to-monitor --wrap-around prev'
-    cmd-shift-right = 'move-workspace-to-monitor --wrap-around next'
-    
-    # Toggle between previous workspace
-    alt-tab = 'workspace-back-and-forth'
-    
-    # Enter service mode for additional commands
-    alt-shift-semicolon = 'mode service'
+# Layout controls
+alt-slash = 'layout tiles horizontal vertical'
+alt-comma = 'layout accordion horizontal vertical'
+
+# Window focus
+alt-h = 'focus left'
+alt-j = 'focus down'
+alt-k = 'focus up'
+alt-l = 'focus right'
+
+# Window movement
+alt-shift-h = 'move left'
+alt-shift-j = 'move down'
+alt-shift-k = 'move up'
+alt-shift-l = 'move right'
+
+# Resize windows
+alt-minus = 'resize smart -100'
+alt-equal = 'resize smart +100'
+
+# Workspace switching with cmd (⌘) key
+# Named workspaces
+cmd-backtick = 'workspace term' # Terminal workspace
+cmd-1 = 'workspace code'        # Code editor workspace
+cmd-2 = 'workspace browser'     # Browser workspace
+cmd-3 = 'workspace docs'
+cmd-4 = 'workspace chat'
+cmd-5 = 'workspace music'
+cmd-6 = 'workspace 7'
+cmd-7 = 'workspace 8'
+cmd-8 = 'workspace 9'
+cmd-9 = 'workspace 0'
+
+# Move windows to workspaces (option+shift+number)
+alt-shift-backtick = 'move-node-to-workspace term --focus-follows-window'
+alt-shift-1 = 'move-node-to-workspace code --focus-follows-window'
+alt-shift-2 = 'move-node-to-workspace browser --focus-follows-window'
+alt-shift-3 = 'move-node-to-workspace docs --focus-follows-window'
+alt-shift-4 = 'move-node-to-workspace chat --focus-follows-window'
+alt-shift-5 = 'move-node-to-workspace music --focus-follows-window'
+alt-shift-6 = 'move-node-to-workspace 7 --focus-follows-window'
+alt-shift-7 = 'move-node-to-workspace 8 --focus-follows-window'
+alt-shift-8 = 'move-node-to-workspace 9 --focus-follows-window'
+alt-shift-9 = 'move-node-to-workspace 0 --focus-follows-window'
+
+# Switch between monitors (screens)
+cmd-shift-left = 'move-workspace-to-monitor --wrap-around prev'
+cmd-shift-right = 'move-workspace-to-monitor --wrap-around next'
+
+# Toggle between previous workspace
+alt-tab = 'workspace-back-and-forth'
+
+# Enter service mode for additional commands
+alt-shift-semicolon = 'mode service'
+
+# Disable cmd-h (Hide App) - often hit by accident
+cmd-h = []
+cmd-alt-h = []
 
 # Service binding mode for less frequent operations
 [mode.service.binding]
-    esc = ['reload-config', 'mode main']
-    r = ['flatten-workspace-tree', 'mode main'] # reset layout
-    f = ['layout floating tiling', 'mode main'] # Toggle between floating and tiling layout
-    backspace = ['close-all-windows-but-current', 'mode main']
+esc = ['reload-config', 'mode main']
+r = ['flatten-workspace-tree', 'mode main'] # reset layout
+f = [
+    'layout floating tiling',
+    'mode main',
+] # Toggle between floating and tiling layout
+backspace = ['close-all-windows-but-current', 'mode main']
 
-    # Join windows
-    alt-shift-h = ['join-with left', 'mode main']
-    alt-shift-j = ['join-with down', 'mode main']
-    alt-shift-k = ['join-with up', 'mode main']
-    alt-shift-l = ['join-with right', 'mode main']
-    
-    # Volume controls
-    down = 'volume down'
-    up = 'volume up'
-    shift-down = ['volume set 0', 'mode main']
+# Join windows
+alt-shift-h = ['join-with left', 'mode main']
+alt-shift-j = ['join-with down', 'mode main']
+alt-shift-k = ['join-with up', 'mode main']
+alt-shift-l = ['join-with right', 'mode main']
+
+# Volume controls
+down = 'volume down'
+up = 'volume up'
+shift-down = ['volume set 0', 'mode main']
+
+# Float dialog-like apps (work better not tiled)
+[[on-window-detected]]
+if.app-id = 'com.apple.systempreferences'
+run = 'layout floating'
+
+[[on-window-detected]]
+if.app-id = 'com.apple.calculator'
+run = 'layout floating'
+
+[[on-window-detected]]
+if.app-id = 'com.apple.finder'
+run = 'layout floating'
 
 # Application assignments - Ghostty to workspace 1
 [[on-window-detected]]
-    if.app-id = 'com.mitchellh.ghostty'
-    run = 'move-node-to-workspace term'
+if.app-id = 'com.mitchellh.ghostty'
+run = 'move-node-to-workspace term'
 
 # VS Code and Cursor to workspace 2
 [[on-window-detected]]
-    if.app-id = 'com.microsoft.VSCode'
-    run = 'move-node-to-workspace code'
+if.app-id = 'com.microsoft.VSCode'
+run = 'move-node-to-workspace code'
 
 [[on-window-detected]]
-    if.app-name-regex-substring = 'cursor'
-    run = 'move-node-to-workspace code'
+if.app-name-regex-substring = 'cursor'
+run = 'move-node-to-workspace code'
 
 [[on-window-detected]]
-    if.app-name-regex-substring = 'tldraw'
-    run = 'move-node-to-workspace docs'
+if.app-name-regex-substring = 'tldraw'
+run = 'move-node-to-workspace docs'
 
 [[on-window-detected]]
-    if.app-name-regex-substring = 'notion'
-    run = 'move-node-to-workspace docs'
+if.app-name-regex-substring = 'notion'
+run = 'move-node-to-workspace docs'
 
 [[on-window-detected]]
-    if.app-name-regex-substring = 'slack'
-    run = 'move-node-to-workspace chat'
+if.app-name-regex-substring = 'slack'
+run = 'move-node-to-workspace chat'
 
 [[on-window-detected]]
-    if.app-name-regex-substring = 'teams'
-    run = 'move-node-to-workspace chat'
+if.app-name-regex-substring = 'teams'
+run = 'move-node-to-workspace chat'
 
 [[on-window-detected]]
-    if.app-name-regex-substring = 'spotify'
-    run = 'move-node-to-workspace music'
+if.app-name-regex-substring = 'spotify'
+run = 'move-node-to-workspace music'
 
 # Browsers to workspace 3
 [[on-window-detected]]
-    if.app-id = 'com.apple.Safari'
-    run = 'move-node-to-workspace browser'
+if.app-id = 'com.apple.Safari'
+run = 'move-node-to-workspace browser'
 
 [[on-window-detected]]
-    if.app-id = 'com.google.Chrome'
-    run = 'move-node-to-workspace browser'
+if.app-id = 'com.google.Chrome'
+run = 'move-node-to-workspace browser'
 
 [[on-window-detected]]
-    if.app-id = 'com.brave.Browser'
-    run = 'move-node-to-workspace browser'
+if.app-id = 'com.brave.Browser'
+run = 'move-node-to-workspace browser'
 
 # Assign specific workspaces to monitors
 [workspace-to-monitor-force-assignment]
-    "term" = 'main'      # Terminal (Ghostty) on main monitor
-    "code" = 'main'      # Code editors on main monitor  
-    "browser" = 'main' # Browsers on secondary monitor if available
+"term" = 'main'    # Terminal (Ghostty) on main monitor
+"code" = 'main'    # Code editors on main monitor  
+"browser" = 'main' # Browsers on secondary monitor if available

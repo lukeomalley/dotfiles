@@ -22,6 +22,10 @@ echo "Stowing dotfiles..."
 echo "Configuring keyboard..."
 ./scripts/keyboard.sh
 
+# Configure macOS settings
+echo "Configuring macOS settings..."
+./scripts/macos.sh
+
 # Configure Tmux
 echo "Configuring tmux..."
 ./scripts/setup-tmux.sh

@@ -1,3 +1,12 @@
+#!/bin/bash
+set -e
+
+echo "Configuring macOS settings..."
+
+# =============================================================================
+# Animation Settings
+# =============================================================================
+
 # opening and closing windows and popovers
 defaults write -g NSAutomaticWindowAnimationsEnabled -bool false
 
@@ -42,5 +51,34 @@ defaults write com.apple.dock springboard-page-duration -float 0
 defaults write com.apple.finder DisableAllAnimations -bool true
 
 # sending messages and opening windows for replies
-defaults write com.apple.Mail DisableSendAnimations -bool true
-defaults write com.apple.Mail DisableReplyAnimations -bool true
+# Note: Mail is sandboxed on newer macOS, these may fail silently
+defaults write com.apple.Mail DisableSendAnimations -bool true 2>/dev/null || true
+defaults write com.apple.Mail DisableReplyAnimations -bool true 2>/dev/null || true
+
+# =============================================================================
+# AeroSpace Tiling Window Manager Settings
+# https://nikitabobko.github.io/AeroSpace/guide
+# =============================================================================
+
+# Disable "Displays have separate Spaces" for better multi-monitor support
+# This fixes focus issues, performance problems, and weird behaviors with AeroSpace
+# NOTE: Requires logout to take effect
+defaults write com.apple.spaces spans-displays -bool true
+
+# Fix Mission Control grouping - helps with AeroSpace's hidden windows
+defaults write com.apple.dock expose-group-apps -bool true
+
+# Move windows by holding ctrl+cmd and dragging any part of the window
+defaults write -g NSWindowShouldDragOnGesture -bool true
+
+# =============================================================================
+# Apply Changes
+# =============================================================================
+
+# Restart affected services
+killall Dock 2>/dev/null || true
+killall Finder 2>/dev/null || true
+killall SystemUIServer 2>/dev/null || true
+
+echo "macOS settings configured!"
+echo "NOTE: Some settings (like 'Displays have separate Spaces') require logout to take effect."
