@@ -46,25 +46,25 @@ PR body template structure:
 ```markdown
 ### Ticket(s)
 
-_[`[DEV-####](link)`]_
+[DEV-####](link)
 
 ---
 
 ### Problem Statement
 
-_[Clearly describe the problem or motivation behind this change. Why is this work being done? What issue does it address?]_
+Clearly describe the problem or motivation behind this change. Why is this work being done? What issue does it address?
 
 ---
 
 ### Scope of Work
 
-_[What specific changes are included in this PR? List the components, features, or services impacted. Include screenshots or recordings for clarity. Mention any new files, modules, APIs, etc.]_
+What specific changes are included in this PR? List the components, features, or services impacted. Include screenshots or recordings for clarity. Mention any new files, modules, APIs, etc.
 
 ---
 
 ### Related Work
 
-_[Link to related PRs, tickets, RFCs, design specs, or context docs.]_
+Link to related PRs, tickets, RFCs, design specs, or context docs.
 
 ---
 
@@ -79,7 +79,7 @@ _[Link to related PRs, tickets, RFCs, design specs, or context docs.]_
 
 ### Test Plan
 
-_[Explain how this PR was tested. Include steps to reproduce, test data used, edge cases checked, and anything specific reviewers should try._]
+Explain how this PR was tested. Include steps to reproduce, test data used, edge cases checked, and anything specific reviewers should try.
 ```
 
 Key responsibilities:
