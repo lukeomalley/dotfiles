@@ -158,6 +158,16 @@ run = 'move-node-to-workspace docs'
 if.app-name-regex-substring = 'notion'
 run = 'move-node-to-workspace docs'
 
+# Notion Calendar
+[[on-window-detected]]
+if.app-id = 'notion.id.calendar'
+run = 'move-node-to-workspace docs'
+
+# Apple Calendar
+[[on-window-detected]]
+if.app-id = 'com.apple.iCal'
+run = 'move-node-to-workspace docs'
+
 [[on-window-detected]]
 if.app-name-regex-substring = 'slack'
 run = 'move-node-to-workspace chat'
