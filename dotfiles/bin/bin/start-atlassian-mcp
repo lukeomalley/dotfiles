@@ -54,8 +54,8 @@ check_prerequisites() {
         missing_tools+=("1Password CLI (op)")
     fi
     
-    if ! command -v podman >/dev/null 2>&1; then
-        missing_tools+=("podman")
+    if ! command -v docker >/dev/null 2>&1; then
+        missing_tools+=("docker")
     fi
     
     if [[ ${#missing_tools[@]} -gt 0 ]]; then
@@ -115,14 +115,14 @@ fetch_api_keys() {
 
 # Check if container is already running
 check_existing_container() {
-    if podman ps --format "{{.Names}}" | grep -q "^${CONTAINER_NAME}$"; then
+    if docker ps --format "{{.Names}}" | grep -q "^${CONTAINER_NAME}$"; then
         log_warning "Container '$CONTAINER_NAME' is already running"
         
         read -p "Stop and restart? (y/N): " -n 1 -r
         echo
         if [[ $REPLY =~ ^[Yy]$ ]]; then
             log_info "Stopping existing container..."
-            podman stop "$CONTAINER_NAME" >/dev/null 2>&1 || true
+            docker stop "$CONTAINER_NAME" >/dev/null 2>&1 || true
             sleep 2
         else
             log_info "Exiting without changes"
@@ -138,8 +138,8 @@ start_container() {
     log_info "Port: $PORT"
     log_info "Image: $IMAGE_NAME"
     
-    # Run the podman command
-    if podman run \
+    # Run the docker command
+    if docker run \
         -d \
         --rm \
         --name "$CONTAINER_NAME" \
@@ -157,8 +157,8 @@ start_container() {
         
         log_success "Container started successfully"
         log_info "MCP server is running on port $PORT"
-        log_info "Container logs: podman logs -f $CONTAINER_NAME"
-        log_info "Stop container: podman stop $CONTAINER_NAME"
+        log_info "Container logs: docker logs -f $CONTAINER_NAME"
+        log_info "Stop container: docker stop $CONTAINER_NAME"
     else
         log_error "Failed to start container"
         exit 1
@@ -168,7 +168,7 @@ start_container() {
 # Show container status
 show_status() {
     log_info "Container status:"
-    if podman ps --filter "name=$CONTAINER_NAME" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"; then
+    if docker ps --filter "name=$CONTAINER_NAME" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"; then
         echo
         log_info "Server should be accessible at: http://localhost:$PORT"
     else
@@ -198,7 +198,7 @@ ${YELLOW}EXAMPLES${NC}
 
 ${YELLOW}PREREQUISITES${NC}
     - 1Password CLI (op) installed and signed in
-    - podman installed
+    - docker installed
     - 1Password item '$OP_ITEM_NAME' with fields:
       - CONFLUENCE_API_KEY
       - JIRA_API_KEY

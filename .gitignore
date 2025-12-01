@@ -2,3 +2,10 @@
 plugins
 
 secrets.zsh
+
+statsig/
+todos/
+shell-snapshots/
+debug/
+ide/
+projects/
