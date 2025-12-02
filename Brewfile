@@ -1,3 +1,4 @@
+brew "biome"
 brew "go"
 brew "golangci-lint"
 brew "gopls"

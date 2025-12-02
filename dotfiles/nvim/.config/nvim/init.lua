@@ -110,6 +110,42 @@ require('packer').startup(function(use)
     end
   })
 
+  -- Formatter (handles format-on-save with Biome for JS/TS/JSON/CSS)
+  use({
+    "stevearc/conform.nvim",
+    config = function()
+      require("conform").setup({
+        -- Map of filetype to formatters
+        formatters_by_ft = {
+          -- Biome for web development files
+          javascript = { "biome" },
+          javascriptreact = { "biome" },
+          typescript = { "biome" },
+          typescriptreact = { "biome" },
+          json = { "biome" },
+          jsonc = { "biome" },
+          css = { "biome" },
+          graphql = { "biome" },
+          -- Use LSP for other languages
+          go = { lsp_format = "prefer" },
+          python = { lsp_format = "prefer" },
+          lua = { lsp_format = "prefer" },
+        },
+        -- Set default options - fallback to LSP for filetypes not listed above
+        default_format_opts = {
+          lsp_format = "fallback",
+        },
+        -- Format on save
+        format_on_save = {
+          timeout_ms = 500,
+          lsp_format = "fallback",
+        },
+        -- Notify on errors
+        notify_on_error = true,
+      })
+    end,
+  })
+
   -- Add custom plugins to packer from ~/.config/nvim/lua/custom/plugins.lua
   local has_plugins, plugins = pcall(require, 'custom.plugins')
   if has_plugins then
@@ -389,62 +425,14 @@ vim.keymap.set('n', ']d', vim.diagnostic.goto_next)
 vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float)
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist)
 
--- LSP settings.
---  This function gets run when an LSP connects to a particular buffer.
-local on_attach = function(_, bufnr)
-  -- NOTE: Remember that lua is a real programming language, and as such it is possible
-  -- to define small helper and utility functions so you don't have to repeat yourself
-  -- many times.
-  --
-  -- In this case, we create a function that lets us more easily define mappings specific
-  -- for LSP related items. It sets the mode, buffer and description for us each time.
-  local nmap = function(keys, func, desc)
-    if desc then
-      desc = 'LSP: ' .. desc
-    end
-
-    vim.keymap.set('n', keys, func, { buffer = bufnr, desc = desc })
-  end
-
-  nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
-  nmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
-
-  nmap('gd', vim.lsp.buf.definition, '[G]oto [D]efinition')
-  nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
-  nmap('gI', vim.lsp.buf.implementation, '[G]oto [I]mplementation')
-  nmap('<leader>D', vim.lsp.buf.type_definition, 'Type [D]efinition')
-  nmap('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
-  -- nmap('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
-
-  -- See `:help K` for why this keymap
-  nmap('gh', vim.lsp.buf.hover, 'Hover Documentation')
-  nmap('<C-k>', vim.lsp.buf.signature_help, 'Signature Documentation')
-
-  -- Lesser used LSP functionality
-  nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
-  -- nmap('<leader>wa', vim.lsp.buf.add_workspace_folder, '[W]orkspace [A]dd Folder')
-  -- nmap('<leader>wr', vim.lsp.buf.remove_workspace_folder, '[W]orkspace [R]emove Folder')
-  -- nmap('<leader>wl', function()
-  --   print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-  -- end, '[W]orkspace [L]ist Folders')
-
-  -- Create a command `:Format` local to the LSP buffer
-  vim.api.nvim_buf_create_user_command(bufnr, 'Format', function(_)
-    if vim.lsp.buf.format then
-      vim.lsp.buf.format()
-    elseif vim.lsp.buf.formatting then
-      vim.lsp.buf.formatting()
-    end
-  end, { desc = 'Format current buffer with LSP' })
-end
-
-
 -- Setup mason so it can manage external tooling
 require('mason').setup()
 
 -- Enable the following language servers
 -- Feel free to add/remove any LSPs that you want here. They will automatically be installed
-local servers = { 'clangd', 'rust_analyzer', 'pyright', 'ts_ls', 'lua_ls', 'gopls' }
+-- Uncomment clangd and rust_analyzer if you need C/C++ or Rust support
+local servers = { 'pyright', 'ts_ls', 'lua_ls', 'gopls' }
+-- local servers = { 'clangd', 'rust_analyzer', 'pyright', 'ts_ls', 'lua_ls', 'gopls' }
 
 -- Ensure the servers above are installed
 require('mason-lspconfig').setup {
@@ -455,15 +443,48 @@ require('mason-lspconfig').setup {
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
 
-for _, lsp in ipairs(servers) do
-  require('lspconfig')[lsp].setup {
-    on_attach = on_attach,
-    capabilities = capabilities,
-  }
-end
-
 -- Turn on lsp status information
 require('fidget').setup({})
+
+-- [[ Configure LSP using vim.lsp.config (Neovim 0.11+) ]]
+
+-- LspAttach autocmd - replaces the old on_attach function
+vim.api.nvim_create_autocmd('LspAttach', {
+  group = vim.api.nvim_create_augroup('UserLspConfig', { clear = true }),
+  callback = function(args)
+    local bufnr = args.buf
+    local client = vim.lsp.get_client_by_id(args.data.client_id)
+
+    -- Helper function for LSP keymaps
+    local nmap = function(keys, func, desc)
+      if desc then
+        desc = 'LSP: ' .. desc
+      end
+      vim.keymap.set('n', keys, func, { buffer = bufnr, desc = desc })
+    end
+
+    nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
+    nmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
+
+    nmap('gd', vim.lsp.buf.definition, '[G]oto [D]efinition')
+    nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
+    nmap('gI', vim.lsp.buf.implementation, '[G]oto [I]mplementation')
+    nmap('<leader>D', vim.lsp.buf.type_definition, 'Type [D]efinition')
+    nmap('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
+
+    -- See `:help K` for why this keymap
+    nmap('gh', vim.lsp.buf.hover, 'Hover Documentation')
+    nmap('<C-k>', vim.lsp.buf.signature_help, 'Signature Documentation')
+
+    -- Lesser used LSP functionality
+    nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
+
+    -- Create a command `:Format` local to the LSP buffer
+    vim.api.nvim_buf_create_user_command(bufnr, 'Format', function(_)
+      vim.lsp.buf.format()
+    end, { desc = 'Format current buffer with LSP' })
+  end,
+})
 
 -- Example custom configuration for lua
 -- Make runtime files discoverable to the server
@@ -471,56 +492,78 @@ local runtime_path = vim.split(package.path, ';')
 table.insert(runtime_path, 'lua/?.lua')
 table.insert(runtime_path, 'lua/?/init.lua')
 
--- Setup lua_ls congig
-require('lspconfig').lua_ls.setup {
-  on_attach = on_attach,
+-- Configure LSP servers using vim.lsp.config (Neovim 0.11+)
+
+-- Default config for all servers
+vim.lsp.config('*', {
+  capabilities = capabilities,
+})
+
+-- clangd (uncomment if needed)
+-- vim.lsp.config('clangd', {
+--   capabilities = capabilities,
+-- })
+
+-- rust_analyzer (uncomment if needed)
+-- vim.lsp.config('rust_analyzer', {
+--   capabilities = capabilities,
+-- })
+
+-- pyright
+vim.lsp.config('pyright', {
+  capabilities = capabilities,
+})
+
+-- gopls
+vim.lsp.config('gopls', {
+  capabilities = capabilities,
+})
+
+-- ts_ls (TypeScript)
+vim.lsp.config('ts_ls', {
+  capabilities = capabilities,
+  filetypes = { 'typescript', 'typescriptreact', 'javascript', 'javascriptreact', 'jsx', 'tsx' },
+})
+
+-- lua_ls
+vim.lsp.config('lua_ls', {
   capabilities = capabilities,
   settings = {
     Lua = {
       runtime = {
-        -- Tell the language server which version of Lua you're using (most likely LuaJIT)
         version = 'LuaJIT',
-        -- Setup your lua path
         path = runtime_path,
       },
       diagnostics = {
         globals = { 'vim' },
       },
       workspace = { library = vim.api.nvim_get_runtime_file('', true) },
-      -- Do not send telemetry data containing a randomized but unique identifier
       telemetry = { enable = false },
     },
   },
-}
+})
 
-require('lspconfig').emmet_ls.setup({
-  -- on_attach = on_attach,
+-- emmet_ls
+vim.lsp.config('emmet_ls', {
   capabilities = capabilities,
-  filetypes = { 'html', 'typescriptreact', 'javascriptreact', 'css', 'sass', 'scss', 'less', 'vue' },
+  filetypes = { 'html', 'typescriptreact', 'javascriptreact', 'css', 'sass', 'scss', 'less' },
   init_options = {
     html = {
       options = {
-        -- For possible options, see: https://github.com/emmetio/emmet/blob/master/src/config.ts#L79-L267
         ["bem.enabled"] = true,
       },
     },
-  }
+  },
 })
 
-require('lspconfig').volar.setup({
-  -- on_attach = on_attach,
-  capabilities = capabilities,
-  filetypes = { 'vue' },
-  init_options = {}
-})
-
-
-require('lspconfig').ts_ls.setup({
-  -- on_attach = on_attach,
-  capabilities = capabilities,
-  filetypes = { 'typescript', 'typescriptreact', 'vue', 'jsx', 'tsx' },
-  init_options = {}
-})
+-- Enable all the servers
+-- vim.lsp.enable('clangd')
+-- vim.lsp.enable('rust_analyzer')
+vim.lsp.enable('pyright')
+vim.lsp.enable('gopls')
+vim.lsp.enable('ts_ls')
+vim.lsp.enable('lua_ls')
+vim.lsp.enable('emmet_ls')
 
 -- nvim-cmp setup
 local cmp = require 'cmp'
@@ -565,8 +608,7 @@ cmp.setup {
   },
 }
 
--- Format on safe
-vim.cmd [[autocmd BufWritePre * lua vim.lsp.buf.format()]]
+-- Format on save is now handled by conform.nvim (see plugin config above)
 
 -- Trouble (error viewer) settings
 vim.keymap.set("n", "<leader>xx", function() require("trouble").toggle() end)
