@@ -1,3 +1,6 @@
+brew "go"
+brew "golangci-lint"
+brew "gopls"
 brew "opencode"
 brew "jq"
 brew "parallel"
