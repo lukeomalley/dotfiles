@@ -70,35 +70,6 @@ require('packer').startup(function(use)
   -- Fuzzy Finder Algorithm which requires local dependencies to be built. Only load if `make` is available
   use { 'nvim-telescope/telescope-fzf-native.nvim', run = 'make', cond = vim.fn.executable 'make' == 1 }
 
-  -- Markdown Renderer
-  use({
-    'MeanderingProgrammer/render-markdown.nvim',
-    after = { 'nvim-treesitter' },
-    requires = { 'echasnovski/mini.nvim', opt = true }, -- if you use the mini.nvim suite
-    -- requires = { 'echasnovski/mini.icons', opt = true }, -- if you use standalone mini plugins
-    -- requires = { 'nvim-tree/nvim-web-devicons', opt = true }, -- if you prefer nvim-web-devicons
-    config = function()
-      require('render-markdown').setup({
-        enabled = true,
-        render_modes = { 'n', 'c', 't' },
-        anti_conceal = {
-          enabled = true,
-          -- Which elements to always show, ignoring anti conceal behavior. Values can either be
-          -- booleans to fix the behavior or string lists representing modes where anti conceal
-          -- behavior will be ignored. Valid values are:
-          --   head_icon, head_background, head_border, code_language, code_background, code_border,
-          --   dash, bullet, check_icon, check_scope, quote, table_border, callout, link, sign
-          ignore = {
-            code_background = true,
-            sign = true,
-          },
-          above = 0,
-          below = 0,
-        },
-      })
-    end,
-  })
-
   -- Surround
   use({
     "kylechui/nvim-surround",
@@ -216,6 +187,7 @@ vim.o.smartcase = true
 
 -- Decrease update time
 vim.o.updatetime = 250
+vim.o.ttimeoutlen = 10  -- Faster terminal key code recognition (helps with Ctrl+Space, etc.)
 vim.wo.signcolumn = 'yes'
 
 -- Set colorscheme
@@ -364,15 +336,6 @@ require('nvim-treesitter.configs').setup {
     'vimdoc', 'graphql', 'yaml', 'sql', 'json' },
   highlight = { enable = true },
   indent = { enable = true },
-  incremental_selection = {
-    enable = true,
-    keymaps = {
-      init_selection = '<c-space>',
-      node_incremental = '<c-space>',
-      scope_incremental = '<c-s>',
-      node_decremental = '<c-backspace>',
-    },
-  },
   textobjects = {
     select = {
       enable = true,
