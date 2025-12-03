@@ -42,4 +42,5 @@ cask "docker-desktop"
 cask "notion"
 cask "notion-calendar"
 cask "spotify"
+cask "superwhisper"
 
