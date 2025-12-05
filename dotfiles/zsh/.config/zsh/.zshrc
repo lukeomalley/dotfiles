@@ -23,6 +23,9 @@ _comp_options+=(globdots)
 # Starship
 export STARSHIP_CONFIG="$HOME/.config/starship.toml"
 eval "$(starship init zsh)"
+# Unset right prompt to prevent $(…) being printed on rapid Ctrl+C
+# See: https://github.com/spaceship-prompt/spaceship-prompt/issues/644
+unset RPROMPT
 
 # Push the current directory visited on to the stack
 setopt AUTO_PUSHD
