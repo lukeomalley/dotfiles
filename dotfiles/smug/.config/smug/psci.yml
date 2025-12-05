@@ -3,17 +3,11 @@ session: psci
 root: ~/code/psci
 
 windows:
-  - name: notes
+  - name: code
     root:  chatbot-ui # a relative path to root
     layout: main-vertical
     commands:
-      - notes
-
-  - name: ranger
-    root:  /Users/luke/Desktop # a relative path to root
-    layout: main-vertical
-    commands:
-      - ranger
+      - nvim .
 
   - name: chatbot-ui
     root:  chatbot-ui # a relative path to root
@@ -22,10 +16,4 @@ windows:
       - fnm use
     panes:
       - type: horizontal
-
-  - name: k9s
-    root:  chatbot-ui # a relative path to root
-    layout: main-vertical
-    commands:
-      - k9s
 
