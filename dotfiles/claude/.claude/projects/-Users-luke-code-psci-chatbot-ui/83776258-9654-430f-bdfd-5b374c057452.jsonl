@@ -1,3 +1,0 @@
-{"type":"summary","summary":"MCP Server Configuration Troubleshooting","leafUuid":"62d64e48-b5ad-469e-b831-fb65d129642b"}
-{"type":"summary","summary":"Local Command Execution: Doctor Command Attempted","leafUuid":"3a113db9-60b0-416a-8e07-1c3c74136c5a"}
-{"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/Users/luke/code/psci/chatbot-ui","sessionId":"83776258-9654-430f-bdfd-5b374c057452","version":"1.0.65","gitBranch":"DEV-5236","type":"user","message":{"role":"user","content":"/msp"},"uuid":"c116ca86-3981-4c46-a5db-9367e87b470b","timestamp":"2025-08-01T20:35:09.984Z"}

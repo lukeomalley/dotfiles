@@ -3,9 +3,15 @@ plugins
 
 secrets.zsh
 
-statsig/
-todos/
-shell-snapshots/
-debug/
-ide/
-projects/
+# Claude runtime files (these get created when claude runs)
+dotfiles/claude/.claude/debug/
+dotfiles/claude/.claude/file-history/
+dotfiles/claude/.claude/ide/
+dotfiles/claude/.claude/plugins/
+dotfiles/claude/.claude/projects/
+dotfiles/claude/.claude/session-env/
+dotfiles/claude/.claude/shell-snapshots/
+dotfiles/claude/.claude/statsig/
+dotfiles/claude/.claude/todos/
+dotfiles/claude/.claude/history.jsonl
+dotfiles/claude/.claude/stats-cache.json
