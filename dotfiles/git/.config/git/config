@@ -35,7 +35,6 @@
 	showUntrackedFiles = all
 
 [pull]
-	default = current
 	rebase = true
 
 [blame]
