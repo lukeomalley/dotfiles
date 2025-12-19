@@ -61,4 +61,3 @@ copy-on-select = true
 
 # Save window state and position between sessions
 window-save-state = always
-keybind = shift+enter=text:\x1b\r
