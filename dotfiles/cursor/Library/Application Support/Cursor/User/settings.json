@@ -262,5 +262,7 @@
   "cursor.composer.shouldAllowCustomModes": true,
   "json.schemaDownload.enable": true,
   "go.toolsManagement.autoUpdate": true,
-  "cursor.windowSwitcher.sidebarHoverCollapsed": true
+  "cursor.windowSwitcher.sidebarHoverCollapsed": true,
+  "claudeCode.preferredLocation": "panel",
+  "claudeCode.selectedModel": "default"
 }
