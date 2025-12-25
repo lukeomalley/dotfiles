@@ -1,45 +1,177 @@
 # Atuin configuration
 # https://docs.atuin.sh/configuration/config/
 
-# Where to store the database
+# =============================================================================
+# Database & Storage Paths
+# =============================================================================
+
+# Where to store the SQLite history database
 db_path = "~/.local/share/atuin/history.db"
 
-# Where to store encryption keys
+# Where to store the encryption key for syncing
 key_path = "~/.local/share/atuin/key"
 
-# Where to store session tokens
+# Where to store server session tokens (API token)
 session_path = "~/.local/share/atuin/session"
 
+# =============================================================================
+# Search Configuration
+# =============================================================================
+
 # Search mode: prefix, fulltext, fuzzy, skim
+# - prefix: matches commands starting with query
+# - fulltext: matches commands containing query anywhere
+# - fuzzy: approximate matching (like fzf)
+# - skim: uses skim's search algorithm
 search_mode = "fuzzy"
 
 # Filter mode when searching: global, host, session, directory
+# - global: search all history
+# - host: only history from current host
+# - session: only history from current shell session
+# - directory: only history from current directory
 filter_mode = "global"
 
+# Filter mode for the up arrow keybinding (can differ from ctrl-r)
+# filter_mode_shell_up_key_binding = "global"
+
+# =============================================================================
+# User Interface
+# =============================================================================
+
 # Style of the search UI: auto, full, compact
+# - compact: minimal interface, less chrome
+# - full: shows more metadata and context
 style = "compact"
 
-# Inline height (set to 0 to disable inline mode)
-inline_height = 0
+# Inline height (0 = fullscreen, or number of lines for inline mode like fzf)
+inline_height = 10
 
-# Show preview of the selected command
-show_preview = true
+# Show preview of the selected command (full command text)
+show_preview = false
 
-# Show help text in the search UI
-show_help = true
+# Show help text/keybindings in the search UI
+show_help = false
 
-# Exit on Esc or q
+# Hide the tab bar showing Search | Inspect
+show_tabs = false
+
+# Maximum number of lines to show in preview pane
+# max_preview_height = 4
+
+# What to do when pressing Esc: return-original, return-query
 exit_mode = "return-original"
 
-# Maximum number of lines to show in preview
-max_preview_height = 4
-
-# Enter shell mode: vim-normal, emacs, auto
+# If true, pressing Enter executes command. If false, inserts for editing
 enter_accept = true
 
-# Enable keyboard shortcuts for quick commands
+# Keymap mode: auto, vim-normal, emacs
+# - auto: detects based on shell settings
 keymap_mode = "auto"
 
-# Sync settings (optional - configure if you want to sync across machines)
+# =============================================================================
+# History Recording
+# =============================================================================
+
+# Regex patterns for commands to exclude from history (e.g., secrets)
+# history_filter = [
+#   "^secret",
+#   "password",
+#   "^export AWS",
+# ]
+
+# Regex patterns to filter commands containing secrets (won't record)
+# secrets_filter = true
+
+# Filter out commands run from specific directories
+# cwd_filter = [
+#   "^/private",
+# ]
+
+# Record commands that fail (non-zero exit code)
+# store_failed = true
+
+# =============================================================================
+# Sync Configuration
+# =============================================================================
+
+# Whether to automatically sync when logged in
+# auto_sync = true
+
+# Address of the sync server
 # sync_address = "https://api.atuin.sh"
+
+# How often to sync: 0 = after every command, or duration like "1h", "30m"
 # sync_frequency = "1h"
+
+# =============================================================================
+# Miscellaneous
+# =============================================================================
+
+# How stats command parses dates: us (MM/DD/YYYY) or uk (DD/MM/YYYY)
+# dialect = "us"
+
+# Whether to check for Atuin updates
+# update_check = true
+
+# Network timeout for connecting to sync server (in seconds)
+# network_connect_timeout = 5
+
+# Network timeout for sync operations (in seconds)
+# network_timeout = 30
+
+# Reduce motion/animations for accessibility
+# prefers_reduced_motion = false
+
+# =============================================================================
+# Daemon (for faster shell startup)
+# =============================================================================
+
+# Enable the atuin daemon for background sync and faster startup
+# [daemon]
+# enabled = false
+
+# Socket path for daemon communication
+# socket_path = "~/.local/share/atuin/atuin.sock"
+
+# =============================================================================
+# Dotfiles Sync (sync aliases/env vars across machines)
+# =============================================================================
+
+# [dotfiles]
+# enabled = false
+
+# =============================================================================
+# Theme Configuration
+# =============================================================================
+
+# [theme]
+# Built-in themes: default, autumn, marine
+# name = "default"
+
+# Debug theme parsing issues
+# debug = false
+
+# =============================================================================
+# Stats Configuration
+# =============================================================================
+
+# [stats]
+# Commands to exclude from stats
+# common_prefix = ["sudo"]
+
+# Substrings to treat as the same command in stats
+# common_substrings = ["kubectl", "k"]
+
+# =============================================================================
+# Custom Keybindings (override defaults)
+# =============================================================================
+
+# [keys]
+# scroll_exits = false
+
+# [keys.up]
+# key = "ctrl-p"
+
+# [keys.down]
+# key = "ctrl-n"
