@@ -83,6 +83,9 @@ source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zs
 # Zoxide (better cd)
 eval "$(zoxide init zsh)"
 
+# Atuin (better shell history)
+eval "$(atuin init zsh)"
+
 # fnm
 eval "$(fnm env)"
 

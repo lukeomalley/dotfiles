@@ -1,0 +1,45 @@
+# Atuin configuration
+# https://docs.atuin.sh/configuration/config/
+
+# Where to store the database
+db_path = "~/.local/share/atuin/history.db"
+
+# Where to store encryption keys
+key_path = "~/.local/share/atuin/key"
+
+# Where to store session tokens
+session_path = "~/.local/share/atuin/session"
+
+# Search mode: prefix, fulltext, fuzzy, skim
+search_mode = "fuzzy"
+
+# Filter mode when searching: global, host, session, directory
+filter_mode = "global"
+
+# Style of the search UI: auto, full, compact
+style = "compact"
+
+# Inline height (set to 0 to disable inline mode)
+inline_height = 0
+
+# Show preview of the selected command
+show_preview = true
+
+# Show help text in the search UI
+show_help = true
+
+# Exit on Esc or q
+exit_mode = "return-original"
+
+# Maximum number of lines to show in preview
+max_preview_height = 4
+
+# Enter shell mode: vim-normal, emacs, auto
+enter_accept = true
+
+# Enable keyboard shortcuts for quick commands
+keymap_mode = "auto"
+
+# Sync settings (optional - configure if you want to sync across machines)
+# sync_address = "https://api.atuin.sh"
+# sync_frequency = "1h"
