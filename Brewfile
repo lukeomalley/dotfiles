@@ -32,6 +32,8 @@ brew "bottom"
 brew "bat"
 brew "eza"
 brew "kubetail"
+brew "lnav"
+brew "jless"
 
 cask "1password-cli"
 cask "karabiner-elements"
