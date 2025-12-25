@@ -34,6 +34,7 @@ brew "eza"
 brew "kubetail"
 brew "lnav"
 brew "jless"
+brew "atuin"
 
 cask "1password-cli"
 cask "karabiner-elements"
