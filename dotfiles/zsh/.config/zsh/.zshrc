@@ -60,10 +60,29 @@ if [[ ! "$PATH" == */opt/homebrew/opt/fzf/bin* ]]; then
   export PATH="${PATH:+${PATH}:}/opt/homebrew/opt/fzf/bin"
 fi
 
+# fzf config - use fd for faster searching (respects .gitignore)
+export FZF_DEFAULT_COMMAND="fd --type f --hidden --follow --exclude .git"
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_ALT_C_COMMAND="fd --type d --hidden --follow --exclude .git"
+
+# Ctrl+T: file search with bat preview
+# Enter opens in nvim, Ctrl+/ toggle preview, Ctrl+Y copy path
+export FZF_CTRL_T_OPTS="
+  --preview 'bat --color=always --style=numbers --line-range=:500 {} 2>/dev/null || eza --tree --color=always {}'
+  --preview-window 'right:50%:wrap'
+  --bind 'ctrl-/:toggle-preview'
+  --bind 'ctrl-y:execute-silent(echo -n {} | pbcopy)+abort'
+  --bind 'enter:execute(nvim {})+abort'"
+
+# Alt+C: directory search with tree preview
+export FZF_ALT_C_OPTS="
+  --preview 'eza --tree --color=always --icons {} | head -200'
+  --preview-window 'right:50%'"
+
 # Auto-completion
 [[ $- == *i* ]] && source "/opt/homebrew/opt/fzf/shell/completion.zsh" 2>/dev/null
 
-# Key bindings
+# Key bindings (Ctrl+T file search, Alt+C cd, Ctrl+R overridden by Atuin)
 source "/opt/homebrew/opt/fzf/shell/key-bindings.zsh"
 
 # Clear the terminal
