@@ -26,3 +26,6 @@ alias h="cd ~"
 
 # JSON
 alias jfmt='pbpaste | jless'
+
+# Kubernetes
+alias k='kubectl'
