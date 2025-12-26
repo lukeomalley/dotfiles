@@ -37,6 +37,7 @@ brew "lnav"
 brew "jless"
 brew "atuin"
 brew "tailscale"
+brew "siderolabs/tap/talosctl"
 
 cask "1password-cli"
 cask "karabiner-elements"
