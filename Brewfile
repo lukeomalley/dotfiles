@@ -36,6 +36,7 @@ brew "kubetail"
 brew "lnav"
 brew "jless"
 brew "atuin"
+brew "tailscale"
 
 cask "1password-cli"
 cask "karabiner-elements"
