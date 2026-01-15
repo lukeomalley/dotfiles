@@ -136,6 +136,10 @@ run = 'layout floating'
 if.app-id = 'com.apple.finder'
 run = 'layout floating'
 
+[[on-window-detected]]
+if.app-id = 'com.anthropic.claudefordesktop'
+run = 'layout floating'
+
 # Application assignments - Ghostty to workspace 1
 [[on-window-detected]]
 if.app-id = 'com.mitchellh.ghostty'

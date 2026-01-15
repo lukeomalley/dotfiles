@@ -7,10 +7,25 @@ source "$XDG_CONFIG_HOME/zsh/secrets.zsh"
 setopt AUTO_PARAM_SLASH
 unsetopt CASE_GLOB
 
-autoload -Uz compinit
-# Save compdump to cache directory instead of config directory
-compinit -d "$XDG_CACHE_HOME/zsh/zcompdump"
+# Ensure zsh cache directory exists for zcompdump
+[[ ! -d "$XDG_CACHE_HOME/zsh" ]] && mkdir -p "$XDG_CACHE_HOME/zsh"
 
+# Docker CLI completions (fpath must be set before compinit)
+fpath=(/Users/luke/.docker/completions $fpath)
+
+# Optimized compinit - only regenerate zcompdump once per day for faster startup
+# Using -C skips the security check which saves ~200ms
+autoload -Uz compinit
+if [[ -f "$XDG_CACHE_HOME/zsh/zcompdump" ]]; then
+  # Regenerate if zcompdump is older than 24 hours
+  if [[ -n $(find "$XDG_CACHE_HOME/zsh/zcompdump" -mtime +1 2>/dev/null) ]]; then
+    compinit -d "$XDG_CACHE_HOME/zsh/zcompdump"
+  else
+    compinit -C -d "$XDG_CACHE_HOME/zsh/zcompdump"
+  fi
+else
+  compinit -d "$XDG_CACHE_HOME/zsh/zcompdump"
+fi
 
 # Autocomplete hidden files
 _comp_options+=(globdots)
@@ -90,14 +105,17 @@ bindkey -r '^l'
 bindkey -r '^g'
 bindkey -s '^g' 'clear\n'
 
-# Homebrew
-eval "$(/opt/homebrew/bin/brew shellenv)"
+# Homebrew - Note: brew shellenv is already loaded in ~/.zprofile for login shells
+# Keeping this for non-login shells (e.g., tmux new panes)
+# eval "$(/opt/homebrew/bin/brew shellenv)"
 
 # Zsh Autosuggestions
-source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+# Note: Using hardcoded path instead of $(brew --prefix) for faster shell startup (~40ms per call)
+source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 
 # Zsh Syntax Highlighting
-source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+# Note: Using hardcoded path instead of $(brew --prefix) for faster shell startup (~40ms per call)
+source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
 # Zoxide (better cd)
 eval "$(zoxide init zsh)"
@@ -149,9 +167,8 @@ export GPG_TTY=$(tty)
 #     done
 #   fi
 # fi
-#
-# The following lines have been added by Docker Desktop to enable Docker CLI completions.
-fpath=(/Users/luke/.docker/completions $fpath)
-autoload -Uz compinit
-compinit -d "$XDG_CACHE_HOME/zsh/zcompdump"
-# End of Docker CLI completions
+
+# Note: Docker CLI completions moved to top of file (fpath must be before compinit)
+
+# bun completions
+[ -s "/Users/luke/.bun/_bun" ] && source "/Users/luke/.bun/_bun"

@@ -23,9 +23,7 @@ export DOTFILES="$HOME/code/dotfiles"
 export VISUAL="nvim"
 export EDITOR="nvim"
 
-# Fzf config
-export FZF_DEFAULT_COMMAND="rg --files --hidden --glob '!.git'"
-export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+# Note: FZF config moved to .zshrc where it uses fd instead of rg
 
 # Kube Config
 export KUBECONFIG="$HOME/.kube/config"
@@ -34,6 +32,9 @@ export KUBECONFIG="$HOME/.kube/config"
 export GOPATH="$HOME/go"
 export PATH="$PATH:$GOPATH/bin"
 export GO111MODULE=on
+
+# Bun
+export PATH="$PATH:$HOME/.bun/bin"
 
 # Z config
 export _Z_DATA="$XDG_DATA_HOME/.z"
