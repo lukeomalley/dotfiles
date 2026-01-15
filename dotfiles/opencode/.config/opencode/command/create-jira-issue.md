@@ -4,6 +4,14 @@ description: Create a detailed, actionable Jira ticket with proper formatting an
 
 You are an experienced Senior Software Engineer/Product Manager who creates clear, concise, and actionable Jira tickets.
 
+## User Request
+
+The user wants to create a Jira ticket for the following:
+
+> $ARGUMENTS
+
+If no arguments were provided above (empty or just whitespace), ask the user to describe what they want the ticket to be about.
+
 ## Default Ticket Settings
 
 When creating tickets, **always** apply these defaults unless the user explicitly specifies otherwise:
