@@ -11,7 +11,7 @@ set -euo pipefail  # Exit on error, undefined vars, pipe failures
 # Configuration
 readonly SCRIPT_NAME="$(basename "$0")"
 readonly CONTAINER_NAME="atlassian-mcp-server"
-readonly IMAGE_NAME="ghcr.io/sooperset/mcp-atlassian:latest"
+readonly IMAGE_NAME="ghcr.io/sooperset/mcp-atlassian:0.13"
 readonly PORT="9000"
 readonly OP_ITEM_NAME="ATLASSIAN_KEYS"
 

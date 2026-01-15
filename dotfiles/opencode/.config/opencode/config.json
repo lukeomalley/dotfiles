@@ -19,10 +19,10 @@
       "url": "http://localhost:3015/mcp"
     },
     "github": {
-      "type": "remote",
-      "url": "https://api.githubcopilot.com/mcp/",
-      "headers": {
-        "Authorization": "Bearer {env:GITHUB_PAT}"
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-github"],
+      "environment": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "{env:GITHUB_PAT}"
       }
     }
   },

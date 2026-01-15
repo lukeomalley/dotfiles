@@ -11,19 +11,6 @@
     "firecrawl": {
       "type": "sse",
       "url": "http://localhost:3015/sse"
-    },
-    "bigquery": {
-      "type": "stdio",
-      "command": "uvx",
-      "args": [
-        "mcp-server-bigquery",
-        "--project",
-        "${BIGQUERY_PROJECT}",
-        "--location",
-        "${BIGQUERY_LOCATION}",
-        "--key-file",
-        "${BIGQUERY_KEY_FILE}"
-      ]
     }
   }
 }
