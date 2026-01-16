@@ -43,6 +43,7 @@ brew "fluxcd/tap/flux"
 brew "go"
 brew "age"
 brew "beads"
+brew "coder"
 
 cask "1password-cli"
 cask "karabiner-elements"
