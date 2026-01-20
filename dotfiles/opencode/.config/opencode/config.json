@@ -77,7 +77,10 @@
       "description": "Creates professional pull requests with proper commit messages and descriptions"
     },
     "pr-reviewer": {
-      "description": "Reviews GitHub PRs for defects and code quality using GitHub MCP server, can post review comments directly"
+      "description": "Reviews GitHub PRs with confidence scoring, parallel validation, and gh CLI posting"
+    },
+    "pr-comment-validator": {
+      "description": "Validates individual PR review comments through deep analysis before posting"
     }
   }
 }

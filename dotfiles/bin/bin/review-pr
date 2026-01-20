@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+#
+# review-pr - Select a PR with fzf and review it with opencode
+#
+# Usage:
+#   review-pr              # List PRs from current repo
+#   review-pr owner/repo   # List PRs from specified repo
+#
+
+set -euo pipefail
+
+# Get repo from argument or detect from current directory
+if [[ $# -gt 0 ]]; then
+  REPO="$1"
+else
+  REPO=$(gh repo view --json nameWithOwner -q '.nameWithOwner' 2>/dev/null) || {
+    echo "Error: Not in a git repository or unable to detect repo." >&2
+    echo "Usage: review-pr [owner/repo]" >&2
+    exit 1
+  }
+fi
+
+# Fetch PRs sorted by updated date (most recent first)
+# Format: "PR_NUMBER | TITLE | UPDATED_AT | AUTHOR"
+prs=$(gh pr list \
+  --repo "$REPO" \
+  --state open \
+  --limit 50 \
+  --json number,title,updatedAt,author \
+  --jq '.[] | "\(.number)\t\(.title)\t\(.updatedAt | split("T")[0])\t\(.author.login)"' \
+  | sort -t$'\t' -k3 -r)
+
+if [[ -z "$prs" ]]; then
+  echo "No open PRs found in $REPO" >&2
+  exit 0
+fi
+
+# Use fzf to select a PR
+# Display format: #NUMBER  TITLE  (DATE by AUTHOR)
+selected=$(echo "$prs" | awk -F'\t' '{printf "#%-6s %-60s (%s by %s)\n", $1, substr($2, 1, 60), $3, $4}' | \
+  fzf --height=50% \
+      --reverse \
+      --header="Select a PR to review (sorted by last updated)" \
+      --preview="gh pr view {1} --repo $REPO" \
+      --preview-window=right:50%:wrap)
+
+if [[ -z "$selected" ]]; then
+  echo "No PR selected" >&2
+  exit 0
+fi
+
+# Extract PR number from selection (remove the # prefix)
+pr_number=$(echo "$selected" | awk '{print $1}' | tr -d '#')
+
+echo "Starting review for PR #$pr_number in $REPO..."
+
+# Launch opencode with the pr-reviewer agent
+exec opencode --prompt "/review-pr $REPO#$pr_number"
