@@ -3,11 +3,22 @@
 # review-pr - Select a PR with fzf and review it with opencode
 #
 # Usage:
-#   review-pr              # List PRs from current repo
-#   review-pr owner/repo   # List PRs from specified repo
+#   review-pr              # List PRs from current repo (interactive TUI)
+#   review-pr owner/repo   # List PRs from specified repo (interactive TUI)
+#   review-pr -r [repo]    # Non-interactive mode (run command directly)
 #
 
 set -euo pipefail
+
+# Parse flags
+NON_INTERACTIVE=false
+while getopts "r" opt; do
+  case $opt in
+    r) NON_INTERACTIVE=true ;;
+    *) echo "Usage: review-pr [-r] [owner/repo]" >&2; exit 1 ;;
+  esac
+done
+shift $((OPTIND - 1))
 
 # Get repo from argument or detect from current directory
 if [[ $# -gt 0 ]]; then
@@ -54,5 +65,12 @@ pr_number=$(echo "$selected" | awk '{print $1}' | tr -d '#')
 
 echo "Starting review for PR #$pr_number in $REPO..."
 
-# Launch opencode with the pr-reviewer agent
-exec opencode --prompt "/review-pr $REPO#$pr_number"
+if [[ "$NON_INTERACTIVE" == "true" ]]; then
+  # Non-interactive mode: run command and exit
+  # Useful for CI/CD or when you want auto-approval
+  exec opencode run --command "/review-pr" "$REPO#$pr_number"
+else
+  # Interactive mode: open TUI with the command as initial prompt
+  # This allows you to see the proposal and select which comments to post
+  exec opencode --prompt "/review-pr $REPO#$pr_number"
+fi

@@ -26,10 +26,10 @@
   },
   "mcp": {
     "context7": {
-      "type": "local",
-      "command": ["npx", "-y", "@upstash/context7-mcp"],
-      "environment": {
-        "DEFAULT_MINIMUM_TOKENS": "10000"
+      "type": "remote",
+      "url": "https://mcp.context7.com/mcp",
+      "headers": {
+        "CONTEXT7_API_KEY": "{env:CONTEXT7_API_KEY}"
       }
     },
     "atlassian": {
@@ -41,10 +41,19 @@
       "url": "http://localhost:3015/mcp"
     },
     "github": {
-      "type": "local",
-      "command": ["npx", "-y", "@modelcontextprotocol/server-github"],
-      "environment": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "{env:GITHUB_PAT}"
+      "type": "remote",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "oauth": false,
+      "headers": {
+        "Authorization": "Bearer {env:GITHUB_PERSONAL_ACCESS_TOKEN}"
+      }
+    },
+    "fireflies": {
+      "type": "remote",
+      "url": "https://api.fireflies.ai/mcp",
+      "oauth": false,
+      "headers": {
+        "Authorization": "Bearer {env:FIREFLIES_API_KEY}"
       }
     }
   },
@@ -77,10 +86,10 @@
       "description": "Creates professional pull requests with proper commit messages and descriptions"
     },
     "pr-reviewer": {
-      "description": "Reviews GitHub PRs with confidence scoring, parallel validation, and gh CLI posting"
+      "description": "Reviews GitHub PRs with confidence scoring, parallel validation, Jira context integration, and GitHub MCP tools"
     },
     "pr-comment-validator": {
-      "description": "Validates individual PR review comments through deep analysis before posting"
+      "description": "Validates PR review comments through deep codebase research using GitHub MCP for file access and Context7 MCP for library documentation lookup"
     }
   }
 }
