@@ -12,10 +12,6 @@ echo "Setting up Homebrew..."
 echo "Installing Amp CLI..."
 ./scripts/amp.sh
 
-# Install Clawdbot
-echo "Installing Clawdbot..."
-./scripts/clawdbot.sh
-
 # Stow dotfiles
 echo "Stowing dotfiles..."
 ./scripts/stow.sh
