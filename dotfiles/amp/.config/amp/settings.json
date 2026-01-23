@@ -1,6 +1,7 @@
 {
   "amp.showCosts": true,
   "amp.notifications.enabled": true,
+  "amp.experimental.autoHandoff": { "context": 90 },
   "amp.permissions": [
     {
       "tool": "*",
