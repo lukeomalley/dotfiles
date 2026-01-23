@@ -26,7 +26,7 @@
   "biome.enabled": true,
   "editor.codeActionsOnSave": {
     "source.organizeImports.biome": "explicit",
-    "source.fixAll.biome": "explicit"
+    "source.fixAll.biome": "explicit",
   },
 
   "editor.formatOnSave": true,
@@ -38,7 +38,7 @@
   "editor.quickSuggestions": {
     "other": true,
     "comments": false,
-    "strings": false
+    "strings": false,
   },
   "redhat.telemetry.enabled": false,
   "editor.accessibilitySupport": "off",
@@ -54,43 +54,43 @@
   "prettier.printWidth": 110,
   "emmet.includeLanguages": {
     "javascript": "javascriptreact",
-    "erb": "html"
+    "erb": "html",
   },
   "[rust]": {
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
   },
   "[javascript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
   },
   "[javascriptreact]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
   },
   "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
   },
   "[html]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
   },
   "[json]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
   },
   "[svelte]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
   },
   "[jsonc]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
   },
   "[typescriptreact]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
   },
   "[css]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
   },
   "[scss]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
   },
   "[vue]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
   },
   "vim.easymotion": false,
   "vim.camelCaseMotion.enable": true,
@@ -110,8 +110,8 @@
   "vim.insertModeKeyBindings": [
     {
       "before": ["j", "k"],
-      "after": ["<Esc>"]
-    }
+      "after": ["<Esc>"],
+    },
   ],
   "vim.normalModeKeyBindings": [
     {
@@ -120,9 +120,9 @@
       "commands": [
         {
           "command": "workbench.action.files.save",
-          "args": []
-        }
-      ]
+          "args": [],
+        },
+      ],
     },
     {
       "before": ["<leader>", "p"],
@@ -130,9 +130,9 @@
       "commands": [
         {
           "command": "workbench.action.quickOpen",
-          "args": []
-        }
-      ]
+          "args": [],
+        },
+      ],
     },
     {
       "before": ["<leader>", "s", "f"],
@@ -140,18 +140,18 @@
       "commands": [
         {
           "command": "workbench.action.quickOpen",
-          "args": []
-        }
-      ]
+          "args": [],
+        },
+      ],
     },
     {
       "before": ["<leader>", "s", "g"],
       "after": [],
       "commands": [
         {
-          "command": "workbench.action.quickTextSearch"
-        }
-      ]
+          "command": "workbench.action.quickTextSearch",
+        },
+      ],
     },
     {
       "before": ["<leader>", "q"],
@@ -159,9 +159,9 @@
       "commands": [
         {
           "command": "workbench.action.closeActiveEditor",
-          "args": []
-        }
-      ]
+          "args": [],
+        },
+      ],
     },
     {
       "before": ["<leader>", "f", "f"],
@@ -169,9 +169,9 @@
       "commands": [
         {
           "command": "workbench.action.findInFiles",
-          "args": []
-        }
-      ]
+          "args": [],
+        },
+      ],
     },
     {
       "before": ["<leader>", "b"],
@@ -179,17 +179,17 @@
       "commands": [
         {
           "command": "workbench.action.showAllEditorsByMostRecentlyUsed",
-          "args": []
-        }
-      ]
+          "args": [],
+        },
+      ],
     },
     {
       "before": ["<leader>", "i"],
-      "after": ["y", "i", "\""]
+      "after": ["y", "i", "\""],
     },
     {
       "before": ["Y"],
-      "after": ["y", "$"]
+      "after": ["y", "$"],
     },
     {
       "before": ["g", "R"],
@@ -197,9 +197,9 @@
       "commands": [
         {
           "command": "editor.action.rename",
-          "args": []
-        }
-      ]
+          "args": [],
+        },
+      ],
     },
     {
       "before": ["g", "r"],
@@ -207,24 +207,24 @@
       "commands": [
         {
           "command": "editor.action.goToReferences",
-          "args": []
-        }
-      ]
-    }
+          "args": [],
+        },
+      ],
+    },
   ],
   "vim.visualModeKeyBindings": [
     {
       "before": ["K"],
-      "after": ["leader", "leader", "k"]
+      "after": ["leader", "leader", "k"],
     },
     {
       "before": ["J"],
-      "after": ["leader", "leader", "j"]
+      "after": ["leader", "leader", "j"],
     },
     {
       "before": ["<leader>", "p"],
-      "after": ["_dP"]
-    }
+      "after": ["_dP"],
+    },
   ],
   "vim.easymotionMarkerBackgroundColor": "yellow",
   "vim.easymotionKeys": "hklyuiopnm,qwertzxcvbasdgjf:",
@@ -234,25 +234,25 @@
   "[cpp]": {
     "editor.wordBasedSuggestions": "off",
     "editor.suggest.insertMode": "replace",
-    "editor.semanticHighlighting.enabled": true
+    "editor.semanticHighlighting.enabled": true,
   },
   "tailwindCSS.codeActions": true,
   "tailwindCSS.includeLanguages": {
     "Svelte": "html",
     "Vue": "html",
     "Angular": "html",
-    "templ": "html"
+    "templ": "html",
   },
   "git.autofetch": true,
   "extensions.ignoreRecommendations": true,
   "workbench.iconTheme": "vscode-icons",
   "vsicons.dontShowNewVersionMessage": true,
   "[shellscript]": {
-    "editor.defaultFormatter": "foxundermoon.shell-format"
+    "editor.defaultFormatter": "foxundermoon.shell-format",
   },
   "yaml.schemas": {
     "https://raw.githubusercontent.com/knative/func/main/schema/func_yaml-schema.json": "func.yaml",
-    "https://json.schemastore.org/bitbucket-pipelines": "bitbucket-pipelines.yml"
+    "https://json.schemastore.org/bitbucket-pipelines": "bitbucket-pipelines.yml",
   },
   "[gotmpl]": {},
   "editor.inlineSuggest.suppressSuggestions": true,
@@ -264,5 +264,5 @@
   "cursor.windowSwitcher.sidebarHoverCollapsed": true,
   "claudeCode.preferredLocation": "panel",
   "claudeCode.selectedModel": "default",
-  "workbench.colorTheme": "Night Rock"
+  "workbench.colorTheme": "Night Rock",
 }
