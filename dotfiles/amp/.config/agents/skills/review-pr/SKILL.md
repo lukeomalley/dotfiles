@@ -1,3 +1,8 @@
+---
+name: review-pr
+description: Review a GitHub pull request and post inline comments
+---
+
 # PR Review with Oracle-Powered Analysis
 
 Review GitHub pull request #$ARGUMENTS for code quality issues, potential defects, and best practices violations.
