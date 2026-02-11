@@ -47,6 +47,5 @@ pr_number=$(echo "$selected" | awk '{print $1}' | tr -d '#')
 
 echo "Starting review for PR #$pr_number..."
 
-# Start amp with the review prompt
-# Permissions are configured in ~/.config/amp/settings.json to allow all actions
-echo "Use the review-pr command to review PR #$pr_number" | exec amp
+# Start amp with the review-pr skill
+exec amp -x "Use the review-pr skill to review PR #$pr_number"
