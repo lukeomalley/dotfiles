@@ -47,5 +47,5 @@ pr_number=$(echo "$selected" | awk '{print $1}' | tr -d '#')
 
 echo "Starting review for PR #$pr_number..."
 
-# Start amp with the review-pr skill
-exec amp -x "Use the review-pr skill to review PR #$pr_number"
+# Start amp interactively with the review-pr skill
+echo "Use the review-pr skill to review PR #$pr_number" | exec amp
