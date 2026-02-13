@@ -18,3 +18,6 @@ export FIREFLIES_API_KEY="op://Personal/FIREFLIES_API_KEY/credential"
 
 # Context7 MCP
 export CONTEXT7_API_KEY="op://Personal/CONTEXT7_API_KEY/credential"
+
+# OpenCode Web Server
+export OPENCODE_SERVER_PASSWORD="op://Personal/OPENCODE_SERVER_PASSWORD/credential"
