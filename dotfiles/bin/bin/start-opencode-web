@@ -1,6 +1,6 @@
 #!/bin/bash
 # Wrapper script for running opencode web as a launchd service.
-# Sources secrets.zsh so the process has API keys and the server password.
+# Sources secrets.zsh so the process has API keys for LLM providers.
 
 SECRETS_FILE="${HOME}/.config/zsh/secrets.zsh"
 
@@ -9,7 +9,5 @@ if [ -f "$SECRETS_FILE" ]; then
 else
     echo "Warning: $SECRETS_FILE not found. Run update-secrets first." >&2
 fi
-
-export OPENCODE_SERVER_USERNAME="luke"
 
 exec /opt/homebrew/bin/opencode web --hostname 0.0.0.0 --port 6767
