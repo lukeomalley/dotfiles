@@ -1,32 +1,25 @@
 ---
-description: Review a GitHub pull request with confidence scoring and validated comments
+description: Review a GitHub pull request with two-pass analysis and validated comments
 agent: pr-reviewer
 subtask: true
 ---
 
 Review GitHub pull request #$ARGUMENTS for code quality issues, potential defects, and best practices violations.
 
-**CRITICAL REQUIREMENT:** All feedback MUST be posted as inline comments attached to specific lines of code using the `create_pull_request_review` MCP tool with a `comments` array. The review body should ONLY be a brief, high-level summary (e.g., "Nice work on this! Found a couple things to address."). NEVER put detailed feedback in the review body - it MUST go in inline comments.
+**CRITICAL REQUIREMENT:** All feedback MUST be posted as inline comments attached to specific lines of code using the `create_pull_request_review` MCP tool with a `comments` array. The review body should ONLY be a brief, high-level summary. NEVER put detailed feedback in the review body.
 
-This command uses an enhanced review workflow with Jira integration:
+This command uses a two-pass review workflow:
+
 1. Fetch the PR using GitHub MCP tools (`get_pull_request`, `get_pull_request_files`)
-2. **Extract Jira ticket (DEV-XXXX) from PR title and fetch ticket details via Atlassian MCP**
-3. Generate potential issues with confidence scores (0-100%), using Jira context to understand intent
-4. Validate each comment with parallel subagent analysis
-5. Present approved comments for your selection
-6. Post selected comments as INLINE comments via `create_pull_request_review` MCP tool with a `comments` array
-7. Include a brief, friendly summary in the review body (just 1-2 sentences)
+2. **Extract Jira ticket (DEV-XXXX) from PR title** and fetch ticket details via Atlassian MCP
+3. **First pass:** Generate ALL potential issues with confidence scores, casting a wide net
+4. **Second pass:** Validate each finding with parallel subagents that perform deep codebase research, library doc lookups, and data flow tracing. Each subagent returns APPROVE, REJECT, or REFINE.
+5. Present surviving comments in a summary table with process stats (initial findings, rejection rate, confidence trajectories), expandable detail blocks, and recommended verdict
+6. **Ask what you want to do** -- post all, post specific ones, adjust comments, or skip
+7. Post selected comments as INLINE comments via `create_pull_request_review` MCP tool
 
-**Jira Integration:** The PR title must start with a Jira ticket number (e.g., "DEV-1234 Add user authentication"). The reviewer will fetch the ticket details to understand requirements, acceptance criteria, and context for a more informed review.
+**Jira Integration:** If the PR title starts with a Jira ticket (e.g., "DEV-1234 Add user auth"), the reviewer fetches ticket details to understand requirements and acceptance criteria.
 
-Categories detected:
-- Critical issues (security, crashes, data loss) - 90%+ confidence
-- Bugs (logic errors, edge cases) - 70-90% confidence
-- Performance issues - 60-85% confidence
-- Code quality / maintainability concerns - 40-70% confidence
-- Requirements alignment (Jira ticket mismatch) - 50-80% confidence
-- Style nits - 30-50% confidence
-
-Format: Conventional Comments with file:line references and confidence scores.
+Format: Conventional Comments with confidence trajectories (e.g., 90% -> 95%).
 
 PR to review: $ARGUMENTS
