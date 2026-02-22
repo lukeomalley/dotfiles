@@ -17,3 +17,8 @@ windows:
     panes:
       - type: horizontal
 
+  - name: desk-dance
+    root: ~/code/desk-dance
+    commands:
+      - pnpm dev
+
