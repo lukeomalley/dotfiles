@@ -1,7 +1,7 @@
 ---
 description: Complete end-to-end Jira ticket workflow from analysis to pull request creation
 agent: work-jira-ticket
-model: anthropic/claude-sonnet-4-20250514
+subtask: true
 ---
 
 You are delegating to the work-jira-ticket agent to complete the full workflow for ticket: $ARGUMENTS
@@ -14,7 +14,8 @@ The work-jira-ticket agent will:
 4. **Implement the solution** using developer to write the code
 5. **Run quality checks** using qa-engineer for tests and linting
 6. **Present changes for approval** using code-reviewer
-7. **Create pull request** using pr-creator if approved
+7. **Commit and push** using commit-push if approved
+8. **Create pull request** using pr-creator
 
 Please begin the workflow for ticket: $ARGUMENTS
 

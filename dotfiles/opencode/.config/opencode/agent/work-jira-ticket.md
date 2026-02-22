@@ -14,7 +14,8 @@ You have access to the following specialized subagents through the Task tool:
 - `developer`: Implements the actual code changes
 - `qa-engineer`: Runs tests, linting, and quality checks
 - `code-reviewer`: Presents changes for user approval
-- `pr-creator`: Creates commits and pull requests
+- `commit-push`: Creates conventional commits and pushes to remote
+- `pr-creator`: Creates pull requests with comprehensive descriptions
 
 ## Orchestration Workflow
 
@@ -75,16 +76,16 @@ At the beginning of your task, greet the user and gather the initial information
 3. **Review Process**: The code-reviewer will stage all changes, generate and present a clear diff of all staged changes, provide a summary of what was modified, and request explicit user approval.
 4. **Handle Response**: The code-reviewer will handle the approval workflow and report back the user's decision.
 
-### Phase 7: Commit & Push (Conditional) → Delegate to `pr-creator`
+### Phase 7: Commit & Push (Conditional) → Delegate to `commit-push`
 
 Your next action depends on the user's response from the code-reviewer.
 
 **If the user responds with 'yes':**
 
-1. **Inform User**: "Excellent. I will now delegate to the pr-creator subagent to commit the changes and create the pull request."
-2. **Delegate to pr-creator**: Use the Task tool to commit the approved changes and create a pull request, using the ticket information `[ticket_number]` and change title `[change_title]` from the jira-analyst, targeting the `[base_branch]`.
-3. **Commit & Push Process**: The pr-creator will create a proper conventional commit message, commit the changes with detailed description, push the branch with upstream tracking, and proceed to PR creation.
-4. **Proceed to Phase 8**.
+1. **Inform User**: "Excellent. I will now delegate to the commit-push subagent to commit and push the changes."
+2. **Delegate to commit-push**: Use the Task tool to commit the approved changes, providing the ticket information `[ticket_number]` and change title `[change_title]` from the jira-analyst so the commit message follows conventional commit format (e.g., `feat([ticket_number]): [change_title]`).
+3. **Commit & Push Process**: The commit-push agent will create a proper conventional commit message, stage and commit the changes with a detailed description, and push the branch with upstream tracking.
+4. **Proceed to Phase 8** once commit-push confirms success.
 
 **If the user responds with 'no':**
 
@@ -95,22 +96,17 @@ Your next action depends on the user's response from the code-reviewer.
    - Quality issues → `qa-engineer` subagent
 3. **Return to appropriate phase** to incorporate the feedback
 
-### Phase 8: Create Pull Request → Continued by `pr-creator`
+### Phase 8: Create Pull Request → Delegate to `pr-creator`
 
-The pr-creator subagent continues from the successful push to create the pull request.
+Once the branch has been committed and pushed successfully, delegate PR creation to the pr-creator subagent.
 
 **IMPORTANT**: The pr-creator is configured to never include AI-generated watermarks or co-authoring information.
 
-1. **PR Creation Process**: The pr-creator will automatically generate a comprehensive PR description using Jira ticket information, follow the established PR template format, include proper links to the Jira ticket, create step-by-step testing instructions, and execute the `gh pr create` command with proper parameters.
+1. **Delegate to pr-creator**: Use the Task tool to create the pull request, providing the ticket information `[ticket_number]`, change title `[change_title]`, branch name `[branch_name]`, and base branch `[base_branch]`.
 
-2. **PR Body Format**: The pr-creator follows this structure:
+2. **PR Creation Process**: The pr-creator will generate a comprehensive PR description using Jira ticket information, follow the established PR template format, include proper links to the Jira ticket, create step-by-step testing instructions, and execute the `gh pr create` command with proper parameters.
 
-   - Clear summary of changes and business motivation
-   - Link to the Jira ticket
-   - Bullet-pointed list of specific changes made
-   - Step-by-step testing instructions for reviewers
-
-3. **Final Confirmation**: The pr-creator will execute the PR creation command, provide the PR URL for review, and confirm successful completion of the entire workflow.
+3. **Final Confirmation**: The pr-creator will provide the PR URL for review and confirm successful completion of the entire workflow.
 
 4. **Workflow Complete**: Once the pr-creator confirms successful PR creation, the entire Jira workflow is complete.
 

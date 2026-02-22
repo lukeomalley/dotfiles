@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "theme": "system",
+  "theme": "night-rock",
   "model": "anthropic/claude-opus-4-6",
   "small_model": "anthropic/claude-sonnet-4-5",
   "autoupdate": false,
@@ -66,25 +66,34 @@
       "description": "Complete end-to-end Jira ticket workflow from analysis to pull request creation using specialized subagents"
     },
     "jira-analyst": {
-      "description": "Analyzes Jira tickets to understand requirements and generate descriptive change titles"
+      "description": "Analyzes Jira tickets to understand requirements and generate descriptive change titles",
+      "hidden": true
     },
     "codebase-analyst": {
-      "description": "Analyzes the codebase to find relevant files and creates implementation plans for Jira tickets"
+      "description": "Analyzes the codebase to find relevant files and creates implementation plans for Jira tickets",
+      "hidden": true
     },
     "developer": {
-      "description": "Core development specialist for implementing features and code changes based on requirements"
+      "description": "Core development specialist for implementing features and code changes based on requirements",
+      "hidden": true
     },
     "qa-engineer": {
-      "description": "Quality assurance specialist for running tests, linting, and type checking"
+      "description": "Quality assurance specialist for running tests, linting, and type checking",
+      "hidden": true
     },
     "git-manager": {
-      "description": "Handles all git repository operations including branch creation, syncing, and checkout"
+      "description": "Handles all git repository operations including branch creation, syncing, and checkout",
+      "hidden": true
     },
     "code-reviewer": {
-      "description": "Expert code review specialist for presenting changes and gathering user approval"
+      "description": "Expert code review specialist for presenting changes and gathering user approval",
+      "hidden": true
+    },
+    "commit-push": {
+      "description": "Creates conventional commits and pushes changes to the remote origin"
     },
     "pr-creator": {
-      "description": "Creates professional pull requests with proper commit messages and descriptions"
+      "description": "Creates professional pull requests with comprehensive descriptions"
     },
     "pr-reviewer": {
       "description": "Reviews GitHub PRs with confidence scoring, parallel validation, Jira context integration, and GitHub MCP tools"
