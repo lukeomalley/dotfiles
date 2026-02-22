@@ -7,6 +7,7 @@ export GEMINI_API_KEY="op://Personal/GEMINI_API_KEY/credential"
 export ANTHROPIC_API_KEY="op://Personal/ANTHROPIC_API_KEY/credential"
 export OPENAI_API_KEY="op://Personal/OPENAI_API_KEY/credential"
 export GITHUB_PERSONAL_ACCESS_TOKEN="op://Personal/GITHUB_PAT/credential"
+export NODE_AUTH_TOKEN="op://Personal/GITHUB_PAT/credential"
 
 # BigQuery MCP Server Configuration
 export BIGQUERY_PROJECT="op://Personal/BIGQUERY_PROJECT/credential"
