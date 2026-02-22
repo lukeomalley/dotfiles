@@ -102,9 +102,9 @@ Once the branch has been committed and pushed successfully, delegate PR creation
 
 **IMPORTANT**: The pr-creator is configured to never include AI-generated watermarks or co-authoring information.
 
-1. **Delegate to pr-creator**: Use the Task tool to create the pull request, providing the ticket information `[ticket_number]`, change title `[change_title]`, branch name `[branch_name]`, and base branch `[base_branch]`.
+1. **Delegate to pr-creator**: Use the Task tool to create the pull request, providing the ticket information `[ticket_number]`, the conventional commit type used (e.g., `feat`, `fix`, `refactor`), change title `[change_title]`, branch name `[branch_name]`, base branch `[base_branch]`, and the Jira ticket analysis from the jira-analyst (problem context, requirements, scope).
 
-2. **PR Creation Process**: The pr-creator will generate a comprehensive PR description using Jira ticket information, follow the established PR template format, include proper links to the Jira ticket, create step-by-step testing instructions, and execute the `gh pr create` command with proper parameters.
+2. **PR Creation Process**: The pr-creator will enforce the PR title format `DEV-XXXX <type>: <description>`, generate a comprehensive PR description using the team's PR template, include proper links to the Jira ticket, create step-by-step testing instructions, and execute the `gh pr create` command with proper parameters.
 
 3. **Final Confirmation**: The pr-creator will provide the PR URL for review and confirm successful completion of the entire workflow.
 

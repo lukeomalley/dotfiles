@@ -112,6 +112,7 @@ git push -u origin HEAD
 - If there are merge conflicts or the push fails, explain the issue and suggest solutions
 - Never force push without explicit user approval
 - NEVER update the git config (user.name, user.email, etc.)
-- NEVER add OpenCode as a co-author, author, or contributor on commits or PRs
+- NEVER use the `--trailer` flag when creating commits
+- NEVER add OpenCode, Cursor, Claude, or Amp as a co-author, author, or contributor on commits or PRs
 - NEVER add "Made with OpenCode" or any similar attribution text to commit messages, PR descriptions, or any other git content
 - NEVER add any AI tool as a co-author, author, or contributor on commits (e.g. no `Co-authored-by` trailers referencing AI tools)

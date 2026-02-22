@@ -41,25 +41,25 @@ The PR body must include these sections in this exact order:
 ```markdown
 ### Ticket(s)
 
-_[`[DEV-####](https://procurementsciences.atlassian.net/browse/DEV-####)`]_
+[DEV-####](https://procurementsciences.atlassian.net/browse/DEV-####)
 
 ---
 
 ### Problem Statement
 
-_[Clearly describe the problem or motivation behind this change. Why is this work being done? What issue does it address?]_
+Clearly describe the problem or motivation behind this change. Why is this work being done? What issue does it address?
 
 ---
 
 ### Scope of Work
 
-_[What specific changes are included in this PR? List the components, features, or services impacted. Include screenshots or recordings for clarity. Mention any new files, modules, APIs, etc.]_
+What specific changes are included in this PR? List the components, features, or services impacted. Include screenshots or recordings for clarity. Mention any new files, modules, APIs, etc.
 
 ---
 
 ### Related Work
 
-_[Link to related PRs, tickets, RFCs, design specs, or context docs.]_
+Link to related PRs, tickets, RFCs, design specs, or context docs.
 
 ---
 
@@ -74,20 +74,37 @@ _[Link to related PRs, tickets, RFCs, design specs, or context docs.]_
 
 ### Test Plan
 
-_[Explain how this PR was tested. Include steps to reproduce, test data used, edge cases checked, and anything specific reviewers should try.]_
+Explain how this PR was tested. Include steps to reproduce, test data used, edge cases checked, and anything specific reviewers should try.
 ```
+
+## PR Title Format
+
+**Required pattern**: `DEV-XXXX <type>: <description>`
+
+- The ticket number must be uppercase and first in the title
+- The second part must follow conventional commit style (`feat:`, `fix:`, `chore:`, `refactor:`, `docs:`, `test:`, etc.)
+- Examples:
+  - `DEV-1235 fix: issue with the chat interface where users couldn't see old chats`
+  - `DEV-4321 feat: implement SSO login with Okta integration`
+  - `DEV-2890 refactor: extract shared validation logic into reusable module`
 
 ## Create Pull Request
 
-```bash
-gh pr create --title "[ticket_number] [change_title]" --body "[formatted_body]" --base "[base_branch]"
-```
+Use a HEREDOC to pass the body so markdown formatting is preserved correctly:
 
-**Title Format**: `DEV-4321 Implement SSO login with Okta integration`
+```bash
+gh pr create --title "[ticket_number] [type]: [description]" --body "$(cat <<'EOF'
+[formatted_body]
+EOF
+)" --base "[base_branch]"
+```
 
 ## Key Responsibilities
 
+- Enforce PR title format: `DEV-XXXX <type>: <description>`
 - Never include AI-generated watermarks or attributions
+- Never state Cursor, Claude, Amp, or OpenCode are co-authors on the PR
+- Never use `git commit --trailer` or any trailer flag
 - **CRITICAL: Use the team's PR template EXACTLY as specified -- follow it to the letter**
 - Create comprehensive PR descriptions using the exact template format
 - Provide the PR URL to the user upon successful creation
@@ -128,7 +145,8 @@ Upon successful completion, provide:
 ## Important Notes
 
 - NEVER update the git config (user.name, user.email, etc.)
-- NEVER add OpenCode as a co-author, author, or contributor on commits or PRs
+- NEVER use the `--trailer` flag when creating commits
+- NEVER add OpenCode, Cursor, Claude, or Amp as a co-author, author, or contributor on commits or PRs
 - NEVER add "Made with OpenCode" or any similar attribution text to commit messages, PR descriptions, or any other git content
 - NEVER add any AI tool as a co-author, author, or contributor on commits (e.g. no `Co-authored-by` trailers referencing AI tools)
 
