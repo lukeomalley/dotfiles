@@ -45,6 +45,7 @@ brew "age"
 brew "beads"
 brew "coder"
 brew "ffmpeg"
+brew "agent-browser"
 
 cask "1password-cli"
 cask "karabiner-elements"
