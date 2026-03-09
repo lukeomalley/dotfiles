@@ -67,3 +67,5 @@ cask "vibetunnel"
 cask "codex"
 cask "capcut"
 cask "loom"
+cask "codex"
+
