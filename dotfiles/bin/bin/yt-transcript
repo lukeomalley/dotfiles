@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+#
+# yt-transcript - Extract transcript text from a YouTube video
+#
+# Usage:
+#   yt-transcript <youtube-url-or-video-id>
+#   yt-transcript https://www.youtube.com/watch?v=dQw4w9WgXcQ
+#   yt-transcript dQw4w9WgXcQ
+#
+# Outputs plain text to stdout. Pipe to a file, clipboard, or other tools:
+#   yt-transcript <url> > transcript.txt
+#   yt-transcript <url> | pbcopy
+#
+
+set -euo pipefail
+
+if [[ $# -eq 0 ]]; then
+  echo "Usage: yt-transcript <youtube-url-or-video-id>" >&2
+  exit 1
+fi
+
+VIDEO="$1"
+
+WORK_DIR=$(mktemp -d)
+trap 'rm -rf "$WORK_DIR"' EXIT
+
+cat > "$WORK_DIR/package.json" << 'PACKAGEJSON'
+{"type":"module","dependencies":{"@egoist/youtube-transcript-plus":"latest"}}
+PACKAGEJSON
+
+echo "Installing dependencies..." >&2
+(cd "$WORK_DIR" && npm install --silent > /dev/null 2>&1)
+
+echo "Fetching transcript..." >&2
+cd "$WORK_DIR"
+VIDEO="$VIDEO" node --no-warnings --input-type=module -e "
+import { fetchTranscript } from '@egoist/youtube-transcript-plus';
+
+function decodeEntities(text) {
+  return text
+    .replace(/&amp;/g, '&')
+    .replace(/&#39;|&apos;/g, \"'\")
+    .replace(/&quot;/g, '\"')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(parseInt(code)));
+}
+
+try {
+  const result = await fetchTranscript(process.env.VIDEO);
+  const text = result.segments
+    .map(s => s.text.replace(/\n/g, ' '))
+    .join(' ');
+  console.log(decodeEntities(text));
+} catch (err) {
+  console.error('Error:', err.message);
+  process.exit(1);
+}
+"
