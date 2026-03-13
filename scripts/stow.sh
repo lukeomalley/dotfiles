@@ -13,12 +13,6 @@ cd "$PROJECT_ROOT/dotfiles"
 for d in */; do
     [ -d "$d" ] || continue
     echo "Stowing ${d%/}..."
-    stow -R --adopt --no-folding -t "$HOME" "${d%/}"
+    stow -R --no-folding -t "$HOME" "${d%/}"
 done
-
-# Reset any changes that stow --adopt might have made to the repo
-cd "$PROJECT_ROOT"
-if git rev-parse --git-dir > /dev/null 2>&1; then
-    git checkout -- dotfiles/ 2>/dev/null || true
-fi
 
