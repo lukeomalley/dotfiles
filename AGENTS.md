@@ -28,17 +28,16 @@ Stow is the symlink manager. It takes a package directory and creates symlinks i
 ### How stow.sh works
 
 ```bash
-stow -R --adopt --no-folding -t "$HOME" "${package}"
+stow -R --no-folding -t "$HOME" "${package}"
 ```
 
 The flags matter:
 
 - **`-R` (restow)**: Removes then recreates symlinks. Cleans up stale links.
-- **`--adopt`**: If a real file already exists at the target, stow moves it into the package directory and replaces it with a symlink. This prevents conflicts on first run.
 - **`--no-folding`**: Only symlinks individual files, never entire directories. Without this, stow would symlink `~/.config/zsh/` as a directory symlink, and then runtime files (history, caches) would end up tracked by git. With `--no-folding`, only the specific config files get symlinked.
 - **`-t "$HOME"`**: Target directory is always the user's home.
 
-After stowing, the script runs `git checkout -- dotfiles/` to undo any changes `--adopt` pulled in. This keeps the repo clean.
+If stow encounters a real file (not a symlink) at the target location, it will error. Remove or rename the conflicting file, then re-run stow.
 
 ### Adding a new package
 
@@ -209,7 +208,7 @@ Symlinked files will show `->` pointing back to this repo.
 
 ### If stow complains about conflicts
 
-A real file exists where stow wants to place a symlink. The `--adopt` flag handles this by pulling the existing file into the repo and replacing it with a symlink. The subsequent `git checkout` resets the repo to its committed state. If you actually want the existing file's contents, skip the git checkout step.
+A real file exists where stow wants to place a symlink. Either remove/rename the conflicting file and re-run stow, or manually move its contents into the stow package if you want to keep them.
 
 ---
 
