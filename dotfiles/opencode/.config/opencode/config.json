@@ -9,12 +9,7 @@
     "auto": true,
     "prune": true
   },
-  "permission": {
-    "edit": "allow",
-    "write": "allow",
-    "bash": "allow",
-    "webfetch": "allow"
-  },
+  "permission": "allow",
   "tui": {
     "scroll_speed": 3,
     "diff_style": "auto",
@@ -36,6 +31,10 @@
     "atlassian": {
       "type": "remote",
       "url": "http://localhost:9000/sse"
+    },
+    "desk-dance": {
+      "type": "remote",
+      "url": "http://localhost:3001/mcp"
     },
     "firecrawl": {
       "type": "remote",
