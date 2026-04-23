@@ -4,7 +4,7 @@
   "workbench.tree.renderIndentGuides": "always",
   "git.mergeEditor": false,
   "zenMode.fullScreen": false,
-  "workbench.editor.showTabs": "none",
+  "workbench.editor.showTabs": "multiple",
   "workbench.activityBar.orientation": "vertical",
   "workbench.activityBar.location": "hidden",
   "breadcrumbs.icons": false,
@@ -265,4 +265,5 @@
   "claudeCode.selectedModel": "default",
   "workbench.colorTheme": "Night Rock",
   "workbench.iconTheme": "vscode-icons",
+  "cursor.composer.shouldChimeAfterChatFinishes": false,
 }
