@@ -48,6 +48,7 @@ brew "ffmpeg"
 brew "agent-browser"
 brew "ollama"
 brew "mole"
+brew "nnn"
 
 cask "1password-cli"
 cask "karabiner-elements"

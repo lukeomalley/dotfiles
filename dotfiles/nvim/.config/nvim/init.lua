@@ -269,7 +269,16 @@ require('gitsigns').setup {
 require('telescope').setup {
   defaults = {
     hidden = true,
-    file_ignore_patterns = { "%.git/" },
+    file_ignore_patterns = {
+      "%.git/",
+      "node_modules/",
+      "%.next/",
+      "dist/",
+      "build/",
+      "target/",
+      "%.venv/",
+      "__pycache__/",
+    },
     mappings = {
       i = {
         ['<C-u>'] = false,
@@ -285,7 +294,13 @@ require('telescope').setup {
       "--column",
       "--smart-case",
       "--hidden",
+      "--no-ignore-vcs",
       "--glob", "!.git/",
+      "--glob", "!node_modules/",
+      "--glob", "!.next/",
+      "--glob", "!dist/",
+      "--glob", "!build/",
+      "--glob", "!target/",
     },
   },
 }
@@ -311,10 +326,32 @@ require("nvim-tree").setup({
   },
   renderer = {
     group_empty = true,
+    highlight_git = "name",
+    icons = {
+      show = {
+        git = false,
+      },
+    },
   },
   filters = {
     dotfiles = false,
+    git_ignored = false,
+    custom = { "^.git$" },
   },
+  git = {
+    enable = true,
+    show_on_dirs = true,
+  },
+})
+
+local function set_nvim_tree_git_highlights()
+  vim.api.nvim_set_hl(0, "NvimTreeGitFileIgnoredHL", { fg = "#6c6c6c", italic = true })
+  vim.api.nvim_set_hl(0, "NvimTreeGitFolderIgnoredHL", { fg = "#6c6c6c", italic = true })
+  vim.api.nvim_set_hl(0, "NvimTreeGitIgnored", { fg = "#6c6c6c", italic = true })
+end
+set_nvim_tree_git_highlights()
+vim.api.nvim_create_autocmd("ColorScheme", {
+  callback = set_nvim_tree_git_highlights,
 })
 
 vim.keymap.set('n', '<C-b>', ":NvimTreeClose<cr>", { desc = 'Close Nvim Tree' })
@@ -335,7 +372,24 @@ vim.keymap.set('n', '<leader>/', function()
   })
 end, { desc = '[/] Fuzzily search in current buffer]' })
 
-vim.keymap.set('n', '<leader>sf', function() require('telescope.builtin').find_files({ hidden = true }) end, { desc = '[S]earch [F]iles' })
+vim.keymap.set('n', '<leader>sf', function()
+  require('telescope.builtin').find_files({
+    find_command = {
+      "fd",
+      "--type", "f",
+      "--hidden",
+      "--no-ignore-vcs",
+      "--exclude", ".git",
+      "--exclude", "node_modules",
+      "--exclude", ".next",
+      "--exclude", "dist",
+      "--exclude", "build",
+      "--exclude", "target",
+      "--exclude", ".venv",
+      "--exclude", "__pycache__",
+    },
+  })
+end, { desc = '[S]earch [F]iles' })
 vim.keymap.set('n', '<leader>sh', require('telescope.builtin').help_tags, { desc = '[S]earch [H]elp' })
 vim.keymap.set('n', '<leader>sw', require('telescope.builtin').grep_string, { desc = '[S]earch current [W]ord' })
 vim.keymap.set('n', '<leader>sg', require('telescope.builtin').live_grep, { desc = '[S]earch by [G]rep' })
