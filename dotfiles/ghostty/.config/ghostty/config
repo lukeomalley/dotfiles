@@ -61,4 +61,13 @@ copy-on-select = true
 
 # Save window state and position between sessions
 window-save-state = always
+
+# Quick file browser
+keybind = global:cmd+ctrl+f=toggle_quick_terminal
+quick-terminal-position = top
+quick-terminal-size = 45%
+quick-terminal-animation-duration = 0.08
+quick-terminal-autohide = false
+quick-terminal-space-behavior = move
+
 keybind = shift+enter=text:\x1b\r

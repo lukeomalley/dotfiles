@@ -1,0 +1,81 @@
+# lf reads this file as startup commands.
+
+set shell zsh
+set shellopts '-eu'
+set ifs "\n"
+
+set scrolloff 6
+set ratios 1:2:3
+set info size:time
+set dircounts
+set incsearch
+set smartcase
+set sortby natural
+set watch
+
+set preview
+set previewer ~/.config/lf/preview
+
+set hiddenfiles ".*:.DS_Store"
+
+cmd open &{{
+    set -f
+    case "$(file --mime-type -Lb "$f")" in
+        text/*|application/json|application/javascript|application/xml|application/x-sh|inode/x-empty)
+            lf -remote "send $id \$$EDITOR \$fx"
+            ;;
+        *)
+            for selected_file in $fx; do
+                $OPENER "$selected_file" >/dev/null 2>&1
+            done
+            ;;
+    esac
+}}
+
+cmd trash ${{
+    set -f
+    if command -v trash >/dev/null 2>&1; then
+        trash $fx
+    else
+        printf 'trash command not found; use delete if you want permanent removal\n'
+    fi
+}}
+
+cmd on-cd &{{
+    zoxide add "$PWD"
+}}
+
+cmd z ${{
+    target="$(zoxide query --exclude "$PWD" "$@" 2>/dev/null || true)"
+    [ -n "$target" ] || exit 0
+
+    escaped_target="$(printf '%s' "$target" | sed 's/\\/\\\\/g; s/"/\\"/g')"
+    lf -remote "send $id cd \"$escaped_target\""
+}}
+
+cmd zi ${{
+    target="$(zoxide query -i 2>/dev/null || true)"
+    [ -n "$target" ] || exit 0
+
+    escaped_target="$(printf '%s' "$target" | sed 's/\\/\\\\/g; s/"/\\"/g')"
+    lf -remote "send $id cd \"$escaped_target\""
+}}
+
+map . set hidden!
+map z zi
+map o open
+map O &$OPENER "$f"
+map E $$EDITOR "$f"
+map i $LESSOPEN='| ~/.config/lf/preview %s' less -R "$f"
+map R reload
+map D trash
+
+map gh cd ~
+map gc cd ~/.config
+map gp cd ~/code
+map gd cd ~/Downloads
+map gD cd ~/Documents
+map gt cd /tmp
+
+map x $$f
+map X !$f

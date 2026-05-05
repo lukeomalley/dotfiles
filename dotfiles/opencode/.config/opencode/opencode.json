@@ -1,22 +1,18 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "theme": "night-rock",
   "model": "anthropic/claude-opus-4-6",
   "small_model": "anthropic/claude-sonnet-4-5",
   "autoupdate": false,
   "plugin": [],
+  "lsp": true,
+  "formatter": true,
+  "instructions": [".cursor/rules/*.md"],
   "compaction": {
     "auto": true,
-    "prune": true
+    "prune": true,
+    "reserved": 10000
   },
   "permission": "allow",
-  "tui": {
-    "scroll_speed": 3,
-    "diff_style": "auto",
-    "scroll_acceleration": {
-      "enabled": true
-    }
-  },
   "watcher": {
     "ignore": ["node_modules/**", "dist/**", ".git/**", "*.log", "coverage/**", ".next/**", "build/**"]
   },
@@ -59,46 +55,59 @@
   },
   "agent": {
     "create-jira-issue": {
-      "description": "Creates detailed, actionable Jira tickets with proper formatting and comprehensive requirements analysis"
+      "description": "Creates detailed, actionable Jira tickets with proper formatting and comprehensive requirements analysis",
+      "mode": "subagent"
     },
     "work-jira-ticket": {
-      "description": "Complete end-to-end Jira ticket workflow from analysis to pull request creation using specialized subagents"
+      "description": "Complete end-to-end Jira ticket workflow from analysis to pull request creation using specialized subagents",
+      "mode": "subagent"
     },
     "jira-analyst": {
       "description": "Analyzes Jira tickets to understand requirements and generate descriptive change titles",
+      "mode": "subagent",
       "hidden": true
     },
     "codebase-analyst": {
       "description": "Analyzes the codebase to find relevant files and creates implementation plans for Jira tickets",
+      "mode": "subagent",
       "hidden": true
     },
     "developer": {
       "description": "Core development specialist for implementing features and code changes based on requirements",
+      "mode": "subagent",
       "hidden": true
     },
     "qa-engineer": {
       "description": "Quality assurance specialist for running tests, linting, and type checking",
+      "mode": "subagent",
       "hidden": true
     },
     "git-manager": {
       "description": "Handles all git repository operations including branch creation, syncing, and checkout",
+      "mode": "subagent",
       "hidden": true
     },
     "code-reviewer": {
       "description": "Expert code review specialist for presenting changes and gathering user approval",
+      "mode": "subagent",
       "hidden": true
     },
     "commit-push": {
-      "description": "Creates conventional commits and pushes changes to the remote origin"
+      "description": "Creates conventional commits and pushes changes to the remote origin",
+      "mode": "subagent"
     },
     "pr-creator": {
-      "description": "Creates professional pull requests with comprehensive descriptions"
+      "description": "Creates professional pull requests with comprehensive descriptions",
+      "mode": "subagent"
     },
     "pr-reviewer": {
-      "description": "Reviews GitHub PRs with confidence scoring, parallel validation, Jira context integration, and GitHub MCP tools"
+      "description": "Reviews GitHub PRs with confidence scoring, parallel validation, Jira context integration, and GitHub MCP tools",
+      "mode": "subagent"
     },
     "pr-comment-validator": {
-      "description": "Validates PR review comments through deep codebase research using GitHub MCP for file access and Context7 MCP for library documentation lookup"
+      "description": "Validates PR review comments through deep codebase research using GitHub MCP for file access and Context7 MCP for library documentation lookup",
+      "mode": "subagent",
+      "hidden": true
     }
   }
 }

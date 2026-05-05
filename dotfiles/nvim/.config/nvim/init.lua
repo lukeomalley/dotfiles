@@ -128,6 +128,96 @@ local plugin_specs = {
     end
   },
 
+  -- AI assistant
+  {
+    'olimorris/codecompanion.nvim',
+    event = 'VeryLazy',
+    cmd = {
+      'CodeCompanion',
+      'CodeCompanionActions',
+      'CodeCompanionChat',
+      'CodeCompanionCLI',
+      'CodeCompanionCmd',
+    },
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'nvim-treesitter/nvim-treesitter',
+    },
+    opts = {
+      adapters = {
+        acp = {
+          claude_code = function()
+            return require('codecompanion.adapters').extend('claude_code', {
+              commands = {
+                default = {
+                  'npx',
+                  '-y',
+                  '@agentclientprotocol/claude-agent-acp',
+                  '--yolo',
+                },
+                yolo = {
+                  'npx',
+                  '-y',
+                  '@agentclientprotocol/claude-agent-acp',
+                  '--yolo',
+                },
+              },
+            })
+          end,
+        },
+      },
+      interactions = {
+        chat = {
+          adapter = 'claude_code',
+        },
+        cli = {
+          agent = 'claude_code',
+          agents = {
+            claude_code = {
+              cmd = 'claude',
+              args = { '--permission-mode', 'bypassPermissions' },
+              description = 'Claude Code CLI',
+              provider = 'terminal',
+            },
+          },
+        },
+      },
+      display = {
+        chat = {
+          window = {
+            layout = 'vertical',
+            position = 'right',
+            border = 'none',
+            width = 0.32,
+            full_height = true,
+            opts = {
+              breakindent = true,
+              cursorcolumn = false,
+              cursorline = false,
+              foldcolumn = '0',
+              linebreak = true,
+              list = false,
+              number = false,
+              relativenumber = false,
+              signcolumn = 'no',
+              spell = false,
+              wrap = true,
+              winhighlight = 'Normal:Normal,NormalNC:Normal,EndOfBuffer:Normal,SignColumn:Normal',
+            },
+          },
+        },
+      },
+    },
+    keys = {
+      { '<leader>ia', '<cmd>CodeCompanionChat Toggle<cr>', mode = 'n', desc = 'AI Chat' },
+      { '<leader>ia', ":'<,'>CodeCompanionChat Add<cr>", mode = 'v', desc = 'AI Add Selection' },
+      { '<leader>ie', '<cmd>CodeCompanionActions<cr>', mode = 'n', desc = 'AI Actions' },
+      { '<leader>ie', ":'<,'>CodeCompanionActions<cr>", mode = 'v', desc = 'AI Selection Actions' },
+      { '<leader>ir', '<cmd>CodeCompanionChat RefreshCache<cr>', mode = 'n', desc = 'AI Refresh' },
+      { '<leader>iA', '<cmd>CodeCompanionCLI<cr>', mode = { 'n', 'v' }, desc = 'AI CLI' },
+    },
+  },
+
   -- Formatter
   {
     "stevearc/conform.nvim",

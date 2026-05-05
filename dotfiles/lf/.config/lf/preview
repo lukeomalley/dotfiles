@@ -1,0 +1,46 @@
+#!/bin/sh
+set -eu
+
+file_path=$1
+preview_width=${2:-80}
+
+if [ -d "$file_path" ]; then
+    if command -v eza >/dev/null 2>&1; then
+        eza --tree --level=2 --color=always --icons=auto "$file_path"
+        exit 0
+    fi
+
+    ls -la "$file_path"
+    exit 0
+fi
+
+mime_type=$(file --mime-type -Lb "$file_path" 2>/dev/null || printf 'application/octet-stream')
+
+case "$mime_type" in
+    text/*|application/json|application/javascript|application/xml|application/x-sh|inode/x-empty)
+        if command -v bat >/dev/null 2>&1; then
+            bat --color=always --paging=never --style=numbers --terminal-width "$preview_width" "$file_path"
+        else
+            sed -n '1,200p' "$file_path"
+        fi
+        ;;
+    application/zip)
+        unzip -l "$file_path"
+        ;;
+    application/x-tar|application/gzip|application/x-bzip2|application/x-xz)
+        tar tf "$file_path"
+        ;;
+    audio/*|video/*)
+        if command -v ffprobe >/dev/null 2>&1; then
+            ffprobe -hide_banner "$file_path" 2>&1
+        else
+            file -b "$file_path"
+        fi
+        ;;
+    image/*|application/pdf)
+        file -b "$file_path"
+        ;;
+    *)
+        file -b "$file_path"
+        ;;
+esac
