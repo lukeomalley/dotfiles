@@ -1,6 +1,14 @@
 # Aliases
 source "$XDG_CONFIG_HOME/zsh/aliases"
 
+# lf
+[[ -r "$XDG_CONFIG_HOME/lf/lf.zsh" ]] && source "$XDG_CONFIG_HOME/lf/lf.zsh"
+
+if [[ "${GHOSTTY_QUICK_TERMINAL:-}" == "1" ]]; then
+  lf
+  exit
+fi
+
 # Secrets
 source "$XDG_CONFIG_HOME/zsh/secrets.zsh"
 

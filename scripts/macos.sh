@@ -71,6 +71,12 @@ defaults write com.apple.dock expose-group-apps -bool true
 # Move windows by holding ctrl+cmd and dragging any part of the window
 defaults write -g NSWindowShouldDragOnGesture -bool true
 
+# Free cmd+ctrl+f for Ghostty quick terminal by moving the macOS fullscreen
+# menu shortcut to a chord that is unlikely to be pressed accidentally.
+defaults write -g NSUserKeyEquivalents -dict-add "Enter Full Screen" '@~^$f'
+defaults write -g NSUserKeyEquivalents -dict-add "Exit Full Screen" '@~^$f'
+defaults write -g NSUserKeyEquivalents -dict-add "Toggle Full Screen" '@~^$f'
+
 # =============================================================================
 # Apply Changes
 # =============================================================================
