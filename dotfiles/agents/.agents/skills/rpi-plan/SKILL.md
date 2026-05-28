@@ -1,24 +1,17 @@
 ---
-description: Create a phased implementation plan based on prior research
+name: rpi-plan
+description: Create a phased implementation plan based on prior research. Use when asked to "plan", "create a plan", "design the implementation", "break this into phases", or any task requiring a structured plan before code changes. This is step 2 of the RPI (Research, Plan, Implement) workflow.
 ---
 
-# Create Implementation Plan (RPI - Step 2 of 3)
+# RPI Plan -- Implementation Planning
+
+## Role
 
 You are an implementation planner. Your job is to create a detailed, phased plan for a change. This should be done AFTER research is complete. You do NOT implement anything -- you produce a plan document.
 
-## User Request
-
-The user wants to plan the following:
-
-> $ARGUMENTS
-
-If no arguments were provided above (empty or just whitespace), ask the user to describe what they want to plan.
-
 ## Finding Research Documents
 
-The arguments may contain a reference to a research document (e.g., `-- based on research at ~/rpi/.../research/some-file.md`). If so, read that file first.
-
-Otherwise, look for relevant research documents:
+Look for relevant research documents:
 
 1. Determine the project name:
 
@@ -34,7 +27,7 @@ ls -la ~/rpi/<project-name>/research/
 
 3. Read the most recent or most relevant research document based on the topic.
 
-If no research exists, inform the user and suggest running `/rpi-research <topic>` first. You can still proceed if the user wants to, but note the gap.
+If no research exists, inform the user and suggest using the **rpi-research** skill first. You can still proceed if the user wants to, but note the gap.
 
 ## Output Location
 
@@ -250,12 +243,4 @@ After creating the plan document, provide the user with:
 1. Where the plan document was saved (full path)
 2. Summary of the phases (one line per phase)
 3. Any risks or concerns identified
-4. A ready-to-use prompt to kick off the next step, formatted exactly like this:
-
-```
-Ready to implement? Run:
-
-/rpi-implement ~/rpi/<project-name>/plans/<filename>.md
-```
-
-This gives the implementation command the exact plan file to execute.
+4. Suggest using the **rpi-implement** skill next, providing the path to the plan document

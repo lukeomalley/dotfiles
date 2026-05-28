@@ -1,0 +1,70 @@
+#!/bin/bash
+set -e
+
+DOTFILES_ROOT="$HOME/code/dotfiles"
+STOW_PACKAGE="$DOTFILES_ROOT/dotfiles/agents"
+
+if [ $# -eq 0 ]; then
+    echo "Usage: add-skill <skill-source>"
+    echo ""
+    echo "Installs an agent skill via the skills CLI, then adopts it"
+    echo "into the dotfiles repo so it's tracked by git and managed by stow."
+    echo ""
+    echo "Examples:"
+    echo "  add-skill https://github.com/anthropics/skills --skill frontend-design"
+    echo "  add-skill https://github.com/vercel-labs/agent-browser"
+    echo "  add-skill https://github.com/mattpocock/skills --skill grill-me"
+    exit 1
+fi
+
+if ! command -v npx &> /dev/null; then
+    echo "Error: npx is not installed."
+    exit 1
+fi
+
+if [ ! -d "$STOW_PACKAGE" ]; then
+    echo "Error: Stow package not found at $STOW_PACKAGE"
+    echo "Make sure the dotfiles repo is at $DOTFILES_ROOT"
+    exit 1
+fi
+
+SKILLS_DIR="$HOME/.agents/skills"
+STOW_SKILLS_DIR="$STOW_PACKAGE/.agents/skills"
+
+# Snapshot skill directories before install
+BEFORE=$(ls -1 "$SKILLS_DIR" 2>/dev/null || true)
+
+echo "Installing skill: $@"
+npx -y skills add "$@" --global --yes
+
+# Find newly added skill directories
+AFTER=$(ls -1 "$SKILLS_DIR" 2>/dev/null || true)
+NEW_SKILLS=$(comm -13 <(echo "$BEFORE") <(echo "$AFTER"))
+
+if [ -z "$NEW_SKILLS" ]; then
+    echo ""
+    echo "No new skills detected. Skill may already be installed."
+    exit 0
+fi
+
+echo ""
+echo "Adopting new skills into dotfiles repo..."
+
+# Copy new skills into stow package, remove originals, then restow
+for skill in $NEW_SKILLS; do
+    echo "  - $skill"
+    cp -R "$SKILLS_DIR/$skill" "$STOW_SKILLS_DIR/"
+    rm -rf "$SKILLS_DIR/$skill"
+done
+
+# Also adopt any updated lock file
+if [ -f "$SKILLS_DIR/../.skill-lock.json" ]; then
+    cp "$HOME/.agents/.skill-lock.json" "$STOW_PACKAGE/.agents/.skill-lock.json"
+    rm -f "$HOME/.agents/.skill-lock.json"
+fi
+
+stow -R --no-folding -t "$HOME" -d "$DOTFILES_ROOT/dotfiles" agents
+
+echo ""
+echo "Skill installed and tracked. Don't forget to commit:"
+echo "  cd $DOTFILES_ROOT && git add -A && git commit"

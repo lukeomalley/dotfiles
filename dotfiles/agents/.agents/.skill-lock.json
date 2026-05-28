@@ -1,0 +1,150 @@
+{
+  "version": 3,
+  "skills": {
+    "vercel-react-best-practices": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vercel-labs/agent-skills.git",
+      "skillPath": "skills/react-best-practices/SKILL.md",
+      "skillFolderHash": "26729129ac53b6349ba455302027bdbd74d61358",
+      "installedAt": "2026-01-23T07:09:56.828Z",
+      "updatedAt": "2026-01-23T07:09:56.828Z"
+    },
+    "web-design-guidelines": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vercel-labs/agent-skills.git",
+      "skillPath": "skills/web-design-guidelines/SKILL.md",
+      "skillFolderHash": "3116f3e62dbd02b44a598b1aa690d2a8938e8f89",
+      "installedAt": "2026-01-23T07:10:23.302Z",
+      "updatedAt": "2026-01-23T07:10:23.302Z"
+    },
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/anthropics/skills.git",
+      "skillPath": "skills/frontend-design/SKILL.md",
+      "skillFolderHash": "928950704df8a8b885c03de5da626331e6f29cf8",
+      "installedAt": "2026-01-23T07:10:55.291Z",
+      "updatedAt": "2026-01-23T07:10:55.291Z"
+    },
+    "swiftui-ui-patterns": {
+      "source": "dimillian/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/dimillian/skills.git",
+      "skillPath": "swiftui-ui-patterns/SKILL.md",
+      "skillFolderHash": "b7d1ca992c0d9b92d6d7917052625c534d18178a",
+      "installedAt": "2026-01-24T04:30:32.951Z",
+      "updatedAt": "2026-01-24T04:30:32.951Z"
+    },
+    "swiftui-liquid-glass": {
+      "source": "dimillian/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/dimillian/skills.git",
+      "skillPath": "swiftui-liquid-glass/SKILL.md",
+      "skillFolderHash": "d77545173c4dbb962f0c26d4658a4f4c3c367764",
+      "installedAt": "2026-01-24T04:31:13.462Z",
+      "updatedAt": "2026-01-24T04:31:13.462Z"
+    },
+    "swiftui-performance-audit": {
+      "source": "dimillian/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/dimillian/skills.git",
+      "skillPath": "swiftui-performance-audit/SKILL.md",
+      "skillFolderHash": "0ffa40a767372f4d7fe4427bd0fe8d5e8d34c950",
+      "installedAt": "2026-01-24T04:31:21.085Z",
+      "updatedAt": "2026-01-24T09:12:58.453Z"
+    },
+    "clean-code": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/sickn33/antigravity-awesome-skills.git",
+      "skillPath": "skills/clean-code/SKILL.md",
+      "skillFolderHash": "bf725045f5d753a93489358e3bf31aa0356a9c3a",
+      "installedAt": "2026-01-29T00:47:12.992Z",
+      "updatedAt": "2026-01-31T15:17:09.214Z"
+    },
+    "agent-browser": {
+      "source": "vercel-labs/agent-browser",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vercel-labs/agent-browser.git",
+      "skillPath": "skills/agent-browser/SKILL.md",
+      "skillFolderHash": "88b7e785240d14ab80eb11abdd0cbd27b20055c6",
+      "pluginName": "agent-browser",
+      "installedAt": "2026-03-02T17:01:38.661Z",
+      "updatedAt": "2026-03-02T17:01:38.661Z"
+    },
+    "slack": {
+      "source": "vercel-labs/agent-browser",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vercel-labs/agent-browser.git",
+      "skillPath": "skills/slack/SKILL.md",
+      "skillFolderHash": "45b116adcbbb159d2103afc5d6ae704ba47427f8",
+      "installedAt": "2026-03-02T17:01:38.672Z",
+      "updatedAt": "2026-03-02T17:01:38.672Z"
+    },
+    "electron": {
+      "source": "vercel-labs/agent-browser",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vercel-labs/agent-browser.git",
+      "skillPath": "skills/electron/SKILL.md",
+      "skillFolderHash": "262130632e186c3ee2d153b6d5b5dd6e60b8236f",
+      "installedAt": "2026-03-02T17:01:38.683Z",
+      "updatedAt": "2026-03-02T17:01:38.683Z"
+    },
+    "dogfood": {
+      "source": "vercel-labs/agent-browser",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vercel-labs/agent-browser.git",
+      "skillPath": "skills/dogfood/SKILL.md",
+      "skillFolderHash": "ad41914e08b955060a80801619d6a36206187e9e",
+      "installedAt": "2026-03-02T17:01:38.694Z",
+      "updatedAt": "2026-03-02T17:01:38.694Z"
+    },
+    "grill-me": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/mattpocock/skills.git",
+      "skillPath": "grill-me/SKILL.md",
+      "skillFolderHash": "2a1ad17028306ebe45f0e49703fa28b9b2e7f499",
+      "installedAt": "2026-04-26T18:22:04.075Z",
+      "updatedAt": "2026-04-26T18:22:04.075Z"
+    },
+    "beads": {
+      "source": "steveyegge/beads",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/steveyegge/beads.git",
+      "skillPath": "claude-plugin/skills/beads/SKILL.md",
+      "skillFolderHash": "dcb90ffdd47cd17af7bfe8a37d655a9fe38004da",
+      "installedAt": "2026-04-30T22:55:39.587Z",
+      "updatedAt": "2026-04-30T22:55:39.587Z"
+    },
+    "gh-cli": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/github/awesome-copilot.git",
+      "skillPath": "skills/gh-cli/SKILL.md",
+      "skillFolderHash": "437437f7f20bcdbbdb3081cf164435a388c0a39a",
+      "installedAt": "2026-05-06T16:28:42.285Z",
+      "updatedAt": "2026-05-06T16:28:42.285Z"
+    }
+  },
+  "dismissed": {
+    "findSkillsPrompt": true
+  },
+  "lastSelectedAgents": [
+    "amp",
+    "antigravity",
+    "cline",
+    "codex",
+    "cursor",
+    "deepagents",
+    "dexto",
+    "firebender",
+    "gemini-cli",
+    "github-copilot",
+    "kimi-cli",
+    "opencode",
+    "warp"
+  ]
+}

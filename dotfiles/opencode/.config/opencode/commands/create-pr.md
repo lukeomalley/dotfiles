@@ -1,10 +1,10 @@
 ---
-description: Create a pull request with conventional commit and comprehensive PR description
+description: Create a pull request with conventional commit style title
 agent: pr-creator
 subtask: true
 ---
 
-Create a pull request for the current branch with a conventional commit and comprehensive PR description. $ARGUMENTS
+Create a pull request for the current branch. $ARGUMENTS
 
 Current branch:
 !`git branch --show-current`
@@ -15,8 +15,5 @@ Git status:
 Recent commits on this branch:
 !`git log --oneline -10`
 
-Staged changes:
-!`git diff --staged --stat`
-
-Unstaged changes:
-!`git diff --stat`
+Staged diff stats:
+!`git diff --cached --stat`

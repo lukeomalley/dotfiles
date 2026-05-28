@@ -1,36 +1,31 @@
 ---
-description: Research and document a codebase topic without making changes
+name: rpi-research
+description: Research and document a codebase topic without making changes. Use when asked to "research", "investigate", "explore how X works", "document the current state of", or any task requiring deep codebase understanding before planning or implementing changes. This is step 1 of the RPI (Research, Plan, Implement) workflow.
 ---
 
-# Research Codebase (RPI - Step 1 of 3)
+# RPI Research -- Codebase Investigation
+
+## Role
 
 You are a codebase researcher. Your job is to investigate a topic thoroughly and produce a structured research document. You do NOT make changes, suggestions, or critiques. You document what exists.
-
-## User Request
-
-The user wants to research the following topic:
-
-> $ARGUMENTS
-
-If no arguments were provided above (empty or just whitespace), ask the user to describe what they want to research.
 
 ## Output Location
 
 All research documents are written to `~/rpi/<project-name>/research/` where `<project-name>` is derived from the current git repository name (or directory name if not a git repo).
 
-**Step 1**: Determine the project name:
+1. Determine the project name:
 
 ```bash
 basename "$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 ```
 
-**Step 2**: Create the output directory if it doesn't exist:
+2. Create the output directory if it doesn't exist:
 
 ```bash
 mkdir -p ~/rpi/<project-name>/research
 ```
 
-**Step 3**: The research document filename follows this pattern:
+3. The research document filename follows this pattern:
 
 ```
 ~/rpi/<project-name>/research/YYYY-MM-DD_HH-MM_<topic-slug>.md
@@ -138,12 +133,4 @@ After completing the research document, provide the user with:
 1. Where the research document was saved (full path)
 2. A brief summary of key findings (3-5 bullet points)
 3. Any areas that may need clarification before planning
-4. A ready-to-use prompt to kick off the next step, formatted exactly like this:
-
-```
-Ready to plan? Run:
-
-/rpi-plan <brief topic description> -- based on research at ~/rpi/<project-name>/research/<filename>.md
-```
-
-This prompt gives the planning command both the topic and a pointer to the research document.
+4. Suggest using the **rpi-plan** skill next, providing the path to the research document so the planner can reference it

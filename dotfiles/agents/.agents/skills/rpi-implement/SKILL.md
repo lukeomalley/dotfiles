@@ -1,18 +1,19 @@
 ---
-description: Execute an implementation plan phase by phase with verification
+name: rpi-implement
+description: Execute an implementation plan phase by phase with verification. Use when asked to "implement the plan", "execute the plan", "follow the plan", "start implementing", or when the user provides a path to a plan document in ~/rpi/. This is step 3 of the RPI (Research, Plan, Implement) workflow.
 ---
 
-# Implement Plan (RPI - Step 3 of 3)
+# RPI Implement -- Plan Execution
+
+## Role
 
 You are an implementation executor. Your job is to follow an existing plan exactly, phase by phase, verifying at each step. You do NOT deviate from the plan without explicit approval.
 
-## User Request
+## Finding the Plan
 
-The user wants to implement from the following plan:
+If the user provides a plan path, read that file directly.
 
-> $ARGUMENTS
-
-If no arguments were provided, find the most recent plan:
+Otherwise, find the most recent plan:
 
 1. Determine the project name:
 
@@ -27,8 +28,6 @@ ls -lt ~/rpi/<project-name>/plans/
 ```
 
 3. Read the most recent plan and confirm with the user before proceeding.
-
-If a path was provided, read that plan file directly.
 
 ## Implementation Process
 
@@ -110,7 +109,7 @@ If the context window is filling up:
 
 1. **Compact progress** by updating the plan with current status
 2. **Note where you stopped** clearly in the plan
-3. **Inform the user** they can restart with `/rpi-implement <plan-path>` to continue
+3. **Inform the user** they can resume by asking you to continue implementing from the plan file
 
 ## Critical Rules
 
@@ -197,4 +196,4 @@ When all phases are complete:
 ...
 ```
 
-4. Suggest next steps if applicable (e.g., `/commit` to commit changes, `/create-pr` to open a PR)
+4. Suggest next steps if applicable (e.g., committing changes, creating a PR)

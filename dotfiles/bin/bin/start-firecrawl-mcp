@@ -1,15 +1,22 @@
 #!/bin/bash
 
-# Check for 1Password CLI
+set -euo pipefail
+
+readonly IMAGE_NAME="mcp/firecrawl:latest"
+readonly CONTAINER_NAME="firecrawl-mcp-server"
+readonly HOST_PORT=3015
+
 if ! command -v op &> /dev/null; then
     echo "Error: 1Password CLI (op) is not installed or not in PATH." >&2
     exit 1
 fi
 
-# Retrieve the API key from 1Password
-# Vault: Personal
-# Item: FIRECRAWL_API_KEY
-# Field: credential
+if ! command -v docker &> /dev/null; then
+    echo "Error: docker is not installed or not in PATH." >&2
+    exit 1
+fi
+
+# Vault: Personal, Item: FIRECRAWL_API_KEY, Field: credential
 API_KEY=$(op read "op://Personal/FIRECRAWL_API_KEY/credential")
 
 if [ -z "$API_KEY" ]; then
@@ -17,21 +24,19 @@ if [ -z "$API_KEY" ]; then
     exit 1
 fi
 
-# Stop any existing container with the same name
-docker rm -f firecrawl-mcp-server &>/dev/null || true
+echo "Pulling latest $IMAGE_NAME..."
+docker pull "$IMAGE_NAME"
 
-HOST_PORT=3015
+docker rm -f "$CONTAINER_NAME" &>/dev/null || true
 
-docker rm -f firecrawl-mcp-server &>/dev/null || true
-
-echo "Starting Firecrawl MCP Server (SSE mode) on localhost:$HOST_PORT..."
+echo "Starting Firecrawl MCP Server (streamable HTTP) on localhost:$HOST_PORT..."
 
 docker run -d \
-  --name firecrawl-mcp-server \
+  --name "$CONTAINER_NAME" \
   --restart unless-stopped \
   -p "$HOST_PORT:3015" \
   -e FIRECRAWL_API_KEY="$API_KEY" \
   -e PORT=3015 \
   -e HOST=0.0.0.0 \
   -e HTTP_STREAMABLE_SERVER=true \
-  mcp/firecrawl
+  "$IMAGE_NAME"

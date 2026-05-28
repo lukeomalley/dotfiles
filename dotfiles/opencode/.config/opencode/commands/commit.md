@@ -1,19 +1,16 @@
 ---
-description: Create a conventional commit and push changes to origin
+description: Commit and push changes with a conventional commit message
 agent: commit-push
 subtask: true
 ---
 
-Review uncommitted changes, write a conventional commit message, and push to origin. $ARGUMENTS
-
-Current git status:
-!`git status --porcelain`
+Commit and push the current changes. Use the ticket number and context from $ARGUMENTS if provided.
 
 Current branch:
 !`git branch --show-current`
 
-Staged changes:
-!`git diff --staged --stat`
+Current status:
+!`git status --porcelain`
 
-Unstaged changes:
-!`git diff --stat`
+Recent commits for style reference:
+!`git log --oneline -5`
