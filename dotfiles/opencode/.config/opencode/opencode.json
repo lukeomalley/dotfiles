@@ -1,12 +1,14 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "anthropic/claude-opus-4-6",
+  "model": "anthropic/claude-opus-4-7",
   "small_model": "anthropic/claude-sonnet-4-5",
   "autoupdate": false,
-  "plugin": [],
   "lsp": true,
   "formatter": true,
-  "instructions": [".cursor/rules/*.md"],
+  "server": {
+    "port": 6767,
+    "hostname": "0.0.0.0"
+  },
   "compaction": {
     "auto": true,
     "prune": true,
@@ -28,21 +30,9 @@
       "type": "remote",
       "url": "http://localhost:9000/sse"
     },
-    "desk-dance": {
-      "type": "remote",
-      "url": "http://localhost:3001/mcp"
-    },
     "firecrawl": {
       "type": "remote",
       "url": "http://localhost:3015/mcp"
-    },
-    "github": {
-      "type": "remote",
-      "url": "https://api.githubcopilot.com/mcp/",
-      "oauth": false,
-      "headers": {
-        "Authorization": "Bearer {env:GITHUB_PERSONAL_ACCESS_TOKEN}"
-      }
     },
     "fireflies": {
       "type": "remote",
@@ -99,15 +89,6 @@
     "pr-creator": {
       "description": "Creates professional pull requests with comprehensive descriptions",
       "mode": "subagent"
-    },
-    "pr-reviewer": {
-      "description": "Reviews GitHub PRs with confidence scoring, parallel validation, Jira context integration, and GitHub MCP tools",
-      "mode": "subagent"
-    },
-    "pr-comment-validator": {
-      "description": "Validates PR review comments through deep codebase research using GitHub MCP for file access and Context7 MCP for library documentation lookup",
-      "mode": "subagent",
-      "hidden": true
     }
   }
 }
