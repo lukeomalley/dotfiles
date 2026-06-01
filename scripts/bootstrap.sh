@@ -8,10 +8,6 @@ cd "$(dirname "$0")/.."
 echo "Setting up Homebrew..."
 ./scripts/homebrew.sh
 
-# Install Amp CLI
-echo "Installing Amp CLI..."
-./scripts/amp.sh
-
 # Stow dotfiles
 echo "Stowing dotfiles..."
 ./scripts/stow.sh
@@ -37,4 +33,3 @@ else
 fi
 
 echo "Bootstrap complete!"
-
