@@ -90,12 +90,11 @@ Add the line to `Brewfile` and commit. The format is `brew "package-name"` for C
 `scripts/bootstrap.sh` is the main entry point for setting up a fresh machine. It runs these steps in order:
 
 1. **homebrew.sh** -- Installs Homebrew itself (if missing), then installs all packages from `Brewfile`
-2. **amp.sh** -- Installs the Amp CLI
-3. **stow.sh** -- Symlinks all dotfile packages to `$HOME`
-4. **keyboard.sh** -- Sets fast key repeat (InitialKeyRepeat: 10, KeyRepeat: 1), disables press-and-hold
-5. **macos.sh** -- Disables macOS animations, configures AeroSpace settings, enables ctrl+cmd window dragging
-6. **setup-tmux.sh** -- Installs Tmux Plugin Manager (TPM)
-7. **update-secrets** -- Generates `secrets.zsh` from 1Password template (if the script exists)
+2. **stow.sh** -- Symlinks all dotfile packages to `$HOME`
+3. **keyboard.sh** -- Sets fast key repeat (InitialKeyRepeat: 10, KeyRepeat: 1), disables press-and-hold
+4. **macos.sh** -- Disables macOS animations, configures AeroSpace settings, enables ctrl+cmd window dragging
+5. **setup-tmux.sh** -- Installs Tmux Plugin Manager (TPM)
+6. **update-secrets** -- Generates `secrets.zsh` from 1Password template (if the script exists)
 
 ---
 
@@ -110,13 +109,11 @@ Add the line to `Brewfile` and commit. The format is `brew "package-name"` for C
 │   ├── bootstrap.sh       # Main setup orchestrator
 │   ├── homebrew.sh        # Homebrew install and package sync
 │   ├── stow.sh            # Symlink all packages
-│   ├── amp.sh             # Amp CLI installer
 │   ├── keyboard.sh        # macOS keyboard settings
 │   ├── macos.sh           # macOS system preferences
 │   └── setup-tmux.sh      # Tmux plugin manager
 └── dotfiles/              # Stow packages (each dir = one package)
     ├── aerospace/         # AeroSpace tiling window manager
-    ├── amp/               # Amp AI coding assistant
     ├── atuin/             # Atuin shell history
     ├── bin/               # Personal scripts (~/ bin/)
     ├── claude/            # Claude AI editor
@@ -168,7 +165,6 @@ Scripts in `dotfiles/bin/bin/` get symlinked to `~/bin/`, which is on `$PATH`. T
 
 - `update-secrets` -- Regenerate secrets from 1Password
 - `cloudsync` -- rclone bisync with GNU Parallel
-- `review-pr` -- Interactive PR review with fzf and amp
 - `notes` -- Open notes directory in nvim
 - `start-*` -- MCP server launchers (opencode-web, atlassian-mcp, firecrawl-mcp)
 - `animations-on` / `animations-off` -- Toggle macOS animations

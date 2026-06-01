@@ -1,0 +1,108 @@
+#!/bin/bash
+set -euo pipefail
+
+DOTFILES_ROOT="${DOTFILES_ROOT:-$HOME/code/dotfiles}"
+SOURCE_DIR="${AGENT_SKILLS_SOURCE:-$DOTFILES_ROOT/dotfiles/agents/.agents/skills}"
+LINK_ROOT="${AGENT_SKILLS_LINK_ROOT:-$HOME/.agents/skills}"
+
+DEST_DIRS=(
+  "$HOME/.codex/skills"
+  "$HOME/.claude/skills"
+  "$HOME/.cursor/skills"
+  "$HOME/.config/opencode/skills"
+)
+
+usage() {
+  cat <<'EOF'
+Usage: sync-agent-skills [--dry-run]
+
+Sync shared skills from dotfiles into app-specific skill directories:
+  ~/.codex/skills
+  ~/.claude/skills
+  ~/.cursor/skills
+  ~/.config/opencode/skills
+
+The dotfiles skills directory is authoritative:
+  ~/code/dotfiles/dotfiles/agents/.agents/skills
+
+Same-name app-local skills are overwritten with symlinks to ~/.agents/skills.
+This script does not copy, adopt, or import app-local skills back into dotfiles.
+EOF
+}
+
+DRY_RUN=false
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --dry-run)
+      DRY_RUN=true
+      shift
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "Unknown option: $1" >&2
+      usage >&2
+      exit 1
+      ;;
+  esac
+done
+
+if [[ ! -d "$SOURCE_DIR" ]]; then
+  echo "Source skills directory does not exist: $SOURCE_DIR" >&2
+  exit 1
+fi
+
+run() {
+  if [[ "$DRY_RUN" == true ]]; then
+    printf 'DRY RUN:'
+    printf ' %q' "$@"
+    printf '\n'
+  else
+    "$@"
+  fi
+}
+
+sync_to_dest() {
+  local dest_dir="$1"
+  local skill_dir
+  local skill_name
+  local target
+  local link_target
+
+  run mkdir -p "$dest_dir"
+
+  for skill_dir in "$SOURCE_DIR"/*; do
+    [[ -d "$skill_dir" ]] || continue
+
+    skill_name="$(basename "$skill_dir")"
+    target="$dest_dir/$skill_name"
+    if [[ ! -e "$LINK_ROOT/$skill_name" ]]; then
+      echo "Skipping $skill_name: missing live stow target $LINK_ROOT/$skill_name" >&2
+      continue
+    fi
+
+    link_target="$(
+      python3 -c 'import os, sys; print(os.path.relpath(sys.argv[1], sys.argv[2]))' \
+        "$LINK_ROOT/$skill_name" \
+        "$dest_dir"
+    )"
+
+    if [[ -L "$target" ]]; then
+      run rm "$target"
+    elif [[ -e "$target" ]]; then
+      echo "Overwriting app-local skill: $target"
+      run rm -rf "$target"
+    fi
+
+    run ln -s "$link_target" "$target"
+  done
+}
+
+for dest_dir in "${DEST_DIRS[@]}"; do
+  sync_to_dest "$dest_dir"
+done
+
+echo "Synced shared skills from $SOURCE_DIR"
