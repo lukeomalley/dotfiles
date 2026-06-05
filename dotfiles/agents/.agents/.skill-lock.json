@@ -135,6 +135,15 @@
       "skillFolderHash": "7bbb60d64c911617cee7f71b2ba9e24364faa14e",
       "installedAt": "2026-06-01T21:00:46.000Z",
       "updatedAt": "2026-06-01T21:00:46.000Z"
+    },
+    "thermo-nuclear-code-quality-review": {
+      "source": "cursor/plugins",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/cursor/plugins.git",
+      "skillPath": "cursor-team-kit/skills/thermo-nuclear-code-quality-review/SKILL.md",
+      "skillFolderHash": "d9c8935dd560b3b6f5941247d04a1843f8c7cc35",
+      "installedAt": "2026-06-03T03:21:25.662Z",
+      "updatedAt": "2026-06-03T03:21:25.662Z"
     }
   },
   "dismissed": {
