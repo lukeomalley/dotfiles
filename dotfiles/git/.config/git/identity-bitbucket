@@ -1,0 +1,5 @@
+# Included by ~/.config/git/config for repos whose remote is on bitbucket.org.
+# Overrides the personal defaults with the work (Nevada Nano) identity.
+[user]
+	email = lukeomalley7@gmail.com
+	signingkey = ~/.ssh/bitbucket.pub
