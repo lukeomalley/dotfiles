@@ -1,9 +1,10 @@
 # This is Git's per-user configuration file.
+# Default identity is personal (GitHub). Repos whose remote is on bitbucket.org
+# pick up the work identity via the includeIf block at the bottom of this file.
 [user]
-	name = Luke OMalley
+	name = Luke O'Malley
 	email = luke@lukeomalley.xyz
-	signingkey = /Users/luke/.ssh/id_ed25519
-
+	signingkey = ~/.ssh/github.pub
 
 [gpg]
     format = ssh 
@@ -112,4 +113,22 @@
 	conflictStyle = zdiff3
 
 [gpg "ssh"]
-	allowedSignersFile = /Users/luke/.ssh/allowed_signers
+	allowedSignersFile = ~/.ssh/allowed_signers
+
+# GitHub auth over HTTPS goes through the gh CLI credential helper.
+[credential "https://github.com"]
+	helper =
+	helper = !/opt/homebrew/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper =
+	helper = !/opt/homebrew/bin/gh auth git-credential
+
+# Work repos on Bitbucket use the work email + Bitbucket signing key.
+# hasconfig matches on the repo's configured remote URL (git >= 2.36). Both the
+# SSH (git@bitbucket.org:org/repo) and HTTPS (https://bitbucket.org/org/repo)
+# forms are covered. Note: `**` only spans `/` when bounded by slashes, so the
+# `:*/**` / `/**` shapes are required.
+[includeIf "hasconfig:remote.*.url:git@bitbucket.org:*/**"]
+	path = ~/.config/git/identity-bitbucket
+[includeIf "hasconfig:remote.*.url:https://bitbucket.org/**"]
+	path = ~/.config/git/identity-bitbucket

@@ -1,3 +1,7 @@
+# Homebrew (prepends /opt/homebrew/bin to PATH). Loaded here so every shell
+# type (login, non-login, interactive, tmux panes) can find brew-installed tools.
+eval "$(/opt/homebrew/bin/brew shellenv)"
+
 # For Dotfiles
 export XDG_CONFIG_HOME="$HOME/.config"
 
@@ -18,6 +22,12 @@ export SHELL_SESSION_HISTORY=0
 
 # Dotfile Dir
 export DOTFILES="$HOME/code/dotfiles"
+
+# 1Password SSH agent: serves SSH keys (stored in 1Password) for both auth and
+# git SSH commit signing. git signing runs `ssh-keygen -Y sign`, which uses
+# SSH_AUTH_SOCK rather than ssh_config's IdentityAgent, so it must be exported
+# here for every shell type.
+export SSH_AUTH_SOCK="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
 
 # Editor export EDITOR="nvim"
 export VISUAL="nvim"

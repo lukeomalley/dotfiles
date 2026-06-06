@@ -62,6 +62,7 @@ brew "cloudflare-wrangler"
 brew "lazygit"
 brew "prettier"
 
+cask "1password"
 cask "1password-cli"
 cask "karabiner-elements"
 cask "nikitabobko/tap/aerospace"
