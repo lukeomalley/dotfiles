@@ -1,3 +1,10 @@
+-- =================================================
+-- Bootstrap
+-- =================================================
+
+-- Enable the Lua module bytecode cache for faster startup (Neovim 0.9+).
+vim.loader.enable()
+
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
@@ -11,7 +18,7 @@ if not (vim.uv or vim.loop).fs_stat(lazy_path) then
   if vim.v.shell_error ~= 0 then
     vim.api.nvim_echo({
       { 'Failed to clone lazy.nvim:\n', 'ErrorMsg' },
-      { clone_output, 'WarningMsg' },
+      { clone_output,                   'WarningMsg' },
       { '\nPress any key to exit...' },
     }, true, {})
     vim.fn.getchar()
@@ -20,36 +27,174 @@ if not (vim.uv or vim.loop).fs_stat(lazy_path) then
 end
 vim.opt.rtp:prepend(lazy_path)
 
+-- =================================================
+-- Local constants
+-- =================================================
+
 local dark_rock_theme_path = vim.fn.expand('~/code/dark-rock-theme/nvim')
 local has_dark_rock_theme = vim.fn.isdirectory(dark_rock_theme_path) == 1
 
+-- Single source of truth for treesitter languages. Each entry maps a parser to
+-- the filetypes that should enable treesitter features. `filetypes` is empty for
+-- parsers that only appear as injected languages (e.g. markdown_inline). When a
+-- filetype name differs from its parser (e.g. typescriptreact -> tsx) it is
+-- registered with vim.treesitter in the treesitter config below. The install
+-- list and the FileType autocmd pattern are derived from this table so adding a
+-- language only requires editing one place.
+local treesitter_languages = {
+  { parser = 'c',               filetypes = { 'c' } },
+  { parser = 'cpp',             filetypes = { 'cpp' } },
+  { parser = 'css',             filetypes = { 'css' } },
+  { parser = 'go',              filetypes = { 'go' } },
+  { parser = 'graphql',         filetypes = { 'graphql' } },
+  { parser = 'html',            filetypes = { 'html' } },
+  { parser = 'javascript',      filetypes = { 'javascript', 'javascriptreact' } },
+  { parser = 'json',            filetypes = { 'json', 'jsonc' } },
+  { parser = 'lua',             filetypes = { 'lua' } },
+  { parser = 'markdown',        filetypes = { 'markdown' } },
+  { parser = 'markdown_inline', filetypes = {} },
+  { parser = 'python',          filetypes = { 'python' } },
+  { parser = 'rust',            filetypes = { 'rust' } },
+  { parser = 'sql',             filetypes = { 'sql' } },
+  { parser = 'tsx',             filetypes = { 'typescriptreact' } },
+  { parser = 'typescript',      filetypes = { 'typescript' } },
+  { parser = 'vimdoc',          filetypes = { 'vimdoc' } },
+  { parser = 'yaml',            filetypes = { 'yaml' } },
+}
+
+local treesitter_parsers = {}
+local treesitter_filetypes = {}
+for _, language in ipairs(treesitter_languages) do
+  table.insert(treesitter_parsers, language.parser)
+  for _, filetype in ipairs(language.filetypes) do
+    table.insert(treesitter_filetypes, filetype)
+  end
+end
+
+-- Directories pruned from every file/grep picker source. Passed to fd/rg as
+-- exclude globs by snacks.
+local search_exclude_globs = {
+  '.git',
+  'node_modules',
+  '.next',
+  'dist',
+  'build',
+  'target',
+  '.venv',
+  '__pycache__',
+}
+
+-- =================================================
+-- Local helpers
+-- =================================================
+
+-- A "real file" buffer is a listed, normal-buftype buffer that isn't one of the
+-- snacks scratch buffers (dashboard, explorer, pickers).
+local function buffer_is_real_file(bufnr)
+  if not vim.api.nvim_buf_is_valid(bufnr) then
+    return false
+  end
+  if not vim.bo[bufnr].buflisted then
+    return false
+  end
+  if vim.bo[bufnr].buftype ~= '' then
+    return false
+  end
+  -- Snacks windows (dashboard, explorer, pickers) all use a `snacks` filetype
+  -- prefix; none of them are real files.
+  return vim.bo[bufnr].filetype:find('snacks') == nil
+end
+
+-- True when a real file is actually displayed in some window right now. Unlike a
+-- buffer-list scan, this ignores files that merely linger hidden, so closing the
+-- explorer while only the dashboard (or nothing) is on screen counts as "empty".
+local function has_displayed_file_buffer()
+  for _, win in ipairs(vim.api.nvim_list_wins()) do
+    if vim.api.nvim_win_get_config(win).relative == '' then
+      if buffer_is_real_file(vim.api.nvim_win_get_buf(win)) then
+        return true
+      end
+    end
+  end
+  return false
+end
+
+local function has_open_file_buffer()
+  for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+    if buffer_is_real_file(bufnr) then
+      return true
+    end
+  end
+  return false
+end
+
+local function find_main_window()
+  for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+    if vim.api.nvim_win_get_config(win).relative == '' then
+      local bufnr = vim.api.nvim_win_get_buf(win)
+      -- Skip snacks windows (e.g. the explorer sidebar) so the dashboard never
+      -- lands in them.
+      if vim.bo[bufnr].filetype:find('snacks') == nil then
+        return win
+      end
+    end
+  end
+  return nil
+end
+
+local function open_dashboard_in_window(win)
+  if not (win and vim.api.nvim_win_is_valid(win)) then
+    return
+  end
+  if not (Snacks and Snacks.dashboard) then
+    return
+  end
+  Snacks.dashboard.open({ win = win })
+end
+
+-- =================================================
+-- Plugin specs
+-- =================================================
+
 local plugin_specs = {
-  { -- LSP Configuration & Plugins
-    'neovim/nvim-lspconfig',
-    dependencies = {
-      -- Automatically install LSPs to stdpath for neovim
-      'williamboman/mason.nvim',
-      'williamboman/mason-lspconfig.nvim',
-
-      -- Useful status updates for LSP
-      'j-hui/fidget.nvim',
-    },
-  },
-
-  'christoomey/vim-tmux-navigator',
-
+  -- Colorscheme fallback. Loaded eagerly with high priority so the UI is themed
+  -- immediately, but only when the local dark-rock theme isn't present (which is
+  -- the active colorscheme when it exists). Otherwise it stays lazy and installed
+  -- purely as a fallback so it isn't sourced at startup for nothing.
   {
-    "folke/trouble.nvim",
-    dependencies = {
-      "nvim-tree/nvim-web-devicons"
-    }
+    'sainnhe/gruvbox-material',
+    lazy = has_dark_rock_theme,
+    priority = 1000,
   },
 
+  -- Snacks: core utility suite. Loaded eagerly (provides terminal, etc).
   {
     'folke/snacks.nvim',
     lazy = false,
     priority = 1000,
     opts = {
+      bigfile = { enabled = true },
+      quickfile = { enabled = true },
+      dashboard = {
+        enabled = true,
+        preset = {
+          -- Omitting `header` uses the snacks built-in default (the large
+          -- centered NEOVIM ASCII banner).
+          -- The minimal action menu.
+          keys = {
+            { icon = ' ', key = 'f', desc = 'Find File', action = ":lua Snacks.dashboard.pick('files')" },
+            { icon = ' ', key = 'g', desc = 'Find Text', action = ":lua Snacks.dashboard.pick('live_grep')" },
+            { icon = ' ', key = 'r', desc = 'Recent',    action = ":lua Snacks.dashboard.pick('oldfiles')" },
+            { icon = ' ', key = 'e', desc = 'Explorer',  action = ':lua Snacks.explorer()' },
+            { icon = ' ', key = 'q', desc = 'Quit',      action = ':qa' },
+          },
+        },
+        sections = {
+          { section = 'header', padding = 1 },
+          { section = 'keys',   gap = 1,                padding = 1 },
+          { icon = ' ',         title = 'Recent Files', section = 'recent_files', cwd = true, limit = 8, indent = 2, padding = 1 },
+        },
+      },
       terminal = {
         win = {
           position = 'bottom',
@@ -65,6 +210,76 @@ local plugin_specs = {
           },
         },
       },
+      -- File explorer (replaces nvim-tree). The explorer is a picker source, so
+      -- its behavior is configured under `picker.sources.explorer`.
+      explorer = {
+        enabled = true,
+        -- Do not hijack directory buffers. The explorer only opens on demand
+        -- (via `<C-e>` or the dashboard menu), never automatically on launch.
+        replace_netrw = false,
+      },
+      picker = {
+        -- Directories searched/grepped everywhere are noise; keep them out of
+        -- every file/grep source so results stay focused (mirrors the old
+        -- Telescope `file_ignore_patterns` / `find_command` excludes).
+        sources = {
+          explorer = {
+            -- Persistent left sidebar. `auto_hide` keeps the search/input bar
+            -- tucked away until focused (press `/` to search), leaving a clean
+            -- tree by default.
+            layout = {
+              auto_hide = { 'input' },
+              layout = { position = 'left', width = 40, min_width = 40 },
+            },
+            -- Reveal and follow the focused file (was update_focused_file.enable).
+            follow_file = true,
+            git_status = true,
+            -- Show aggregate git status on collapsed directories.
+            git_status_open = true,
+            diagnostics = true,
+            -- Show dotfiles and gitignored files (nvim-tree filters were false),
+            -- but hide the `.git` directory itself (nvim-tree custom filter).
+            hidden = true,
+            ignored = true,
+            exclude = { '.git' },
+            -- Keep the sidebar open after opening a file.
+            auto_close = false,
+            -- `q` closes the explorer. When no real file is on screen (just the
+            -- dashboard, or nothing), quit Neovim instead of revealing a stale
+            -- hidden buffer.
+            win = {
+              list = {
+                keys = {
+                  ['q'] = 'explorer_close_or_quit',
+                },
+              },
+            },
+            actions = {
+              explorer_close_or_quit = function(picker)
+                local should_quit = not has_displayed_file_buffer()
+                picker:close()
+                if should_quit then
+                  vim.schedule(function()
+                    vim.cmd('qa')
+                  end)
+                end
+              end,
+            },
+          },
+          -- Show dotfiles and gitignored files (so build output, .env, etc. are
+          -- searchable) while still pruning the heavy directories.
+          files = {
+            hidden = true,
+            ignored = true,
+            exclude = search_exclude_globs,
+          },
+          grep = {
+            hidden = true,
+            ignored = true,
+            exclude = search_exclude_globs,
+          },
+        },
+      },
     },
     keys = {
       {
@@ -75,152 +290,473 @@ local plugin_specs = {
         mode = { 'n', 't' },
         desc = 'Toggle Terminal',
       },
+      {
+        '<C-e>',
+        function()
+          -- reveal() opens the explorer (focused) and reveals the current file
+          -- when closed, so toggle by closing any open explorer picker first.
+          local explorer_pickers = Snacks.picker.get({ source = 'explorer' })
+          if #explorer_pickers > 0 then
+            explorer_pickers[1]:close()
+          else
+            Snacks.explorer.reveal()
+          end
+        end,
+        desc = 'Toggle Explorer',
+      },
+      {
+        '<C-b>',
+        function()
+          for _, explorer_picker in ipairs(Snacks.picker.get({ source = 'explorer' })) do
+            explorer_picker:close()
+          end
+        end,
+        desc = 'Close Explorer',
+      },
+      -- Fuzzy finding (replaces Telescope). All sources share the snacks UI,
+      -- matcher, and theme that the explorer/dashboard already use.
+      { '<leader>sf',      function() Snacks.picker.files() end,       desc = '[S]earch [F]iles' },
+      { '<leader>sg',      function() Snacks.picker.grep() end,        desc = '[S]earch by [G]rep' },
+      { '<leader>sw',      function() Snacks.picker.grep_word() end,   mode = { 'n', 'x' },                          desc = '[S]earch current [W]ord' },
+      { '<leader>sh',      function() Snacks.picker.help() end,        desc = '[S]earch [H]elp' },
+      { '<leader>sd',      function() Snacks.picker.diagnostics() end, desc = '[S]earch [D]iagnostics' },
+      { '<leader>?',       function() Snacks.picker.recent() end,      desc = '[?] Find recently opened files' },
+      { '<leader><space>', function() Snacks.picker.buffers() end,     desc = '[ ] Find existing buffers' },
+      { '<leader>/',       function() Snacks.picker.lines() end,       desc = '[/] Fuzzily search in current buffer' },
     },
   },
 
-  { -- Autocompletion
-    'hrsh7th/nvim-cmp',
-    dependencies = { 'hrsh7th/cmp-nvim-lsp', 'L3MON4D3/LuaSnip', 'saadparwaiz1/cmp_luasnip' },
-  },
-
-  { -- Highlight, edit, and navigate code
+  -- Treesitter: must be available for the initial buffer, so it stays eager.
+  {
     'nvim-treesitter/nvim-treesitter',
     branch = 'main',
     lazy = false,
     build = ':TSUpdate',
+    dependencies = {
+      { 'nvim-treesitter/nvim-treesitter-textobjects', branch = 'main' },
+    },
+    config = function()
+      local treesitter = require('nvim-treesitter')
+      treesitter.install(treesitter_parsers)
+
+      -- Register filetypes whose name differs from their parser so those buffers
+      -- resolve to the right parser (e.g. typescriptreact -> tsx, jsonc -> json).
+      for _, language in ipairs(treesitter_languages) do
+        for _, filetype in ipairs(language.filetypes) do
+          if filetype ~= language.parser then
+            vim.treesitter.language.register(language.parser, filetype)
+          end
+        end
+      end
+
+      vim.api.nvim_create_autocmd('FileType', {
+        pattern = treesitter_filetypes,
+        callback = function(args)
+          local has_parser = pcall(vim.treesitter.start, args.buf)
+          if has_parser then
+            vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+          end
+        end,
+      })
+
+      require('nvim-treesitter-textobjects').setup {
+        select = {
+          lookahead = true,
+        },
+        move = {
+          set_jumps = true,
+        },
+      }
+
+      -- Select text objects: { lhs, textobject }.
+      local treesitter_select = require('nvim-treesitter-textobjects.select')
+      local select_mappings = {
+        { 'aa', '@parameter.outer' },
+        { 'ia', '@parameter.inner' },
+        { 'af', '@function.outer' },
+        { 'if', '@function.inner' },
+        { 'ac', '@class.outer' },
+        { 'ic', '@class.inner' },
+      }
+      for _, mapping in ipairs(select_mappings) do
+        local lhs, textobject = mapping[1], mapping[2]
+        vim.keymap.set({ 'x', 'o' }, lhs, function()
+          treesitter_select.select_textobject(textobject, 'textobjects')
+        end)
+      end
+
+      -- Move between text objects: { lhs, move_function, textobject }.
+      local treesitter_move = require('nvim-treesitter-textobjects.move')
+      local move_mappings = {
+        { ']m', 'goto_next_start',     '@function.outer' },
+        { ']]', 'goto_next_start',     '@class.outer' },
+        { ']M', 'goto_next_end',       '@function.outer' },
+        { '][', 'goto_next_end',       '@class.outer' },
+        { '[m', 'goto_previous_start', '@function.outer' },
+        { '[[', 'goto_previous_start', '@class.outer' },
+        { '[M', 'goto_previous_end',   '@function.outer' },
+        { '[]', 'goto_previous_end',   '@class.outer' },
+      }
+      for _, mapping in ipairs(move_mappings) do
+        local lhs, move_function, textobject = mapping[1], mapping[2], mapping[3]
+        vim.keymap.set({ 'n', 'x', 'o' }, lhs, function()
+          treesitter_move[move_function](textobject, 'textobjects')
+        end)
+      end
+
+      local treesitter_swap = require('nvim-treesitter-textobjects.swap')
+      vim.keymap.set('n', '<leader>a', function()
+        treesitter_swap.swap_next('@parameter.inner')
+      end)
+      vim.keymap.set('n', '<leader>A', function()
+        treesitter_swap.swap_previous('@parameter.inner')
+      end)
+    end,
   },
 
-  { -- Additional text objects via treesitter
-    'nvim-treesitter/nvim-treesitter-textobjects',
-    branch = 'main',
-    dependencies = { 'nvim-treesitter/nvim-treesitter' },
+  -- LSP stack: deferred until a real file buffer is opened.
+  {
+    'neovim/nvim-lspconfig',
+    event = { 'BufReadPre', 'BufNewFile' },
+    cmd = { 'Mason', 'LspInfo', 'LspStart' },
+    dependencies = {
+      'williamboman/mason.nvim',
+      'williamboman/mason-lspconfig.nvim',
+      'j-hui/fidget.nvim',
+    },
+    config = function()
+      require('mason').setup()
+
+      local servers = { 'basedpyright', 'ruff', 'tsgo', 'eslint', 'biome', 'lua_ls', 'gopls', 'emmet_ls', 'clangd',
+        'rust_analyzer' }
+
+      -- `automatic_enable = true` (the default) enables every installed server
+      -- via vim.lsp.enable(), so `ensure_installed` is the single source of truth.
+      require('mason-lspconfig').setup {
+        ensure_installed = servers,
+        automatic_enable = true,
+      }
+
+      -- blink.cmp supplies extra completion capabilities.
+      local capabilities = require('blink.cmp').get_lsp_capabilities()
+
+      require('fidget').setup({})
+
+      if not vim.g.lsp_float_preview_without_treesitter then
+        local original_open_floating_preview = vim.lsp.util.open_floating_preview
+        -- Intentional monkeypatch of a built-in API; silence lua_ls's
+        -- duplicate-set-field warning for this single re-assignment.
+        ---@diagnostic disable-next-line: duplicate-set-field
+        vim.lsp.util.open_floating_preview = function(contents, syntax, opts)
+          if opts and opts.disable_treesitter then
+            syntax = syntax == 'markdown' and 'plaintext' or syntax
+          end
+
+          return original_open_floating_preview(contents, syntax, opts)
+        end
+        vim.g.lsp_float_preview_without_treesitter = true
+      end
+
+      local lsp_float_padding_border = {
+        { ' ', 'NormalFloat' },
+        { ' ', 'NormalFloat' },
+        { ' ', 'NormalFloat' },
+        { ' ', 'NormalFloat' },
+        { ' ', 'NormalFloat' },
+        { ' ', 'NormalFloat' },
+        { ' ', 'NormalFloat' },
+        { ' ', 'NormalFloat' },
+      }
+
+      local lsp_float_options = {
+        border = lsp_float_padding_border,
+        focusable = true,
+        max_width = 80,
+        max_height = 20,
+        disable_treesitter = true,
+      }
+
+      local diagnostic_float_options = vim.tbl_extend('force', {}, lsp_float_options)
+      diagnostic_float_options.disable_treesitter = nil
+
+      vim.api.nvim_create_autocmd('LspAttach', {
+        group = vim.api.nvim_create_augroup('UserLspConfig', { clear = true }),
+        callback = function(args)
+          local bufnr = args.buf
+          local client = vim.lsp.get_client_by_id(args.data.client_id)
+          if client and client.name == 'ruff' then
+            client.server_capabilities.hoverProvider = false
+          end
+          if client and vim.tbl_contains({ 'tsgo', 'eslint', 'biome' }, client.name) then
+            client.server_capabilities.documentFormattingProvider = false
+            client.server_capabilities.documentRangeFormattingProvider = false
+          end
+
+          local nmap = function(keys, func, desc)
+            if desc then
+              desc = 'LSP: ' .. desc
+            end
+            vim.keymap.set('n', keys, func, { buffer = bufnr, desc = desc })
+          end
+
+          local show_hover_help = function()
+            local cursor_position = vim.api.nvim_win_get_cursor(0)
+            local cursor_diagnostics = vim.diagnostic.get(bufnr, {
+              lnum = cursor_position[1] - 1,
+            })
+
+            if #cursor_diagnostics > 0 then
+              vim.diagnostic.open_float(nil, vim.tbl_extend('force', diagnostic_float_options, {
+                scope = 'cursor',
+                prefix = '  ',
+              }))
+              return
+            end
+
+            vim.lsp.buf.hover(lsp_float_options)
+          end
+
+          nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
+          nmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
+
+          -- These all jump directly on a single result and fall back to the
+          -- snacks picker when there are several.
+          nmap('gd', function() Snacks.picker.lsp_definitions() end, '[G]oto [D]efinition')
+          nmap('gr', function() Snacks.picker.lsp_references() end, '[G]oto [R]eferences')
+          nmap('gI', function() Snacks.picker.lsp_implementations() end, '[G]oto [I]mplementation')
+          nmap('<leader>D', function() Snacks.picker.lsp_type_definitions() end, 'Type [D]efinition')
+          nmap('<leader>ds', function() Snacks.picker.lsp_symbols() end, '[D]ocument [S]ymbols')
+
+          nmap('gh', show_hover_help, 'Hover Help')
+          nmap('<C-k>', function()
+            vim.lsp.buf.signature_help(lsp_float_options)
+          end, 'Signature Documentation')
+
+          nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
+
+          vim.api.nvim_buf_create_user_command(bufnr, 'Format', function(_)
+            -- Route through conform so manual formatting picks the same
+            -- formatter as save-time formatting (biome/prettier/oxfmt/ruff/...),
+            -- falling back to the LSP only when conform has nothing.
+            require('conform').format({ async = true, lsp_format = 'fallback' })
+          end, { desc = 'Format current buffer with conform' })
+        end,
+      })
+
+      -- Make runtime files discoverable to the lua language server.
+      local runtime_path = vim.split(package.path, ';')
+      table.insert(runtime_path, 'lua/?.lua')
+      table.insert(runtime_path, 'lua/?/init.lua')
+
+      -- Capabilities apply to every server. Servers without extra settings
+      -- (basedpyright, ruff, gopls, tsgo, eslint, biome) need nothing further.
+      vim.lsp.config('*', {
+        capabilities = capabilities,
+      })
+
+      vim.lsp.config('lua_ls', {
+        settings = {
+          Lua = {
+            runtime = {
+              version = 'LuaJIT',
+              path = runtime_path,
+            },
+            diagnostics = {
+              globals = { 'vim' },
+            },
+            workspace = { library = vim.api.nvim_get_runtime_file('', true) },
+            telemetry = { enable = false },
+          },
+        },
+      })
+
+      vim.lsp.config('emmet_ls', {
+        filetypes = { 'html', 'typescriptreact', 'javascriptreact', 'css', 'sass', 'scss', 'less' },
+        init_options = {
+          html = {
+            options = {
+              ["bem.enabled"] = true,
+            },
+          },
+        },
+      })
+    end,
   },
 
-  -- Git related plugins
-  'tpope/vim-fugitive',
-  'tpope/vim-rhubarb',
-  'lewis6991/gitsigns.nvim',
+  -- Autocompletion: blink.cmp (replaces nvim-cmp). Loads on first insert.
+  {
+    'saghen/blink.cmp',
+    version = '1.*', -- pulls the prebuilt Rust fuzzy-matcher binary; no toolchain needed
+    event = 'InsertEnter',
+    ---@module 'blink.cmp'
+    ---@type blink.cmp.Config
+    opts = {
+      keymap = {
+        preset = 'enter', -- <CR> accepts; <C-n>/<C-p> navigate items
+        -- Preserve the previous inverted docs-scroll (<C-d> up, <C-f> down):
+        ['<C-d>'] = { 'scroll_documentation_up', 'fallback' },
+        ['<C-f>'] = { 'scroll_documentation_down', 'fallback' },
+        -- Manual trigger. <C-Space> is the tmux prefix, so use <C-l>, which is
+        -- only mapped to pane-navigation in normal mode and free in insert mode.
+        ['<C-l>'] = { 'show', 'show_documentation', 'hide_documentation' },
+        ['<C-space>'] = {},
+      },
+      appearance = { nerd_font_variant = 'mono' },
+      completion = {
+        -- Match the previous setup: no auto-popup of documentation.
+        documentation = { auto_show = false },
+      },
+      sources = {
+        default = { 'lsp', 'path', 'snippets', 'buffer' },
+        providers = {
+          lsp = { min_keyword_length = 1 },
+        },
+      },
+      fuzzy = { implementation = 'prefer_rust_with_warning' },
+    },
+    opts_extend = { 'sources.default' },
+  },
 
-  -- { "catppuccin/nvim", name = "catppuccin" },
-  'sainnhe/gruvbox-material',
-  'nvim-lualine/lualine.nvim',           -- Fancier statusline
-  'lukas-reineke/indent-blankline.nvim', -- Add indentation guides even on blank lines
-  'numToStr/Comment.nvim',               -- "gc" to comment visual regions/lines
-  'tpope/vim-sleuth',                    -- Detect tabstop and shiftwidth automatically
+  -- Diagnostics / quickfix list viewer.
+  {
+    "folke/trouble.nvim",
+    cmd = "Trouble",
+    dependencies = {
+      "nvim-tree/nvim-web-devicons",
+    },
+    opts = {},
+    keys = {
+      { "<leader>xx", function() require("trouble").toggle() end,                        desc = "Trouble Toggle" },
+      { "<leader>xw", function() require("trouble").toggle("workspace_diagnostics") end, desc = "Workspace Diagnostics" },
+      { "<leader>xd", function() require("trouble").toggle("document_diagnostics") end,  desc = "Document Diagnostics" },
+      { "<leader>xq", function() require("trouble").toggle("quickfix") end,              desc = "Quickfix" },
+      { "<leader>xl", function() require("trouble").toggle("loclist") end,               desc = "Location List" },
+    },
+  },
 
-  'nvim-tree/nvim-tree.lua',
-  'nvim-tree/nvim-web-devicons',
+  -- Git signs in the gutter.
+  {
+    'lewis6991/gitsigns.nvim',
+    event = { 'BufReadPre', 'BufNewFile' },
+    opts = {
+      signs = {
+        add = { text = '+' },
+        change = { text = '~' },
+        delete = { text = '_' },
+        topdelete = { text = '‾' },
+        changedelete = { text = '~' },
+      },
+    },
+  },
 
-  -- Fuzzy Finder (files, lsp, etc)
-  { 'nvim-telescope/telescope.nvim', branch = 'master', dependencies = { 'nvim-lua/plenary.nvim' } },
+  -- Fugitive (+ rhubarb for :GBrowse) load on git commands.
+  {
+    'tpope/vim-fugitive',
+    dependencies = { 'tpope/vim-rhubarb' },
+    cmd = {
+      'G',
+      'Git',
+      'Gdiffsplit',
+      'Gvdiffsplit',
+      'Gread',
+      'Gwrite',
+      'Gedit',
+      'Ggrep',
+      'GMove',
+      'GRename',
+      'GDelete',
+      'GRemove',
+      'GBrowse',
+      'Gclog',
+      'Glog',
+    },
+  },
 
-  -- Fuzzy Finder Algorithm which requires local dependencies to be built. Only load if `make` is available
-  { 'nvim-telescope/telescope-fzf-native.nvim', build = 'make', cond = vim.fn.executable 'make' == 1 },
+  -- Statusline.
+  {
+    'nvim-lualine/lualine.nvim',
+    event = 'VeryLazy',
+    opts = {
+      options = {
+        icons_enabled = false,
+        -- Derive the statusline palette from the active colorscheme so it stays
+        -- in sync whether gruvbox-material or a dark-rock variant is loaded.
+        theme = 'auto',
+        component_separators = '',
+        section_separators = '',
+        disabled_filetypes = {
+          statusline = { 'snacks_terminal' },
+        },
+      },
+    },
+  },
 
-  -- Surround
+  -- Indentation guides.
+  {
+    'lukas-reineke/indent-blankline.nvim',
+    event = { 'BufReadPre', 'BufNewFile' },
+    main = 'ibl',
+    opts = {
+      scope = {
+        show_start = false,
+      },
+    },
+  },
+
+  -- "gc" to comment.
+  {
+    'numToStr/Comment.nvim',
+    event = 'VeryLazy',
+    opts = {},
+  },
+
+  -- Detect tabstop / shiftwidth automatically.
+  {
+    'tpope/vim-sleuth',
+    event = { 'BufReadPre', 'BufNewFile' },
+  },
+
+  -- Surround text objects.
   {
     "kylechui/nvim-surround",
-    version = "*", -- Use for stability; omit to use `main` branch for the latest features
-    config = function()
-      require("nvim-surround").setup({
-        -- Configuration here, or leave empty to use defaults
-      })
-    end
+    version = "*",
+    event = "VeryLazy",
+    opts = {},
   },
 
-  -- AI assistant
+  -- Seamless navigation between tmux panes and vim splits.
   {
-    'olimorris/codecompanion.nvim',
-    event = 'VeryLazy',
+    'christoomey/vim-tmux-navigator',
     cmd = {
-      'CodeCompanion',
-      'CodeCompanionActions',
-      'CodeCompanionChat',
-      'CodeCompanionCLI',
-      'CodeCompanionCmd',
-    },
-    dependencies = {
-      'nvim-lua/plenary.nvim',
-      'nvim-treesitter/nvim-treesitter',
-    },
-    opts = {
-      adapters = {
-        acp = {
-          claude_code = function()
-            return require('codecompanion.adapters').extend('claude_code', {
-              commands = {
-                default = {
-                  'npx',
-                  '-y',
-                  '@agentclientprotocol/claude-agent-acp',
-                  '--yolo',
-                },
-                yolo = {
-                  'npx',
-                  '-y',
-                  '@agentclientprotocol/claude-agent-acp',
-                  '--yolo',
-                },
-              },
-            })
-          end,
-        },
-      },
-      interactions = {
-        chat = {
-          adapter = 'claude_code',
-        },
-        cli = {
-          agent = 'claude_code',
-          agents = {
-            claude_code = {
-              cmd = 'claude',
-              args = { '--permission-mode', 'bypassPermissions' },
-              description = 'Claude Code CLI',
-              provider = 'terminal',
-            },
-          },
-        },
-      },
-      display = {
-        chat = {
-          window = {
-            layout = 'vertical',
-            position = 'right',
-            border = 'none',
-            width = 0.32,
-            full_height = true,
-            opts = {
-              breakindent = true,
-              cursorcolumn = false,
-              cursorline = false,
-              foldcolumn = '0',
-              linebreak = true,
-              list = false,
-              number = false,
-              relativenumber = false,
-              signcolumn = 'no',
-              spell = false,
-              wrap = true,
-              winhighlight = 'Normal:Normal,NormalNC:Normal,EndOfBuffer:Normal,SignColumn:Normal',
-            },
-          },
-        },
-      },
+      'TmuxNavigateLeft',
+      'TmuxNavigateDown',
+      'TmuxNavigateUp',
+      'TmuxNavigateRight',
+      'TmuxNavigatePrevious',
     },
     keys = {
-      { '<leader>ia', '<cmd>CodeCompanionChat Toggle<cr>', mode = 'n', desc = 'AI Chat' },
-      { '<leader>ia', ":'<,'>CodeCompanionChat Add<cr>", mode = 'v', desc = 'AI Add Selection' },
-      { '<leader>ie', '<cmd>CodeCompanionActions<cr>', mode = 'n', desc = 'AI Actions' },
-      { '<leader>ie', ":'<,'>CodeCompanionActions<cr>", mode = 'v', desc = 'AI Selection Actions' },
-      { '<leader>ir', '<cmd>CodeCompanionChat RefreshCache<cr>', mode = 'n', desc = 'AI Refresh' },
-      { '<leader>iA', '<cmd>CodeCompanionCLI<cr>', mode = { 'n', 'v' }, desc = 'AI CLI' },
+      { '<C-h>', '<cmd>TmuxNavigateLeft<cr>' },
+      { '<C-j>', '<cmd>TmuxNavigateDown<cr>' },
+      { '<C-k>', '<cmd>TmuxNavigateUp<cr>' },
+      { '<C-l>', '<cmd>TmuxNavigateRight<cr>' },
     },
   },
 
-  -- Formatter
+  -- Formatter: load just before the first write (and on :ConformInfo).
   {
     "stevearc/conform.nvim",
+    event = { "BufWritePre" },
+    cmd = { "ConformInfo" },
+    keys = {
+      {
+        "<leader>f",
+        function()
+          require("conform").format({ async = true, lsp_format = "fallback" })
+        end,
+        mode = { "n", "v" },
+        desc = "[F]ormat buffer",
+      },
+    },
     config = function()
       local biome_config_files = { "biome.json", "biome.jsonc", ".biome.json", ".biome.jsonc" }
       local prettier_config_files = {
@@ -283,7 +819,6 @@ local plugin_specs = {
       end
 
       require("conform").setup({
-        -- Map of filetype to formatters
         formatters_by_ft = {
           javascript = web_formatters,
           javascriptreact = web_formatters,
@@ -303,19 +838,15 @@ local plugin_specs = {
           vue = web_formatters,
           yaml = web_formatters,
           python = { "ruff_fix", "ruff_format", "ruff_organize_imports" },
-          -- Use LSP for other languages
           go = { lsp_format = "prefer" },
           lua = { lsp_format = "prefer" },
         },
-        -- Set default options - fallback to LSP for filetypes not listed above
         default_format_opts = {
           lsp_format = "fallback",
         },
-        -- Format after save so slow formatters do not block editing.
         format_after_save = {
           lsp_format = "fallback",
         },
-        -- Notify on errors
         notify_on_error = true,
       })
     end,
@@ -343,25 +874,63 @@ if has_custom_plugins then
   end
 end
 
+-- =================================================
+-- Plugin manager setup
+-- =================================================
+
 require('lazy').setup({
   spec = plugin_specs,
+  defaults = { lazy = true },
   install = { colorscheme = { 'gruvbox-material' } },
   checker = { enabled = false },
   rocks = { enabled = false },
+  performance = {
+    rtp = {
+      -- Disable built-in runtime plugins we never use to trim startup.
+      disabled_plugins = {
+        'gzip',
+        'matchit',
+        'matchparen',
+        'netrwPlugin',
+        'tarPlugin',
+        'tohtml',
+        'tutor',
+        'zipPlugin',
+      },
+    },
+  },
 })
 
 
--- [[ Setting options ]]
+-- =================================================
+-- Options
+-- =================================================
 -- See `:help vim.o`
 
 -- Set highlight on search
 vim.o.hlsearch = false
 
 -- Make line numbers default
-vim.wo.number = true
+vim.o.number = true
 
 -- Enable mouse mode
 vim.o.mouse = 'a'
+
+-- Keep context around the cursor when scrolling.
+vim.o.scrolloff = 8
+
+-- Open new splits to the right and below, where the eye expects them.
+vim.o.splitright = true
+vim.o.splitbelow = true
+
+-- Live preview of :substitute / :s in a split as you type.
+vim.o.inccommand = 'split'
+
+-- Highlight the line the cursor is on.
+vim.o.cursorline = true
+
+-- Prompt to save instead of erroring on :q with unsaved changes.
+vim.o.confirm = true
 
 -- Set the tab width
 vim.opt.tabstop = 2
@@ -376,8 +945,11 @@ vim.o.undofile = true
 -- Set nowrap
 vim.opt.wrap = false
 
--- Use the system clipboard
-vim.opt.clipboard = "unnamedplus"
+-- Use the system clipboard. Deferred so clipboard-provider detection does not
+-- run during startup.
+vim.schedule(function()
+  vim.o.clipboard = 'unnamedplus'
+end)
 
 -- Case insensitive searching UNLESS /C or capital in search
 vim.o.ignorecase = true
@@ -385,10 +957,13 @@ vim.o.smartcase = true
 
 -- Decrease update time
 vim.o.updatetime = 250
-vim.o.ttimeoutlen = 10  -- Faster terminal key code recognition (helps with Ctrl+Space, etc.)
-vim.wo.signcolumn = 'yes'
+vim.o.ttimeoutlen = 10 -- Faster terminal key code recognition (helps with Ctrl+Space, etc.)
+vim.o.signcolumn = 'yes'
 
--- Set colorscheme
+-- =================================================
+-- Colorscheme and highlights
+-- =================================================
+
 vim.o.termguicolors = true
 if has_dark_rock_theme then
   vim.g.dark_rock_transparent = true
@@ -409,17 +984,39 @@ local function set_dark_rock_float_highlights()
   vim.api.nvim_set_hl(0, 'FloatBorder', { fg = colors.border })
   vim.api.nvim_set_hl(0, 'FloatTitle', { fg = colors.green, bold = true })
 end
+local float_highlight_group = vim.api.nvim_create_augroup('UserFloatHighlights', { clear = true })
 set_dark_rock_float_highlights()
 vim.api.nvim_create_autocmd('ColorScheme', {
+  group = float_highlight_group,
   pattern = { 'dark-rock', 'night-rock', 'light-rock' },
   callback = set_dark_rock_float_highlights,
 })
 
--- Set completeopt to have a better completion experience
-vim.o.completeopt = 'menuone,noselect'
+-- Make the snacks explorer (and pickers) use the transparent editor background.
+-- These groups back the picker windows' Normal/NormalFloat and otherwise default
+-- to NormalFloat, which the theme paints with a solid background.
+local function set_snacks_picker_transparent()
+  local transparent_groups = {
+    'SnacksPicker',
+    'SnacksPickerBox',
+    'SnacksPickerList',
+    'SnacksPickerInput',
+    'SnacksPickerPreview',
+  }
+  for _, group in ipairs(transparent_groups) do
+    vim.api.nvim_set_hl(0, group, { link = 'Normal' })
+  end
+end
+local snacks_highlight_group = vim.api.nvim_create_augroup('UserSnacksHighlights', { clear = true })
+set_snacks_picker_transparent()
+vim.api.nvim_create_autocmd('ColorScheme', {
+  group = snacks_highlight_group,
+  callback = set_snacks_picker_transparent,
+})
 
--- [[ Basic Keymaps ]]
--- Keymaps for better default experience
+-- =================================================
+-- Keymaps
+-- =================================================
 -- See `:help vim.keymap.set()`
 vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
 vim.keymap.set('n', '<leader>w', "<cmd>w<cr>", { silent = true })
@@ -430,614 +1027,92 @@ vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = tr
 vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
 
 -- Change the resize pane size
-vim.api.nvim_set_keymap('n', '<C-w>>', '5<C-w>>', { noremap = true })
-vim.api.nvim_set_keymap('n', '<C-w><', '5<C-w><', { noremap = true })
+vim.keymap.set('n', '<C-w>>', '5<C-w>>', { noremap = true })
+vim.keymap.set('n', '<C-w><', '5<C-w><', { noremap = true })
 
--- [[ Highlight on yank ]]
--- See `:help vim.highlight.on_yank()`
+-- =================================================
+-- Diagnostics
+-- =================================================
+-- Sort by severity so the worst problem wins the sign column and the float.
+-- `virtual_lines.current_line` shows the full message under the cursor line
+-- (Neovim 0.11+), while keeping the other lines uncluttered.
+vim.diagnostic.config({
+  severity_sort = true,
+  underline = true,
+  update_in_insert = false,
+  signs = {
+    text = {
+      [vim.diagnostic.severity.ERROR] = '',
+      [vim.diagnostic.severity.WARN] = '',
+      [vim.diagnostic.severity.INFO] = '',
+      [vim.diagnostic.severity.HINT] = '',
+    },
+  },
+  virtual_text = false,
+  virtual_lines = { current_line = true },
+  float = {
+    border = 'rounded',
+    source = true,
+  },
+})
+
+-- Diagnostic keymaps
+vim.keymap.set('n', '[d', function()
+  vim.diagnostic.jump({ count = -1, float = true })
+end)
+vim.keymap.set('n', ']d', function()
+  vim.diagnostic.jump({ count = 1, float = true })
+end)
+vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float)
+vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist)
+
+-- =================================================
+-- Autocommands
+-- =================================================
+
+-- Highlight on yank.
 local highlight_group = vim.api.nvim_create_augroup('YankHighlight', { clear = true })
 vim.api.nvim_create_autocmd('TextYankPost', {
   callback = function()
-    vim.highlight.on_yank()
+    vim.hl.on_yank()
   end,
   group = highlight_group,
   pattern = '*',
 })
 
--- Set lualine as statusline
--- See `:help lualine.txt`
-require('lualine').setup {
-  options = {
-    icons_enabled = false,
-    theme = 'gruvbox-material',
-    component_separators = '',
-    section_separators = '',
-    disabled_filetypes = {
-      statusline = { 'snacks_terminal' },
-    },
-  },
-}
+-- Dashboard on launch.
+-- The snacks dashboard (configured in its plugin spec) opens automatically for
+-- a bare `nvim`. Snacks handles `nvim <dir>` natively: with the explorer enabled
+-- and `replace_netrw`, the dashboard is kept and the explorer is opened for the
+-- directory. The BufDelete autocmd below brings the dashboard back whenever the
+-- last real file buffer closes.
+local dashboard_group = vim.api.nvim_create_augroup('UserDashboard', { clear = true })
 
--- Enable Comment.nvim
-require('Comment').setup()
-
--- Enable `lukas-reineke/indent-blankline.nvim`
--- See :help ibl.config
-require('ibl').setup({
-  scope = {
-    show_start = false
-  }
-})
-
--- Gitsigns
--- See `:help gitsigns.txt`
-require('gitsigns').setup {
-  signs = {
-    add = { text = '+' },
-    change = { text = '~' },
-    delete = { text = '_' },
-    topdelete = { text = '‾' },
-    changedelete = { text = '~' },
-  },
-}
-
--- [[ Configure Telescope ]]
--- See `:help telescope` and `:help telescope.setup()`
-require('telescope').setup {
-  defaults = {
-    hidden = true,
-    file_ignore_patterns = {
-      "%.git/",
-      "node_modules/",
-      "%.next/",
-      "dist/",
-      "build/",
-      "target/",
-      "%.venv/",
-      "__pycache__/",
-    },
-    mappings = {
-      i = {
-        ['<C-u>'] = false,
-        ['<C-d>'] = false,
-      },
-    },
-    vimgrep_arguments = {
-      "rg",
-      "--color=never",
-      "--no-heading",
-      "--with-filename",
-      "--line-number",
-      "--column",
-      "--smart-case",
-      "--hidden",
-      "--no-ignore-vcs",
-      "--glob", "!.git/",
-      "--glob", "!node_modules/",
-      "--glob", "!.next/",
-      "--glob", "!dist/",
-      "--glob", "!build/",
-      "--glob", "!target/",
-    },
-  },
-}
-
--- [[ Configure Nvim Tree ]]
-local function nvim_tree_on_attach(bufnr)
-  local api = require "nvim-tree.api"
-  local opts = function(desc)
-    return { buffer = bufnr, desc = desc }
-  end
-
-  -- Default mappings
-  api.config.mappings.default_on_attach(bufnr)
-  vim.keymap.set('n', '<C-e>', api.tree.toggle, opts('Toggle Nvim Tree'))
-end
-
-require("nvim-tree").setup({
-  sort_by = "case_sensitive",
-  on_attach = nvim_tree_on_attach,
-  update_focused_file = {
-    enable = true,
-    update_root = true,
-    ignore_list = { "help" },
-  },
-  view = {
-    width = 30,
-  },
-  renderer = {
-    group_empty = true,
-    highlight_git = "name",
-    icons = {
-      show = {
-        git = false,
-      },
-    },
-  },
-  filters = {
-    dotfiles = false,
-    git_ignored = false,
-    custom = { "^.git$" },
-  },
-  git = {
-    enable = true,
-    show_on_dirs = true,
-  },
-})
-
-local function set_nvim_tree_git_highlights()
-  vim.api.nvim_set_hl(0, "NvimTreeGitFileIgnoredHL", { fg = "#6c6c6c", italic = true })
-  vim.api.nvim_set_hl(0, "NvimTreeGitFolderIgnoredHL", { fg = "#6c6c6c", italic = true })
-  vim.api.nvim_set_hl(0, "NvimTreeGitIgnored", { fg = "#6c6c6c", italic = true })
-end
-set_nvim_tree_git_highlights()
-vim.api.nvim_create_autocmd("ColorScheme", {
-  callback = set_nvim_tree_git_highlights,
-})
-
-vim.keymap.set('n', '<C-b>', ":NvimTreeClose<cr>", { desc = 'Close Nvim Tree' })
-vim.keymap.set('n', '<C-e>', function()
-  require('nvim-tree.api').tree.toggle({
-    find_file = true,
-    focus = true,
-  })
-end, { desc = 'Toggle Nvim Tree' })
-
--- [[ Configure Telescope ]]
--- Enable telescope fzf native, if installed
-pcall(require('telescope').load_extension, 'fzf')
-
--- See `:help telescope.builtin`
-vim.keymap.set('n', '<leader>?', require('telescope.builtin').oldfiles, { desc = '[?] Find recently opened files' })
-vim.keymap.set('n', '<leader><space>', require('telescope.builtin').buffers, { desc = '[ ] Find existing buffers' })
-vim.keymap.set('n', '<leader>/', function()
-  -- You can pass additional configuration to telescope to change theme, layout, etc.
-  require('telescope.builtin').current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
-    winblend = 10,
-    previewer = false,
-  })
-end, { desc = '[/] Fuzzily search in current buffer]' })
-
-vim.keymap.set('n', '<leader>sf', function()
-  require('telescope.builtin').find_files(
-    require('telescope.themes').get_dropdown({
-      previewer = false,
-      width = 0.5,
-      find_command = {
-        "fd",
-        "--type", "f",
-        "--hidden",
-        "--no-ignore-vcs",
-        "--exclude", ".git",
-        "--exclude", "node_modules",
-        "--exclude", ".next",
-        "--exclude", "dist",
-        "--exclude", "build",
-        "--exclude", "target",
-        "--exclude", ".venv",
-        "--exclude", "__pycache__",
-      },
-    })
-  )
-end, { desc = '[S]earch [F]iles' })
-vim.keymap.set('n', '<leader>sh', require('telescope.builtin').help_tags, { desc = '[S]earch [H]elp' })
-vim.keymap.set('n', '<leader>sw', require('telescope.builtin').grep_string, { desc = '[S]earch current [W]ord' })
-vim.keymap.set('n', '<leader>sg', require('telescope.builtin').live_grep, { desc = '[S]earch by [G]rep' })
-vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { desc = '[S]earch [D]iagnostics' })
-
--- [[ Configure Treesitter ]]
-local treesitter_parsers = {
-  'c',
-  'cpp',
-  'css',
-  'go',
-  'graphql',
-  'html',
-  'javascript',
-  'json',
-  'lua',
-  'markdown',
-  'markdown_inline',
-  'python',
-  'rust',
-  'sql',
-  'tsx',
-  'typescript',
-  'vimdoc',
-  'yaml',
-}
-
-local has_treesitter, treesitter = pcall(require, 'nvim-treesitter')
-if has_treesitter and type(treesitter.install) == 'function' then
-  treesitter.install(treesitter_parsers)
-
-  vim.treesitter.language.register('javascript', 'javascriptreact')
-  vim.treesitter.language.register('tsx', 'typescriptreact')
-
-  vim.api.nvim_create_autocmd('FileType', {
-    pattern = {
-      'c',
-      'cpp',
-      'css',
-      'go',
-      'graphql',
-      'html',
-      'javascript',
-      'javascriptreact',
-      'json',
-      'jsonc',
-      'lua',
-      'markdown',
-      'python',
-      'rust',
-      'sql',
-      'typescript',
-      'typescriptreact',
-      'vimdoc',
-      'yaml',
-    },
-    callback = function(args)
-    local has_parser = pcall(vim.treesitter.start, args.buf)
-    if has_parser then
-      vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+-- Bring the dashboard back into the main window once no file buffer remains.
+vim.api.nvim_create_autocmd('BufDelete', {
+  group = dashboard_group,
+  callback = function(event)
+    if vim.v.vim_did_enter == 0 then
+      return
     end
-    end,
-  })
-
-  require('nvim-treesitter-textobjects').setup {
-    select = {
-      lookahead = true,
-    },
-    move = {
-      set_jumps = true,
-    },
-  }
-
-  local treesitter_select = require('nvim-treesitter-textobjects.select')
-  vim.keymap.set({ 'x', 'o' }, 'aa', function()
-    treesitter_select.select_textobject('@parameter.outer', 'textobjects')
-  end)
-  vim.keymap.set({ 'x', 'o' }, 'ia', function()
-    treesitter_select.select_textobject('@parameter.inner', 'textobjects')
-  end)
-  vim.keymap.set({ 'x', 'o' }, 'af', function()
-    treesitter_select.select_textobject('@function.outer', 'textobjects')
-  end)
-  vim.keymap.set({ 'x', 'o' }, 'if', function()
-    treesitter_select.select_textobject('@function.inner', 'textobjects')
-  end)
-  vim.keymap.set({ 'x', 'o' }, 'ac', function()
-    treesitter_select.select_textobject('@class.outer', 'textobjects')
-  end)
-  vim.keymap.set({ 'x', 'o' }, 'ic', function()
-    treesitter_select.select_textobject('@class.inner', 'textobjects')
-  end)
-
-  local treesitter_move = require('nvim-treesitter-textobjects.move')
-  vim.keymap.set({ 'n', 'x', 'o' }, ']m', function()
-    treesitter_move.goto_next_start('@function.outer', 'textobjects')
-  end)
-  vim.keymap.set({ 'n', 'x', 'o' }, ']]', function()
-    treesitter_move.goto_next_start('@class.outer', 'textobjects')
-  end)
-  vim.keymap.set({ 'n', 'x', 'o' }, ']M', function()
-    treesitter_move.goto_next_end('@function.outer', 'textobjects')
-  end)
-  vim.keymap.set({ 'n', 'x', 'o' }, '][', function()
-    treesitter_move.goto_next_end('@class.outer', 'textobjects')
-  end)
-  vim.keymap.set({ 'n', 'x', 'o' }, '[m', function()
-    treesitter_move.goto_previous_start('@function.outer', 'textobjects')
-  end)
-  vim.keymap.set({ 'n', 'x', 'o' }, '[[', function()
-    treesitter_move.goto_previous_start('@class.outer', 'textobjects')
-  end)
-  vim.keymap.set({ 'n', 'x', 'o' }, '[M', function()
-    treesitter_move.goto_previous_end('@function.outer', 'textobjects')
-  end)
-  vim.keymap.set({ 'n', 'x', 'o' }, '[]', function()
-    treesitter_move.goto_previous_end('@class.outer', 'textobjects')
-  end)
-
-  local treesitter_swap = require('nvim-treesitter-textobjects.swap')
-  vim.keymap.set('n', '<leader>a', function()
-    treesitter_swap.swap_next('@parameter.inner')
-  end)
-  vim.keymap.set('n', '<leader>A', function()
-    treesitter_swap.swap_previous('@parameter.inner')
-  end)
-else
-  require('nvim-treesitter.configs').setup {
-    ensure_installed = treesitter_parsers,
-    highlight = {
-      enable = true,
-      disable = { 'markdown' },
-    },
-    indent = { enable = true },
-  }
-end
-
--- Diagnostic keymaps
-vim.keymap.set('n', '[d', vim.diagnostic.goto_prev)
-vim.keymap.set('n', ']d', vim.diagnostic.goto_next)
-vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float)
-vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist)
-
--- Setup mason so it can manage external tooling
-require('mason').setup()
-
--- Enable the following language servers
--- Feel free to add/remove any LSPs that you want here. They will automatically be installed
--- Uncomment clangd and rust_analyzer if you need C/C++ or Rust support
-local servers = { 'basedpyright', 'ruff', 'tsgo', 'eslint', 'biome', 'lua_ls', 'gopls', 'emmet_ls' }
--- local servers = { 'clangd', 'rust_analyzer', 'basedpyright', 'ruff', 'tsgo', 'eslint', 'biome', 'lua_ls', 'gopls', 'emmet_ls' }
-
--- Ensure the servers above are installed
-require('mason-lspconfig').setup {
-  ensure_installed = servers,
-  automatic_enable = servers,
-}
-
--- nvim-cmp supports additional completion capabilities
-local capabilities = vim.lsp.protocol.make_client_capabilities()
-capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
-
--- Turn on lsp status information
-require('fidget').setup({})
-
--- [[ Configure LSP using vim.lsp.config (Neovim 0.11+) ]]
-
-if not vim.g.lsp_float_preview_without_treesitter then
-  local original_open_floating_preview = vim.lsp.util.open_floating_preview
-  vim.lsp.util.open_floating_preview = function(contents, syntax, opts)
-    if opts and opts.disable_treesitter then
-      syntax = syntax == 'markdown' and 'plaintext' or syntax
+    if vim.bo[event.buf].buftype ~= '' or vim.api.nvim_buf_get_name(event.buf) == '' then
+      return
     end
 
-    return original_open_floating_preview(contents, syntax, opts)
-  end
-  vim.g.lsp_float_preview_without_treesitter = true
-end
-
-local lsp_float_padding_border = {
-  { ' ', 'NormalFloat' },
-  { ' ', 'NormalFloat' },
-  { ' ', 'NormalFloat' },
-  { ' ', 'NormalFloat' },
-  { ' ', 'NormalFloat' },
-  { ' ', 'NormalFloat' },
-  { ' ', 'NormalFloat' },
-  { ' ', 'NormalFloat' },
-}
-
-local lsp_float_options = {
-  border = lsp_float_padding_border,
-  focusable = true,
-  max_width = 80,
-  max_height = 20,
-  disable_treesitter = true,
-}
-
-local diagnostic_float_options = vim.tbl_extend('force', {}, lsp_float_options)
-diagnostic_float_options.disable_treesitter = nil
-
--- LspAttach autocmd - replaces the old on_attach function
-vim.api.nvim_create_autocmd('LspAttach', {
-  group = vim.api.nvim_create_augroup('UserLspConfig', { clear = true }),
-  callback = function(args)
-    local bufnr = args.buf
-    local client = vim.lsp.get_client_by_id(args.data.client_id)
-    if client and client.name == 'ruff' then
-      client.server_capabilities.hoverProvider = false
-    end
-    if client and vim.tbl_contains({ 'tsgo', 'eslint', 'biome' }, client.name) then
-      client.server_capabilities.documentFormattingProvider = false
-      client.server_capabilities.documentRangeFormattingProvider = false
-    end
-
-    -- Helper function for LSP keymaps
-    local nmap = function(keys, func, desc)
-      if desc then
-        desc = 'LSP: ' .. desc
-      end
-      vim.keymap.set('n', keys, func, { buffer = bufnr, desc = desc })
-    end
-
-    local show_hover_help = function()
-      local cursor_position = vim.api.nvim_win_get_cursor(0)
-      local cursor_diagnostics = vim.diagnostic.get(bufnr, {
-        lnum = cursor_position[1] - 1,
-      })
-
-      if #cursor_diagnostics > 0 then
-        vim.diagnostic.open_float(nil, vim.tbl_extend('force', diagnostic_float_options, {
-          scope = 'cursor',
-          prefix = '  ',
-        }))
+    vim.schedule(function()
+      if has_open_file_buffer() then
         return
       end
-
-      vim.lsp.buf.hover(lsp_float_options)
-    end
-
-    nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
-    nmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
-
-    nmap('gd', vim.lsp.buf.definition, '[G]oto [D]efinition')
-    nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
-    nmap('gI', vim.lsp.buf.implementation, '[G]oto [I]mplementation')
-    nmap('<leader>D', vim.lsp.buf.type_definition, 'Type [D]efinition')
-    nmap('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
-
-    -- See `:help K` for why this keymap
-    nmap('gh', show_hover_help, 'Hover Help')
-    nmap('<C-k>', function()
-      vim.lsp.buf.signature_help(lsp_float_options)
-    end, 'Signature Documentation')
-
-    -- Lesser used LSP functionality
-    nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
-
-    -- Create a command `:Format` local to the LSP buffer
-    vim.api.nvim_buf_create_user_command(bufnr, 'Format', function(_)
-      vim.lsp.buf.format()
-    end, { desc = 'Format current buffer with LSP' })
+      local main_window = find_main_window()
+      if not main_window then
+        return
+      end
+      local current_buffer = vim.api.nvim_win_get_buf(main_window)
+      -- Already showing a snacks window (e.g. the dashboard); nothing to do.
+      if vim.bo[current_buffer].filetype:find('snacks') ~= nil then
+        return
+      end
+      open_dashboard_in_window(main_window)
+    end)
   end,
 })
-
--- Example custom configuration for lua
--- Make runtime files discoverable to the server
-local runtime_path = vim.split(package.path, ';')
-table.insert(runtime_path, 'lua/?.lua')
-table.insert(runtime_path, 'lua/?/init.lua')
-
--- Configure LSP servers using vim.lsp.config (Neovim 0.11+)
-
--- Default config for all servers
-vim.lsp.config('*', {
-  capabilities = capabilities,
-})
-
--- clangd (uncomment if needed)
--- vim.lsp.config('clangd', {
---   capabilities = capabilities,
--- })
-
--- rust_analyzer (uncomment if needed)
--- vim.lsp.config('rust_analyzer', {
---   capabilities = capabilities,
--- })
-
--- basedpyright
-vim.lsp.config('basedpyright', {
-  capabilities = capabilities,
-})
-
--- ruff
-vim.lsp.config('ruff', {
-  capabilities = capabilities,
-})
-
--- gopls
-vim.lsp.config('gopls', {
-  capabilities = capabilities,
-})
-
--- tsgo (TypeScript/JavaScript)
-vim.lsp.config('tsgo', {
-  capabilities = capabilities,
-})
-
--- eslint
-vim.lsp.config('eslint', {
-  capabilities = capabilities,
-})
-
--- biome
-vim.lsp.config('biome', {
-  capabilities = capabilities,
-})
-
--- lua_ls
-vim.lsp.config('lua_ls', {
-  capabilities = capabilities,
-  settings = {
-    Lua = {
-      runtime = {
-        version = 'LuaJIT',
-        path = runtime_path,
-      },
-      diagnostics = {
-        globals = { 'vim' },
-      },
-      workspace = { library = vim.api.nvim_get_runtime_file('', true) },
-      telemetry = { enable = false },
-    },
-  },
-})
-
--- emmet_ls
-vim.lsp.config('emmet_ls', {
-  capabilities = capabilities,
-  filetypes = { 'html', 'typescriptreact', 'javascriptreact', 'css', 'sass', 'scss', 'less' },
-  init_options = {
-    html = {
-      options = {
-        ["bem.enabled"] = true,
-      },
-    },
-  },
-})
-
--- Enable all the servers
--- vim.lsp.enable('clangd')
--- vim.lsp.enable('rust_analyzer')
-vim.lsp.enable('basedpyright')
-vim.lsp.enable('ruff')
-vim.lsp.enable('tsgo')
-vim.lsp.enable('eslint')
-vim.lsp.enable('biome')
-vim.lsp.enable('gopls')
-vim.lsp.enable('lua_ls')
-vim.lsp.enable('emmet_ls')
-
--- nvim-cmp setup
-local cmp = require 'cmp'
-local luasnip = require 'luasnip'
-
-cmp.setup {
-  snippet = {
-    expand = function(args)
-      luasnip.lsp_expand(args.body)
-    end,
-  },
-  completion = {
-    autocomplete = { cmp.TriggerEvent.TextChanged },
-    completeopt = 'menu,menuone,noselect',
-    keyword_length = 1,
-  },
-  mapping = cmp.mapping.preset.insert {
-    ['<C-d>'] = cmp.mapping.scroll_docs(-4),
-    ['<C-f>'] = cmp.mapping.scroll_docs(4),
-    ['<C-Space>'] = cmp.mapping.complete(),
-    ['<CR>'] = cmp.mapping(function(fallback)
-      if cmp.visible() and cmp.get_selected_entry() then
-        cmp.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = false })
-      else
-        fallback()
-      end
-    end, { 'i', 's' }),
-    ['<Tab>'] = cmp.mapping(function(fallback)
-      if cmp.visible() then
-        cmp.select_next_item()
-      elseif luasnip.expand_or_jumpable() then
-        luasnip.expand_or_jump()
-      else
-        fallback()
-      end
-    end, { 'i', 's' }),
-    ['<S-Tab>'] = cmp.mapping(function(fallback)
-      if cmp.visible() then
-        cmp.select_prev_item()
-      elseif luasnip.jumpable(-1) then
-        luasnip.jump(-1)
-      else
-        fallback()
-      end
-    end, { 'i', 's' }),
-  },
-  sources = {
-    { name = 'nvim_lsp', keyword_length = 1 },
-    { name = 'luasnip' },
-  },
-}
-
--- Format on save is now handled by conform.nvim (see plugin config above)
-
--- Trouble (error viewer) settings
-vim.keymap.set("n", "<leader>xx", function() require("trouble").toggle() end)
-vim.keymap.set("n", "<leader>xw", function() require("trouble").toggle("workspace_diagnostics") end)
-vim.keymap.set("n", "<leader>xd", function() require("trouble").toggle("document_diagnostics") end)
-vim.keymap.set("n", "<leader>xq", function() require("trouble").toggle("quickfix") end)
-vim.keymap.set("n", "<leader>xl", function() require("trouble").toggle("loclist") end)
--- vim.keymap.set("n", "gR", function() require("trouble").toggle("lsp_references") end)

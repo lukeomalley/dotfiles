@@ -131,6 +131,7 @@ Add the line to `Brewfile` and commit. The format is `brew "package-name"` for C
     ├── ssh/               # SSH configuration
     ├── starship/          # Starship prompt
     ├── tmux/              # Tmux configuration
+    ├── zed/               # Zed editor (settings + vim keymap)
     └── zsh/               # Zsh shell (zshenv, zshrc, aliases)
 ```
 
