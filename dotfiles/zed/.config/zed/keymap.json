@@ -1,0 +1,81 @@
+[
+  // ---------------------------------------------------------------------------
+  // Insert mode: jk -> escape to normal mode (init.lua: imap jk <Esc>)
+  // ---------------------------------------------------------------------------
+  {
+    "context": "Editor && vim_mode == insert",
+    "bindings": {
+      "j k": "vim::NormalBefore",
+      // LSP signature help while typing arguments (Neovim normal <C-k>).
+      "ctrl-k": "editor::ShowSignatureHelp"
+    }
+  },
+
+  // ---------------------------------------------------------------------------
+  // Pane / split navigation (vim-tmux-navigator: <C-h/j/k/l>)
+  // and file explorer toggles (nvim-tree: <C-e> / <C-b>)
+  // ---------------------------------------------------------------------------
+  {
+    "context": "Editor && VimControl && !menu",
+    "bindings": {
+      "ctrl-h": "workspace::ActivatePaneLeft",
+      "ctrl-j": "workspace::ActivatePaneDown",
+      "ctrl-k": "workspace::ActivatePaneUp",
+      "ctrl-l": "workspace::ActivatePaneRight",
+      "ctrl-e": "project_panel::ToggleFocus",
+      "ctrl-b": "workspace::ToggleLeftDock"
+    }
+  },
+
+  // ---------------------------------------------------------------------------
+  // Normal mode leader (<Space>) bindings.
+  // ---------------------------------------------------------------------------
+  {
+    "context": "Editor && vim_mode == normal",
+    "bindings": {
+      // Basic
+      "space w": "workspace::Save", // <leader>w -> :w
+
+      // Terminal (snacks: <leader>tt)
+      "space t t": "terminal_panel::Toggle",
+
+      // Telescope
+      "space ?": "file_finder::Toggle", // recent files
+      "space space": "tab_switcher::Toggle", // open buffers
+      "space /": "buffer_search::Deploy", // fuzzy search current buffer
+      "space s f": "file_finder::Toggle", // find files
+      "space s g": "pane::DeploySearch", // live grep (project search)
+      "space s w": "pane::DeploySearch", // search word under cursor (seeded)
+      "space s d": "diagnostics::Deploy", // search diagnostics
+
+      // LSP
+      "space r n": "editor::Rename", // <leader>rn
+      "space c a": "editor::ToggleCodeActions", // <leader>ca
+      "space shift-d": "editor::GoToTypeDefinition", // <leader>D
+      "space d s": "outline::Toggle", // <leader>ds document symbols
+      "g r": "editor::FindAllReferences", // gr (overrides Zed's g r n/r/i prefix)
+
+      // Diagnostics (init.lua + trouble.nvim)
+      "space e": "editor::Hover", // <leader>e show diagnostic / hover
+      "space q": "diagnostics::Deploy", // <leader>q diagnostics list
+      "space x x": "diagnostics::Deploy", // <leader>xx trouble toggle
+      "space x w": "diagnostics::Deploy", // <leader>xw workspace diagnostics
+      "space x d": "diagnostics::Deploy", // <leader>xd document diagnostics
+
+      // AI (codecompanion: <leader>ia / <leader>ie)
+      "space i a": "agent::ToggleFocus", // toggle AI panel
+      "space i e": "assistant::InlineAssist" // inline AI assistant
+    }
+  },
+
+  // ---------------------------------------------------------------------------
+  // Visual mode leader bindings.
+  // ---------------------------------------------------------------------------
+  {
+    "context": "Editor && vim_mode == visual",
+    "bindings": {
+      "space i a": "agent::AddSelectionToThread", // <leader>ia add selection to chat
+      "shift-s": "vim::PushAddSurrounds" // S to surround selection (nvim-surround parity)
+    }
+  }
+]

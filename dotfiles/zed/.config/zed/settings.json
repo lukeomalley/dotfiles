@@ -1,0 +1,36 @@
+{
+  // Vim emulation layer. Mirrors the modal workflow from the Neovim config.
+  "agent_servers": {
+    "cursor": {
+      "type": "registry"
+    }
+  },
+  "icon_theme": {
+    "mode": "system",
+    "light": "Zed (Default)",
+    "dark": "Zed (Default)"
+  },
+  "theme": {
+    "mode": "system",
+    "light": "One Light",
+    "dark": "One Dark"
+  },
+  "vim_mode": true,
+  "base_keymap": "VSCode",
+
+  // Editor behavior tuned to match init.lua options.
+  "tab_size": 2,
+  "soft_wrap": "none",
+  "relative_line_numbers": false,
+
+  // Telescope grep_string parity: prefill project search with the word under the cursor.
+  "seed_search_query_from_cursor": "always",
+
+  "vim": {
+    // clipboard = "unnamedplus" in Neovim: yank/paste use the system clipboard.
+    "use_system_clipboard": "always",
+    // ignorecase + smartcase: f/t motions match case only when the target is uppercase.
+    "use_smartcase_find": true,
+    "use_regex_search": true
+  }
+}
