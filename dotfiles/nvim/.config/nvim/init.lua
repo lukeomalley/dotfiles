@@ -175,6 +175,15 @@ local plugin_specs = {
     opts = {
       bigfile = { enabled = true },
       quickfile = { enabled = true },
+      -- Indent guides (replaces indent-blankline). Static guides to match the
+      -- previous setup; set animate.enabled = true for the snacks scope animation.
+      indent = {
+        enabled = true,
+        animate = { enabled = false },
+      },
+      -- Notification UI; also takes over vim.notify (replaces fidget's UI; LSP
+      -- progress is fed in via the LspProgress autocmd in the LSP spec).
+      notifier = { enabled = true },
       dashboard = {
         enabled = true,
         preset = {
@@ -323,6 +332,10 @@ local plugin_specs = {
       { '<leader>?',       function() Snacks.picker.recent() end,      desc = '[?] Find recently opened files' },
       { '<leader><space>', function() Snacks.picker.buffers() end,     desc = '[ ] Find existing buffers' },
       { '<leader>/',       function() Snacks.picker.lines() end,       desc = '[/] Fuzzily search in current buffer' },
+      -- Git (replaces vim-fugitive / vim-rhubarb).
+      { '<leader>gg',      function() Snacks.lazygit() end,            desc = 'Lazygit' },
+      { '<leader>gb',      function() Snacks.gitbrowse() end,          mode = { 'n', 'x' },                          desc = '[G]it [B]rowse' },
+      { '<leader>gB',      function() Snacks.git.blame_line() end,     desc = '[G]it [B]lame line' },
     },
   },
 
@@ -422,7 +435,6 @@ local plugin_specs = {
     dependencies = {
       'williamboman/mason.nvim',
       'williamboman/mason-lspconfig.nvim',
-      'j-hui/fidget.nvim',
     },
     config = function()
       require('mason').setup()
@@ -440,22 +452,22 @@ local plugin_specs = {
       -- blink.cmp supplies extra completion capabilities.
       local capabilities = require('blink.cmp').get_lsp_capabilities()
 
-      require('fidget').setup({})
-
-      if not vim.g.lsp_float_preview_without_treesitter then
-        local original_open_floating_preview = vim.lsp.util.open_floating_preview
-        -- Intentional monkeypatch of a built-in API; silence lua_ls's
-        -- duplicate-set-field warning for this single re-assignment.
-        ---@diagnostic disable-next-line: duplicate-set-field
-        vim.lsp.util.open_floating_preview = function(contents, syntax, opts)
-          if opts and opts.disable_treesitter then
-            syntax = syntax == 'markdown' and 'plaintext' or syntax
-          end
-
-          return original_open_floating_preview(contents, syntax, opts)
-        end
-        vim.g.lsp_float_preview_without_treesitter = true
-      end
+      -- LSP progress (replaces fidget): feed vim.lsp.status() into vim.notify so
+      -- the snacks notifier renders a spinner while servers are working.
+      vim.api.nvim_create_autocmd('LspProgress', {
+        group = vim.api.nvim_create_augroup('UserLspProgress', { clear = true }),
+        callback = function(ev)
+          local spinner = { '⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏' }
+          vim.notify(vim.lsp.status(), 'info', {
+            id = 'lsp_progress',
+            title = 'LSP Progress',
+            opts = function(notif)
+              notif.icon = ev.data.params.value.kind == 'end' and ' '
+                or spinner[math.floor(vim.uv.hrtime() / (1e6 * 80)) % #spinner + 1]
+            end,
+          })
+        end,
+      })
 
       local lsp_float_padding_border = {
         { ' ', 'NormalFloat' },
@@ -473,11 +485,9 @@ local plugin_specs = {
         focusable = true,
         max_width = 80,
         max_height = 20,
-        disable_treesitter = true,
       }
 
       local diagnostic_float_options = vim.tbl_extend('force', {}, lsp_float_options)
-      diagnostic_float_options.disable_treesitter = nil
 
       vim.api.nvim_create_autocmd('LspAttach', {
         group = vim.api.nvim_create_augroup('UserLspConfig', { clear = true }),
@@ -649,29 +659,6 @@ local plugin_specs = {
     },
   },
 
-  -- Fugitive (+ rhubarb for :GBrowse) load on git commands.
-  {
-    'tpope/vim-fugitive',
-    dependencies = { 'tpope/vim-rhubarb' },
-    cmd = {
-      'G',
-      'Git',
-      'Gdiffsplit',
-      'Gvdiffsplit',
-      'Gread',
-      'Gwrite',
-      'Gedit',
-      'Ggrep',
-      'GMove',
-      'GRename',
-      'GDelete',
-      'GRemove',
-      'GBrowse',
-      'Gclog',
-      'Glog',
-    },
-  },
-
   -- Statusline.
   {
     'nvim-lualine/lualine.nvim',
@@ -689,25 +676,6 @@ local plugin_specs = {
         },
       },
     },
-  },
-
-  -- Indentation guides.
-  {
-    'lukas-reineke/indent-blankline.nvim',
-    event = { 'BufReadPre', 'BufNewFile' },
-    main = 'ibl',
-    opts = {
-      scope = {
-        show_start = false,
-      },
-    },
-  },
-
-  -- "gc" to comment.
-  {
-    'numToStr/Comment.nvim',
-    event = 'VeryLazy',
-    opts = {},
   },
 
   -- Detect tabstop / shiftwidth automatically.
