@@ -538,9 +538,6 @@ local plugin_specs = {
           nmap('<leader>ds', function() Snacks.picker.lsp_symbols() end, '[D]ocument [S]ymbols')
 
           nmap('gh', show_hover_help, 'Hover Help')
-          nmap('<C-k>', function()
-            vim.lsp.buf.signature_help(lsp_float_options)
-          end, 'Signature Documentation')
 
           nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
 
@@ -610,12 +607,20 @@ local plugin_specs = {
         -- only mapped to pane-navigation in normal mode and free in insert mode.
         ['<C-l>'] = { 'show', 'show_documentation', 'hide_documentation' },
         ['<C-space>'] = {},
+        -- Toggle blink's native signature help (insert mode, while typing args).
+        -- This is already the default in every preset, but it's spelled out here
+        -- because it intentionally replaces the old normal-mode vim.lsp.buf
+        -- .signature_help binding in the LSP spec.
+        ['<C-k>'] = { 'show_signature', 'hide_signature', 'fallback' },
       },
       appearance = { nerd_font_variant = 'mono' },
       completion = {
         -- Match the previous setup: no auto-popup of documentation.
         documentation = { auto_show = false },
       },
+      -- Signature help shown as you type function arguments (replaces the old
+      -- LSP <C-k> mapping). Toggled with <C-k> via the keymap above.
+      signature = { enabled = true },
       sources = {
         default = { 'lsp', 'path', 'snippets', 'buffer' },
         providers = {
@@ -830,16 +835,12 @@ if has_dark_rock_theme then
   })
 end
 
+-- Optional machine-local extension point: drop a `lua/custom/plugins.lua` that
+-- returns a list of lazy.nvim plugin specs and they get appended here. Absent on
+-- most machines, so the require is wrapped in pcall.
 local has_custom_plugins, custom_plugins = pcall(require, 'custom.plugins')
-if has_custom_plugins then
-  local add_plugin_spec = function(plugin_spec)
-    table.insert(plugin_specs, plugin_spec)
-  end
-
-  local custom_plugin_specs = custom_plugins(add_plugin_spec)
-  if type(custom_plugin_specs) == 'table' then
-    vim.list_extend(plugin_specs, custom_plugin_specs)
-  end
+if has_custom_plugins and type(custom_plugins) == 'table' then
+  vim.list_extend(plugin_specs, custom_plugins)
 end
 
 -- =================================================
@@ -854,12 +855,13 @@ require('lazy').setup({
   rocks = { enabled = false },
   performance = {
     rtp = {
-      -- Disable built-in runtime plugins we never use to trim startup.
+      -- Disable built-in runtime plugins we never use to trim startup. netrw is
+      -- already disabled earlier via vim.g.loaded_netrw{,Plugin}, which fires
+      -- before lazy runs, so it's intentionally not repeated here.
       disabled_plugins = {
         'gzip',
         'matchit',
         'matchparen',
-        'netrwPlugin',
         'tarPlugin',
         'tohtml',
         'tutor',
@@ -875,8 +877,9 @@ require('lazy').setup({
 -- =================================================
 -- See `:help vim.o`
 
--- Set highlight on search
-vim.o.hlsearch = false
+-- Highlight all matches of the last search. Cleared on demand with <Esc>
+-- (mapped in the keymaps section) so stale highlights don't linger.
+vim.o.hlsearch = true
 
 -- Make line numbers default
 vim.o.number = true
@@ -901,8 +904,8 @@ vim.o.cursorline = true
 vim.o.confirm = true
 
 -- Set the tab width
-vim.opt.tabstop = 2
-vim.opt.shiftwidth = 2
+vim.o.tabstop = 2
+vim.o.shiftwidth = 2
 
 -- Enable break indent
 vim.o.breakindent = true
@@ -911,7 +914,7 @@ vim.o.breakindent = true
 vim.o.undofile = true
 
 -- Set nowrap
-vim.opt.wrap = false
+vim.o.wrap = false
 
 -- Use the system clipboard. Deferred so clipboard-provider detection does not
 -- run during startup.
@@ -989,6 +992,9 @@ vim.api.nvim_create_autocmd('ColorScheme', {
 vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
 vim.keymap.set('n', '<leader>w', "<cmd>w<cr>", { silent = true })
 vim.keymap.set('i', 'jk', "<Esc>", { silent = true })
+
+-- Clear search highlight (hlsearch) on <Esc> in normal mode.
+vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<cr>', { silent = true })
 
 -- Remap for dealing with word wrap
 vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
