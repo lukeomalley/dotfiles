@@ -59,6 +59,7 @@ brew "mise"
 brew "mkcert"
 brew "cloudflare-wrangler"
 brew "lazygit"
+brew "prettier"
 
 cask "1password-cli"
 cask "karabiner-elements"
