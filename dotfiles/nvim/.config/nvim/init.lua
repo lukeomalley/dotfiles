@@ -45,9 +45,16 @@ vim.o.mouse = 'a'
 -- Keep context around the cursor when scrolling.
 vim.o.scrolloff = 8
 
+-- Smooth scrolling that works per screen-line, so <C-d>/<C-f> behave sanely
+-- with wrapped lines instead of jumping by whole buffer lines.
+vim.o.smoothscroll = true
+
 -- Open new splits to the right and below, where the eye expects them.
 vim.o.splitright = true
 vim.o.splitbelow = true
+
+-- Keep the text on screen stable when splits open or close above the cursor.
+vim.o.splitkeep = 'screen'
 
 -- Live preview of :substitute / :s in a split as you type.
 vim.o.inccommand = 'split'
@@ -565,8 +572,8 @@ local lsp_spec = {
   event = { 'BufReadPre', 'BufNewFile' },
   cmd = { 'Mason', 'LspInfo', 'LspStart' },
   dependencies = {
-    'williamboman/mason.nvim',
-    'williamboman/mason-lspconfig.nvim',
+    'mason-org/mason.nvim',
+    'mason-org/mason-lspconfig.nvim',
   },
   config = function()
     require('mason').setup()
@@ -669,7 +676,10 @@ local lsp_spec = {
         nmap('<leader>D', function() Snacks.picker.lsp_type_definitions() end, 'Type [D]efinition')
         nmap('<leader>ds', function() Snacks.picker.lsp_symbols() end, '[D]ocument [S]ymbols')
 
+        -- Override the built-in `K` (default LSP hover on 0.11+) with the
+        -- diagnostic-aware variant so the standard key gets the nicer behavior.
         nmap('gh', show_hover_help, 'Hover Help')
+        nmap('K', show_hover_help, 'Hover Help')
 
         nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
 
