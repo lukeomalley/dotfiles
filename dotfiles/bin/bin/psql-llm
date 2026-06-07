@@ -1,0 +1,79 @@
+#!/bin/bash
+
+# psql-llm: run psql with output tuned for LLM agent consumption.
+# See the usage() heredoc below for the full, self-documenting help text.
+
+set -euo pipefail
+
+usage() {
+  cat <<'EOF'
+psql-llm - psql wrapper with clean, deterministic output for LLM agents
+
+WHAT IT IS
+  A thin wrapper around `psql` that forces compact, machine-readable output so
+  an LLM agent can run a query and parse the result without surprises. It takes
+  the exact same arguments as `psql` (connection flags, -c, piped SQL, etc.).
+
+HOW IT DIFFERS FROM BARE `psql`
+  Bare `psql` reads ~/.psqlrc, which is tuned for a human at the keyboard. That
+  adds timing lines, an auto-expanded display, and a colored prompt - all of
+  which corrupt or destabilize output a program has to parse. psql-llm forces
+  these settings instead:
+
+    --no-psqlrc         Ignore ~/.psqlrc so no human settings leak into output.
+    --csv               RFC 4180 CSV: compact, parseable, and safely quotes
+                        values that contain commas or newlines.
+    --quiet             Suppress informational chatter.
+    --pset=pager=off    Never page (a pager would hang a non-interactive call).
+    -v ON_ERROR_STOP=1  Stop at the first error and exit non-zero, so failure is
+                        detectable instead of producing partial output.
+
+  Net effect: every query returns a stable CSV table (header row + data rows),
+  and a failed query exits non-zero with the error on stderr.
+
+USAGE
+  psql-llm [psql connection flags] -c "SQL"
+  psql-llm "<connection-string>" -c "SQL"
+  echo "SQL" | psql-llm "<connection-string>"
+
+EXAMPLES
+  psql-llm "$DATABASE_URL" -c "select id, email from users limit 5"
+  psql-llm -h localhost -U postgres -d mydb -c "select now()"
+  echo "select count(*) from orders" | psql-llm "$DATABASE_URL"
+
+TIPS FOR AGENTS
+  - Drop the header row (scalar/value-only output): add -t
+        psql-llm -t "$DATABASE_URL" -c "select count(*) from users"
+  - Very large result sets (stream instead of buffering): add -v FETCH_COUNT=1000
+  - NULL is rendered as an empty CSV field; it cannot be distinguished from an
+    empty string. If that matters, request a different format from the caller.
+  - Need raw psql's own flag reference instead? Run: psql --help
+
+EXIT STATUS
+  0 on success; non-zero if the query errors (ON_ERROR_STOP is enabled).
+EOF
+}
+
+# Show help when explicitly requested, or when run bare in a terminal (so a
+# curious agent gets docs instead of an interactive psql session that hangs).
+# Note: `-h` is intentionally NOT treated as help; it is psql's host flag.
+case "${1:-}" in
+  --help | help)
+    usage
+    exit 0
+    ;;
+  "")
+    if [ -t 0 ]; then
+      usage
+      exit 0
+    fi
+    ;;
+esac
+
+exec psql \
+  --no-psqlrc \
+  --quiet \
+  --csv \
+  --pset=pager=off \
+  -v ON_ERROR_STOP=1 \
+  "$@"

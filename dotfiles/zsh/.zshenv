@@ -43,3 +43,9 @@ export _Z_DATA="$XDG_DATA_HOME/.z"
 export VCPKG_ROOT=/Users/luke/code/vcpkg
 export PATH=$VCPKG_ROOT:$PATH
 
+# PostgreSQL client (libpq is keg-only, so its bin is not symlinked by brew)
+export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
+export PSQLRC="$XDG_CONFIG_HOME/psql/psqlrc"
+export PSQL_HISTORY="$XDG_DATA_HOME/psql/history"
+[[ -d "$XDG_DATA_HOME/psql" ]] || mkdir -p "$XDG_DATA_HOME/psql"
+
