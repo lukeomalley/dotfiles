@@ -221,6 +221,38 @@ local search_exclude_globs = {
   '__pycache__',
 }
 
+-- LSP "go to references" returns whatever the language server finds, which for
+-- TypeScript and friends includes hits inside node_modules (bundled .d.ts) and
+-- build output. Reuse the same prune list as the file/grep pickers so `gr` only
+-- surfaces references in real source. Matches a directory segment anywhere in
+-- the path (so nested node_modules in monorepos are caught too), unlike snacks'
+-- prefix-only `filter.paths`.
+local function path_in_excluded_dir(path)
+  for _, dir in ipairs(search_exclude_globs) do
+    if path:find('/' .. dir .. '/', 1, true) then
+      return true
+    end
+  end
+  return false
+end
+
+local lsp_references_filter = {
+  filter = function(item)
+    return not path_in_excluded_dir(item.file or '')
+  end,
+}
+
+-- Escape hatch for `gR`: include every reference the server returns, including
+-- node_modules/build output (e.g. when editing a dependency directly). An empty
+-- filter table wouldn't work here: snacks deep-merges it over the source default
+-- so the default predicate would survive. An explicit allow-all predicate
+-- overrides it.
+local lsp_references_show_all = {
+  filter = function()
+    return true
+  end,
+}
+
 -- =================================================
 -- Local helpers
 -- =================================================
@@ -289,6 +321,116 @@ local function open_dashboard_in_window(win)
   Snacks.dashboard.open({ win = win })
 end
 
+-- Build the dashboard "Git Status" lines directly (via git, not a terminal
+-- buffer) so the section never shows Neovim's "[Process exited 0]" notice and
+-- sizes itself to the real output. Returns a list of snacks dashboard items,
+-- one per line. Empty when not inside a git repository.
+local dashboard_git_max_changed_files = 6
+
+local function dashboard_git_status()
+  if not (Snacks and Snacks.git and Snacks.git.get_root()) then
+    return {}
+  end
+
+  local current_branch = vim.fn.systemlist({ 'git', 'branch', '--show-current' })[1]
+  if vim.v.shell_error ~= 0 then
+    return {}
+  end
+
+  local items = {}
+
+  local branch_label = ' ' .. (current_branch ~= '' and current_branch or 'detached HEAD')
+  local upstream_counts = vim.fn.systemlist({
+    'git', 'rev-list', '--left-right', '--count', '@{upstream}...HEAD',
+  })[1]
+  if vim.v.shell_error == 0 and upstream_counts then
+    local behind, ahead = upstream_counts:match('(%d+)%s+(%d+)')
+    if ahead and tonumber(ahead) > 0 then
+      branch_label = branch_label .. ' ↑' .. ahead
+    end
+    if behind and tonumber(behind) > 0 then
+      branch_label = branch_label .. ' ↓' .. behind
+    end
+  end
+  -- Top padding on the first row renders a small gap below the section title.
+  items[#items + 1] = { text = { { branch_label, hl = 'special' } }, padding = { 0, 1 } }
+
+  local changed_files = vim.fn.systemlist({ 'git', 'status', '--porcelain' })
+  if vim.v.shell_error ~= 0 then
+    return items
+  end
+
+  if #changed_files == 0 then
+    items[#items + 1] = { text = { { '  working tree clean', hl = 'dir' } } }
+    return items
+  end
+
+  for index, line in ipairs(changed_files) do
+    if index > dashboard_git_max_changed_files then
+      local remaining = #changed_files - dashboard_git_max_changed_files
+      items[#items + 1] = { text = { { ('  +%d more'):format(remaining), hl = 'dir' } } }
+      break
+    end
+
+    local status_code = line:sub(1, 2)
+    local file_name = vim.fn.fnamemodify(line:sub(4), ':t')
+    local status_hl = 'DiagnosticInfo'
+    if status_code:find('?') then
+      status_hl = 'dir'
+    elseif status_code:find('D') then
+      status_hl = 'DiagnosticError'
+    elseif status_code:find('M') or status_code:find('U') then
+      status_hl = 'DiagnosticWarn'
+    end
+
+    items[#items + 1] = {
+      text = {
+        { status_code, hl = status_hl, width = 3 },
+        { file_name, hl = 'file' },
+      },
+    }
+  end
+
+  return items
+end
+
+-- Recent files for the dashboard, rendered with the select number to the LEFT
+-- of the file name so each number is easy to associate with its row. The
+-- snacks built-in right-aligns the key on the far edge instead. Reuses the
+-- built-in oldfiles gathering, then rewrites each row's text and binds an
+-- explicit numeric key (providing `text` bypasses the default icon/key layout,
+-- while the keymap is still bound from `key`).
+local dashboard_recent_files_limit = 8
+
+local function dashboard_recent_files()
+  if not (Snacks and Snacks.dashboard) then
+    return {}
+  end
+
+  local gather = Snacks.dashboard.sections.recent_files({ cwd = true, limit = dashboard_recent_files_limit })
+  local files = gather()
+
+  for index, item in ipairs(files) do
+    local icon = Snacks.dashboard.icon(item.file, 'file')
+    item.text = {
+      { tostring(index), hl = 'key' },
+      { '  ' },
+      { icon[1], hl = icon.hl, width = 2 },
+      { vim.fn.fnamemodify(item.file, ':t'), hl = 'file' },
+    }
+    item.key = tostring(index)
+    item.autokey = nil
+    item.icon = nil
+  end
+
+  -- Top padding on the first row renders a small gap below the section title.
+  if files[1] then
+    files[1].padding = { 0, 1 }
+  end
+
+  return files
+end
+
 -- =================================================
 -- Plugin specs
 -- =================================================
@@ -325,9 +467,21 @@ local snacks_spec = {
     notifier = { enabled = true },
     dashboard = {
       enabled = true,
+      -- Narrow per-pane width so the two-column layout fits a normal window.
+      -- snacks computes how many panes fit and collapses to a single centered
+      -- column automatically when the window is too narrow, so this degrades
+      -- gracefully in small splits.
+      width = 40,
+      pane_gap = 6,
       preset = {
-        -- Omitting `header` uses the snacks built-in default (the large
-        -- centered NEOVIM ASCII banner).
+        -- Lower-profile "Standard" figlet banner instead of the default blocky
+        -- NEOVIM block, so the screen feels less top-heavy.
+        header = table.concat({
+          '  _ __   ___  _____   _(_)_ __ ___ ',
+          " | '_ \\ / _ \\/ _ \\ \\ / / | '_ ` _ \\",
+          ' | | | |  __/ (_) \\ V /| | | | | | |',
+          ' |_| |_|\\___|\\___/ \\_/ |_|_| |_| |_|',
+        }, '\n'),
         -- The minimal action menu.
         keys = {
           { icon = ' ', key = 'f', desc = 'Find File', action = ":lua Snacks.dashboard.pick('files')" },
@@ -338,9 +492,27 @@ local snacks_spec = {
         },
       },
       sections = {
-        { section = 'header', padding = 1 },
-        { section = 'keys',   gap = 1,                padding = 1 },
-        { icon = ' ',         title = 'Recent Files', section = 'recent_files', cwd = true, limit = 8, indent = 2, padding = 1 },
+        { section = 'header', padding = 2 },
+        { pane = 1, section = 'keys', gap = 1, padding = 2 },
+        {
+          pane = 2,
+          icon = ' ',
+          title = 'Recent Files',
+          indent = 4,
+          padding = 2,
+          dashboard_recent_files,
+        },
+        {
+          pane = 2,
+          icon = ' ',
+          title = 'Git Status',
+          indent = 3,
+          padding = 1,
+          enabled = function()
+            return Snacks and Snacks.git and Snacks.git.get_root() ~= nil
+          end,
+          dashboard_git_status,
+        },
       },
     },
     terminal = {
@@ -425,6 +597,14 @@ local snacks_spec = {
           hidden = true,
           ignored = true,
           exclude = search_exclude_globs,
+        },
+        -- `gr` results come from the language server, not a file search, so the
+        -- file/grep `exclude` globs don't apply. Drop node_modules/build output
+        -- references here instead, leaving only real source. Scoped to
+        -- references; lsp_definitions deliberately still jumps into library
+        -- `.d.ts` files when that's where a symbol is defined.
+        lsp_references = {
+          filter = lsp_references_filter,
         },
       },
     },
@@ -672,6 +852,8 @@ local lsp_spec = {
         -- snacks picker when there are several.
         nmap('gd', function() Snacks.picker.lsp_definitions() end, '[G]oto [D]efinition')
         nmap('gr', function() Snacks.picker.lsp_references() end, '[G]oto [R]eferences')
+        nmap('gR', function() Snacks.picker.lsp_references({ filter = lsp_references_show_all }) end,
+          '[G]oto [R]eferences (incl. node_modules)')
         nmap('gI', function() Snacks.picker.lsp_implementations() end, '[G]oto [I]mplementation')
         nmap('<leader>D', function() Snacks.picker.lsp_type_definitions() end, 'Type [D]efinition')
         nmap('<leader>ds', function() Snacks.picker.lsp_symbols() end, '[D]ocument [S]ymbols')
@@ -1057,28 +1239,6 @@ vim.api.nvim_create_autocmd('ColorScheme', {
   group = float_highlight_group,
   pattern = { 'dark-rock', 'night-rock', 'light-rock' },
   callback = set_dark_rock_float_highlights,
-})
-
--- Make the snacks explorer (and pickers) use the transparent editor background.
--- These groups back the picker windows' Normal/NormalFloat and otherwise default
--- to NormalFloat, which the theme paints with a solid background.
-local function set_snacks_picker_transparent()
-  local transparent_groups = {
-    'SnacksPicker',
-    'SnacksPickerBox',
-    'SnacksPickerList',
-    'SnacksPickerInput',
-    'SnacksPickerPreview',
-  }
-  for _, group in ipairs(transparent_groups) do
-    vim.api.nvim_set_hl(0, group, { link = 'Normal' })
-  end
-end
-local snacks_highlight_group = vim.api.nvim_create_augroup('UserSnacksHighlights', { clear = true })
-set_snacks_picker_transparent()
-vim.api.nvim_create_autocmd('ColorScheme', {
-  group = snacks_highlight_group,
-  callback = set_snacks_picker_transparent,
 })
 
 -- =================================================
