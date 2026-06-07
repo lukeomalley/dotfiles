@@ -125,6 +125,7 @@ Add the line to `Brewfile` and commit. The format is `brew "package-name"` for C
     ├── launchd/           # macOS Launch Agents
     ├── nvim/              # Neovim configuration
     ├── opencode/          # OpenCode AI editor
+    ├── psql/              # PostgreSQL client config (psqlrc)
     ├── ranger/            # Ranger file manager
     ├── rclone/            # Rclone cloud sync
     ├── smug/              # Smug tmux session manager
@@ -167,6 +168,7 @@ Scripts in `dotfiles/bin/bin/` get symlinked to `~/bin/`, which is on `$PATH`. T
 - `update-secrets` -- Regenerate secrets from 1Password
 - `cloudsync` -- rclone bisync with GNU Parallel
 - `notes` -- Open notes directory in nvim
+- `psql-llm` -- Run psql with clean, deterministic CSV output for LLM agents (ignores `~/.psqlrc`, stops on error)
 - `start-*` -- MCP server launchers (opencode-web, atlassian-mcp, firecrawl-mcp)
 - `animations-on` / `animations-off` -- Toggle macOS animations
 - `git-lg` / `git-lga` -- Git log formatting (these work as `git lg` because git resolves `git-*` scripts on PATH)

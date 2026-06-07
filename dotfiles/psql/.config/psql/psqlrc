@@ -1,0 +1,38 @@
+-- This file is for interactive human use. It is read by every psql session
+-- (including non-interactive ones), so the timing/expanded/prompt settings
+-- below would pollute output an agent has to parse. LLM agents should use the
+-- `psql-llm` wrapper (~/bin/psql-llm), which runs psql with --no-psqlrc and
+-- clean CSV output instead of relying on this file.
+
+-- Suppress the startup messages produced while this file runs.
+\set QUIET 1
+
+-- Use a pager only when output does not fit on screen.
+\pset pager on
+\setenv PAGER 'less -SRXF'
+
+-- Make NULL visible instead of blank.
+\pset null '[NULL]'
+
+-- Auto-switch to expanded display when rows are too wide for the terminal.
+\x auto
+
+-- Show how long each query took.
+\timing on
+
+-- Full error detail including the failing SQL context.
+\set VERBOSITY verbose
+
+-- Uppercase keywords offered by tab completion.
+\set COMP_KEYWORD_CASE upper
+
+-- History behaviour. The file location comes from PSQL_HISTORY (set in .zshenv).
+\set HISTCONTROL ignoredups
+\set HISTSIZE 50000
+
+-- Colored, context-aware prompts: user@host:port/db, with # for superuser.
+\set PROMPT1 '%[%033[1;32m%]%n@%m:%>/%/%[%033[0m%]%# '
+\set PROMPT2 '%[%033[1;32m%]%/%[%033[0m%]%R %# '
+
+-- Re-enable normal output.
+\unset QUIET
