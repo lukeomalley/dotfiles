@@ -1,0 +1,12 @@
+gui:
+  # Nerd Font file icons (font-inconsolata-nerd-font is installed) make the
+  # files panel easier to scan. Set to "" to disable.
+  nerdFontsVersion: "3"
+
+git:
+  # delta as the diff pager. --navigate is intentionally omitted: it has no
+  # effect inside lazygit. --tabs=4 matches gui.tabWidth (delta defaults to 8).
+  # --hyperlinks + lazygit-edit lets you click a line number to jump straight
+  # to that line in $EDITOR (nvim).
+  pagers:
+    - pager: delta --dark --paging=never --tabs=4 --line-numbers --hyperlinks --hyperlinks-file-link-format=lazygit-edit://{path}:{line}
