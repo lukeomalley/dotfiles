@@ -28,6 +28,136 @@ end
 vim.opt.rtp:prepend(lazy_path)
 
 -- =================================================
+-- Options
+-- =================================================
+-- See `:help vim.o`
+
+-- Highlight all matches of the last search. Cleared on demand with <Esc>
+-- (mapped in the keymaps section) so stale highlights don't linger.
+vim.o.hlsearch = true
+
+-- Make line numbers default
+vim.o.number = true
+
+-- Enable mouse mode
+vim.o.mouse = 'a'
+
+-- Keep context around the cursor when scrolling.
+vim.o.scrolloff = 8
+
+-- Open new splits to the right and below, where the eye expects them.
+vim.o.splitright = true
+vim.o.splitbelow = true
+
+-- Live preview of :substitute / :s in a split as you type.
+vim.o.inccommand = 'split'
+
+-- Highlight the line the cursor is on.
+vim.o.cursorline = true
+
+-- Prompt to save instead of erroring on :q with unsaved changes.
+vim.o.confirm = true
+
+-- Set the tab width
+vim.o.tabstop = 2
+vim.o.shiftwidth = 2
+
+-- Enable break indent
+vim.o.breakindent = true
+
+-- Save undo history
+vim.o.undofile = true
+
+-- Set nowrap
+vim.o.wrap = false
+
+-- Use the system clipboard. Deferred so clipboard-provider detection does not
+-- run during startup.
+vim.schedule(function()
+  vim.o.clipboard = 'unnamedplus'
+end)
+
+-- Case insensitive searching UNLESS /C or capital in search
+vim.o.ignorecase = true
+vim.o.smartcase = true
+
+-- Decrease update time
+vim.o.updatetime = 250
+vim.o.ttimeoutlen = 10 -- Faster terminal key code recognition (helps with Ctrl+Space, etc.)
+vim.o.signcolumn = 'yes'
+
+vim.o.termguicolors = true
+
+-- =================================================
+-- Keymaps
+-- =================================================
+-- See `:help vim.keymap.set()`
+vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
+vim.keymap.set('n', '<leader>w', "<cmd>w<cr>", { silent = true })
+vim.keymap.set('i', 'jk', "<Esc>", { silent = true })
+
+-- Clear search highlight (hlsearch) on <Esc> in normal mode.
+vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<cr>', { silent = true })
+
+-- Remap for dealing with word wrap
+vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
+vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
+
+-- Change the resize pane size
+vim.keymap.set('n', '<C-w>>', '5<C-w>>', { noremap = true })
+vim.keymap.set('n', '<C-w><', '5<C-w><', { noremap = true })
+
+-- =================================================
+-- Diagnostics
+-- =================================================
+-- Sort by severity so the worst problem wins the sign column and the float.
+-- `virtual_lines.current_line` shows the full message under the cursor line
+-- (Neovim 0.11+), while keeping the other lines uncluttered.
+vim.diagnostic.config({
+  severity_sort = true,
+  underline = true,
+  update_in_insert = false,
+  signs = {
+    text = {
+      [vim.diagnostic.severity.ERROR] = '',
+      [vim.diagnostic.severity.WARN] = '',
+      [vim.diagnostic.severity.INFO] = '',
+      [vim.diagnostic.severity.HINT] = '',
+    },
+  },
+  virtual_text = false,
+  virtual_lines = { current_line = true },
+  float = {
+    border = 'rounded',
+    source = true,
+  },
+})
+
+-- Diagnostic keymaps
+vim.keymap.set('n', '[d', function()
+  vim.diagnostic.jump({ count = -1, float = true })
+end)
+vim.keymap.set('n', ']d', function()
+  vim.diagnostic.jump({ count = 1, float = true })
+end)
+vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float)
+vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist)
+
+-- =================================================
+-- Autocommands
+-- =================================================
+
+-- Highlight on yank.
+local highlight_group = vim.api.nvim_create_augroup('YankHighlight', { clear = true })
+vim.api.nvim_create_autocmd('TextYankPost', {
+  callback = function()
+    vim.hl.on_yank()
+  end,
+  group = highlight_group,
+  pattern = '*',
+})
+
+-- =================================================
 -- Local constants
 -- =================================================
 
@@ -155,675 +285,691 @@ end
 -- =================================================
 -- Plugin specs
 -- =================================================
+-- Each plugin is a named local below; the `plugin_specs` list at the end of this
+-- section assembles them (plus the optional local theme and machine-local
+-- extras) into the table passed to lazy.nvim.
 
-local plugin_specs = {
-  -- Colorscheme fallback. Loaded eagerly with high priority so the UI is themed
-  -- immediately, but only when the local dark-rock theme isn't present (which is
-  -- the active colorscheme when it exists). Otherwise it stays lazy and installed
-  -- purely as a fallback so it isn't sourced at startup for nothing.
-  {
-    'sainnhe/gruvbox-material',
-    lazy = has_dark_rock_theme,
-    priority = 1000,
-  },
+-- Colorscheme fallback. Loaded eagerly with high priority so the UI is themed
+-- immediately, but only when the local dark-rock theme isn't present (which is
+-- the active colorscheme when it exists). Otherwise it stays lazy and installed
+-- purely as a fallback so it isn't sourced at startup for nothing.
+local gruvbox_spec = {
+  'sainnhe/gruvbox-material',
+  lazy = has_dark_rock_theme,
+  priority = 1000,
+}
 
-  -- Snacks: core utility suite. Loaded eagerly (provides terminal, etc).
-  {
-    'folke/snacks.nvim',
-    lazy = false,
-    priority = 1000,
-    opts = {
-      bigfile = { enabled = true },
-      quickfile = { enabled = true },
-      -- Indent guides (replaces indent-blankline). Static guides to match the
-      -- previous setup; set animate.enabled = true for the snacks scope animation.
-      indent = {
-        enabled = true,
-        animate = { enabled = false },
+-- Snacks: core utility suite. Loaded eagerly (provides terminal, etc).
+local snacks_spec = {
+  'folke/snacks.nvim',
+  lazy = false,
+  priority = 1000,
+  opts = {
+    bigfile = { enabled = true },
+    quickfile = { enabled = true },
+    -- Indent guides (replaces indent-blankline). Static guides to match the
+    -- previous setup; set animate.enabled = true for the snacks scope animation.
+    indent = {
+      enabled = true,
+      animate = { enabled = false },
+    },
+    -- Notification UI; also takes over vim.notify (replaces fidget's UI; LSP
+    -- progress is fed in via the LspProgress autocmd in the LSP spec).
+    notifier = { enabled = true },
+    dashboard = {
+      enabled = true,
+      preset = {
+        -- Omitting `header` uses the snacks built-in default (the large
+        -- centered NEOVIM ASCII banner).
+        -- The minimal action menu.
+        keys = {
+          { icon = ' ', key = 'f', desc = 'Find File', action = ":lua Snacks.dashboard.pick('files')" },
+          { icon = ' ', key = 'g', desc = 'Find Text', action = ":lua Snacks.dashboard.pick('live_grep')" },
+          { icon = ' ', key = 'r', desc = 'Recent',    action = ":lua Snacks.dashboard.pick('oldfiles')" },
+          { icon = ' ', key = 'e', desc = 'Explorer',  action = ':lua Snacks.explorer()' },
+          { icon = ' ', key = 'q', desc = 'Quit',      action = ':qa' },
+        },
       },
-      -- Notification UI; also takes over vim.notify (replaces fidget's UI; LSP
-      -- progress is fed in via the LspProgress autocmd in the LSP spec).
-      notifier = { enabled = true },
-      dashboard = {
-        enabled = true,
-        preset = {
-          -- Omitting `header` uses the snacks built-in default (the large
-          -- centered NEOVIM ASCII banner).
-          -- The minimal action menu.
-          keys = {
-            { icon = ' ', key = 'f', desc = 'Find File', action = ":lua Snacks.dashboard.pick('files')" },
-            { icon = ' ', key = 'g', desc = 'Find Text', action = ":lua Snacks.dashboard.pick('live_grep')" },
-            { icon = ' ', key = 'r', desc = 'Recent',    action = ":lua Snacks.dashboard.pick('oldfiles')" },
-            { icon = ' ', key = 'e', desc = 'Explorer',  action = ':lua Snacks.explorer()' },
-            { icon = ' ', key = 'q', desc = 'Quit',      action = ':qa' },
+      sections = {
+        { section = 'header', padding = 1 },
+        { section = 'keys',   gap = 1,                padding = 1 },
+        { icon = ' ',         title = 'Recent Files', section = 'recent_files', cwd = true, limit = 8, indent = 2, padding = 1 },
+      },
+    },
+    terminal = {
+      win = {
+        position = 'bottom',
+        height = 0.3,
+        border = 'none',
+        wo = {
+          number = false,
+          relativenumber = false,
+          signcolumn = 'no',
+          statuscolumn = '',
+          winbar = '',
+          winhighlight = 'Normal:Normal,NormalNC:Normal,EndOfBuffer:Normal,SignColumn:Normal',
+        },
+      },
+    },
+    -- File explorer (replaces nvim-tree). The explorer is a picker source, so
+    -- its behavior is configured under `picker.sources.explorer`.
+    explorer = {
+      enabled = true,
+      -- Do not hijack directory buffers. The explorer only opens on demand
+      -- (via `<C-e>` or the dashboard menu), never automatically on launch.
+      replace_netrw = false,
+    },
+    picker = {
+      -- Directories searched/grepped everywhere are noise; keep them out of
+      -- every file/grep source so results stay focused (mirrors the old
+      -- Telescope `file_ignore_patterns` / `find_command` excludes).
+      sources = {
+        explorer = {
+          -- Persistent left sidebar. `auto_hide` keeps the search/input bar
+          -- tucked away until focused (press `/` to search), leaving a clean
+          -- tree by default.
+          layout = {
+            auto_hide = { 'input' },
+            layout = { position = 'left', width = 40, min_width = 40 },
           },
-        },
-        sections = {
-          { section = 'header', padding = 1 },
-          { section = 'keys',   gap = 1,                padding = 1 },
-          { icon = ' ',         title = 'Recent Files', section = 'recent_files', cwd = true, limit = 8, indent = 2, padding = 1 },
-        },
-      },
-      terminal = {
-        win = {
-          position = 'bottom',
-          height = 0.3,
-          border = 'none',
-          wo = {
-            number = false,
-            relativenumber = false,
-            signcolumn = 'no',
-            statuscolumn = '',
-            winbar = '',
-            winhighlight = 'Normal:Normal,NormalNC:Normal,EndOfBuffer:Normal,SignColumn:Normal',
-          },
-        },
-      },
-      -- File explorer (replaces nvim-tree). The explorer is a picker source, so
-      -- its behavior is configured under `picker.sources.explorer`.
-      explorer = {
-        enabled = true,
-        -- Do not hijack directory buffers. The explorer only opens on demand
-        -- (via `<C-e>` or the dashboard menu), never automatically on launch.
-        replace_netrw = false,
-      },
-      picker = {
-        -- Directories searched/grepped everywhere are noise; keep them out of
-        -- every file/grep source so results stay focused (mirrors the old
-        -- Telescope `file_ignore_patterns` / `find_command` excludes).
-        sources = {
-          explorer = {
-            -- Persistent left sidebar. `auto_hide` keeps the search/input bar
-            -- tucked away until focused (press `/` to search), leaving a clean
-            -- tree by default.
-            layout = {
-              auto_hide = { 'input' },
-              layout = { position = 'left', width = 40, min_width = 40 },
-            },
-            -- Reveal and follow the focused file (was update_focused_file.enable).
-            follow_file = true,
-            git_status = true,
-            -- Show aggregate git status on collapsed directories.
-            git_status_open = true,
-            diagnostics = true,
-            -- Show dotfiles and gitignored files (nvim-tree filters were false),
-            -- but hide the `.git` directory itself (nvim-tree custom filter).
-            hidden = true,
-            ignored = true,
-            exclude = { '.git' },
-            -- Keep the sidebar open after opening a file.
-            auto_close = false,
-            -- `q` closes the explorer. When no real file is on screen (just the
-            -- dashboard, or nothing), quit Neovim instead of revealing a stale
-            -- hidden buffer.
-            win = {
-              list = {
-                keys = {
-                  ['q'] = 'explorer_close_or_quit',
-                },
+          -- Reveal and follow the focused file (was update_focused_file.enable).
+          follow_file = true,
+          git_status = true,
+          -- Show aggregate git status on collapsed directories.
+          git_status_open = true,
+          diagnostics = true,
+          -- Show dotfiles and gitignored files (nvim-tree filters were false),
+          -- but hide the `.git` directory itself (nvim-tree custom filter).
+          hidden = true,
+          ignored = true,
+          exclude = { '.git' },
+          -- Keep the sidebar open after opening a file.
+          auto_close = false,
+          -- `q` closes the explorer. When no real file is on screen (just the
+          -- dashboard, or nothing), quit Neovim instead of revealing a stale
+          -- hidden buffer.
+          win = {
+            list = {
+              keys = {
+                ['q'] = 'explorer_close_or_quit',
               },
             },
-            actions = {
-              explorer_close_or_quit = function(picker)
-                local should_quit = not has_displayed_file_buffer()
-                picker:close()
-                if should_quit then
-                  vim.schedule(function()
-                    vim.cmd('qa')
-                  end)
-                end
-              end,
-            },
           },
-          -- Show dotfiles and gitignored files (so build output, .env, etc. are
-          -- searchable) while still pruning the heavy directories.
-          files = {
-            hidden = true,
-            ignored = true,
-            exclude = search_exclude_globs,
-          },
-          grep = {
-            hidden = true,
-            ignored = true,
-            exclude = search_exclude_globs,
-          },
-        },
-      },
-    },
-    keys = {
-      {
-        '<leader>tt',
-        function()
-          Snacks.terminal.toggle()
-        end,
-        mode = { 'n', 't' },
-        desc = 'Toggle Terminal',
-      },
-      {
-        '<C-e>',
-        function()
-          -- reveal() opens the explorer (focused) and reveals the current file
-          -- when closed, so toggle by closing any open explorer picker first.
-          local explorer_pickers = Snacks.picker.get({ source = 'explorer' })
-          if #explorer_pickers > 0 then
-            explorer_pickers[1]:close()
-          else
-            Snacks.explorer.reveal()
-          end
-        end,
-        desc = 'Toggle Explorer',
-      },
-      {
-        '<C-b>',
-        function()
-          for _, explorer_picker in ipairs(Snacks.picker.get({ source = 'explorer' })) do
-            explorer_picker:close()
-          end
-        end,
-        desc = 'Close Explorer',
-      },
-      -- Fuzzy finding (replaces Telescope). All sources share the snacks UI,
-      -- matcher, and theme that the explorer/dashboard already use.
-      { '<leader>sf',      function() Snacks.picker.files() end,       desc = '[S]earch [F]iles' },
-      { '<leader>sg',      function() Snacks.picker.grep() end,        desc = '[S]earch by [G]rep' },
-      { '<leader>sw',      function() Snacks.picker.grep_word() end,   mode = { 'n', 'x' },                          desc = '[S]earch current [W]ord' },
-      { '<leader>sh',      function() Snacks.picker.help() end,        desc = '[S]earch [H]elp' },
-      { '<leader>sd',      function() Snacks.picker.diagnostics() end, desc = '[S]earch [D]iagnostics' },
-      { '<leader>?',       function() Snacks.picker.recent() end,      desc = '[?] Find recently opened files' },
-      { '<leader><space>', function() Snacks.picker.buffers() end,     desc = '[ ] Find existing buffers' },
-      { '<leader>/',       function() Snacks.picker.lines() end,       desc = '[/] Fuzzily search in current buffer' },
-      -- Git (replaces vim-fugitive / vim-rhubarb).
-      { '<leader>gg',      function() Snacks.lazygit() end,            desc = 'Lazygit' },
-      { '<leader>gb',      function() Snacks.gitbrowse() end,          mode = { 'n', 'x' },                          desc = '[G]it [B]rowse' },
-      { '<leader>gB',      function() Snacks.git.blame_line() end,     desc = '[G]it [B]lame line' },
-    },
-  },
-
-  -- Treesitter: must be available for the initial buffer, so it stays eager.
-  {
-    'nvim-treesitter/nvim-treesitter',
-    branch = 'main',
-    lazy = false,
-    build = ':TSUpdate',
-    dependencies = {
-      { 'nvim-treesitter/nvim-treesitter-textobjects', branch = 'main' },
-    },
-    config = function()
-      local treesitter = require('nvim-treesitter')
-      treesitter.install(treesitter_parsers)
-
-      -- Register filetypes whose name differs from their parser so those buffers
-      -- resolve to the right parser (e.g. typescriptreact -> tsx, jsonc -> json).
-      for _, language in ipairs(treesitter_languages) do
-        for _, filetype in ipairs(language.filetypes) do
-          if filetype ~= language.parser then
-            vim.treesitter.language.register(language.parser, filetype)
-          end
-        end
-      end
-
-      vim.api.nvim_create_autocmd('FileType', {
-        pattern = treesitter_filetypes,
-        callback = function(args)
-          local has_parser = pcall(vim.treesitter.start, args.buf)
-          if has_parser then
-            vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
-          end
-        end,
-      })
-
-      require('nvim-treesitter-textobjects').setup {
-        select = {
-          lookahead = true,
-        },
-        move = {
-          set_jumps = true,
-        },
-      }
-
-      -- Select text objects: { lhs, textobject }.
-      local treesitter_select = require('nvim-treesitter-textobjects.select')
-      local select_mappings = {
-        { 'aa', '@parameter.outer' },
-        { 'ia', '@parameter.inner' },
-        { 'af', '@function.outer' },
-        { 'if', '@function.inner' },
-        { 'ac', '@class.outer' },
-        { 'ic', '@class.inner' },
-      }
-      for _, mapping in ipairs(select_mappings) do
-        local lhs, textobject = mapping[1], mapping[2]
-        vim.keymap.set({ 'x', 'o' }, lhs, function()
-          treesitter_select.select_textobject(textobject, 'textobjects')
-        end)
-      end
-
-      -- Move between text objects: { lhs, move_function, textobject }.
-      local treesitter_move = require('nvim-treesitter-textobjects.move')
-      local move_mappings = {
-        { ']m', 'goto_next_start',     '@function.outer' },
-        { ']]', 'goto_next_start',     '@class.outer' },
-        { ']M', 'goto_next_end',       '@function.outer' },
-        { '][', 'goto_next_end',       '@class.outer' },
-        { '[m', 'goto_previous_start', '@function.outer' },
-        { '[[', 'goto_previous_start', '@class.outer' },
-        { '[M', 'goto_previous_end',   '@function.outer' },
-        { '[]', 'goto_previous_end',   '@class.outer' },
-      }
-      for _, mapping in ipairs(move_mappings) do
-        local lhs, move_function, textobject = mapping[1], mapping[2], mapping[3]
-        vim.keymap.set({ 'n', 'x', 'o' }, lhs, function()
-          treesitter_move[move_function](textobject, 'textobjects')
-        end)
-      end
-
-      local treesitter_swap = require('nvim-treesitter-textobjects.swap')
-      vim.keymap.set('n', '<leader>a', function()
-        treesitter_swap.swap_next('@parameter.inner')
-      end)
-      vim.keymap.set('n', '<leader>A', function()
-        treesitter_swap.swap_previous('@parameter.inner')
-      end)
-    end,
-  },
-
-  -- LSP stack: deferred until a real file buffer is opened.
-  {
-    'neovim/nvim-lspconfig',
-    event = { 'BufReadPre', 'BufNewFile' },
-    cmd = { 'Mason', 'LspInfo', 'LspStart' },
-    dependencies = {
-      'williamboman/mason.nvim',
-      'williamboman/mason-lspconfig.nvim',
-    },
-    config = function()
-      require('mason').setup()
-
-      local servers = { 'basedpyright', 'ruff', 'tsgo', 'eslint', 'biome', 'lua_ls', 'gopls', 'emmet_ls', 'clangd',
-        'rust_analyzer' }
-
-      -- `automatic_enable = true` (the default) enables every installed server
-      -- via vim.lsp.enable(), so `ensure_installed` is the single source of truth.
-      require('mason-lspconfig').setup {
-        ensure_installed = servers,
-        automatic_enable = true,
-      }
-
-      -- blink.cmp supplies extra completion capabilities.
-      local capabilities = require('blink.cmp').get_lsp_capabilities()
-
-      -- LSP progress (replaces fidget): feed vim.lsp.status() into vim.notify so
-      -- the snacks notifier renders a spinner while servers are working.
-      vim.api.nvim_create_autocmd('LspProgress', {
-        group = vim.api.nvim_create_augroup('UserLspProgress', { clear = true }),
-        callback = function(ev)
-          local spinner = { '⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏' }
-          vim.notify(vim.lsp.status(), 'info', {
-            id = 'lsp_progress',
-            title = 'LSP Progress',
-            opts = function(notif)
-              notif.icon = ev.data.params.value.kind == 'end' and ' '
-                or spinner[math.floor(vim.uv.hrtime() / (1e6 * 80)) % #spinner + 1]
+          actions = {
+            explorer_close_or_quit = function(picker)
+              local should_quit = not has_displayed_file_buffer()
+              picker:close()
+              if should_quit then
+                vim.schedule(function()
+                  vim.cmd('qa')
+                end)
+              end
             end,
+          },
+        },
+        -- Show dotfiles and gitignored files (so build output, .env, etc. are
+        -- searchable) while still pruning the heavy directories.
+        files = {
+          hidden = true,
+          ignored = true,
+          exclude = search_exclude_globs,
+        },
+        grep = {
+          hidden = true,
+          ignored = true,
+          exclude = search_exclude_globs,
+        },
+      },
+    },
+  },
+  keys = {
+    {
+      '<leader>tt',
+      function()
+        Snacks.terminal.toggle()
+      end,
+      mode = { 'n', 't' },
+      desc = 'Toggle Terminal',
+    },
+    {
+      '<C-e>',
+      function()
+        -- reveal() opens the explorer (focused) and reveals the current file
+        -- when closed, so toggle by closing any open explorer picker first.
+        local explorer_pickers = Snacks.picker.get({ source = 'explorer' })
+        if #explorer_pickers > 0 then
+          explorer_pickers[1]:close()
+        else
+          Snacks.explorer.reveal()
+        end
+      end,
+      desc = 'Toggle Explorer',
+    },
+    {
+      '<C-b>',
+      function()
+        for _, explorer_picker in ipairs(Snacks.picker.get({ source = 'explorer' })) do
+          explorer_picker:close()
+        end
+      end,
+      desc = 'Close Explorer',
+    },
+    -- Fuzzy finding (replaces Telescope). All sources share the snacks UI,
+    -- matcher, and theme that the explorer/dashboard already use.
+    { '<leader>sf',      function() Snacks.picker.files() end,       desc = '[S]earch [F]iles' },
+    { '<leader>sg',      function() Snacks.picker.grep() end,        desc = '[S]earch by [G]rep' },
+    { '<leader>sw',      function() Snacks.picker.grep_word() end,   mode = { 'n', 'x' },                          desc = '[S]earch current [W]ord' },
+    { '<leader>sh',      function() Snacks.picker.help() end,        desc = '[S]earch [H]elp' },
+    { '<leader>sd',      function() Snacks.picker.diagnostics() end, desc = '[S]earch [D]iagnostics' },
+    { '<leader>?',       function() Snacks.picker.recent() end,      desc = '[?] Find recently opened files' },
+    { '<leader><space>', function() Snacks.picker.buffers() end,     desc = '[ ] Find existing buffers' },
+    { '<leader>/',       function() Snacks.picker.lines() end,       desc = '[/] Fuzzily search in current buffer' },
+    -- Git (replaces vim-fugitive / vim-rhubarb).
+    { '<leader>gg',      function() Snacks.lazygit() end,            desc = 'Lazygit' },
+    { '<leader>gb',      function() Snacks.gitbrowse() end,          mode = { 'n', 'x' },                          desc = '[G]it [B]rowse' },
+    { '<leader>gB',      function() Snacks.git.blame_line() end,     desc = '[G]it [B]lame line' },
+  },
+}
+
+-- Treesitter: must be available for the initial buffer, so it stays eager.
+local treesitter_spec = {
+  'nvim-treesitter/nvim-treesitter',
+  branch = 'main',
+  lazy = false,
+  build = ':TSUpdate',
+  dependencies = {
+    { 'nvim-treesitter/nvim-treesitter-textobjects', branch = 'main' },
+  },
+  config = function()
+    local treesitter = require('nvim-treesitter')
+    treesitter.install(treesitter_parsers)
+
+    -- Register filetypes whose name differs from their parser so those buffers
+    -- resolve to the right parser (e.g. typescriptreact -> tsx, jsonc -> json).
+    for _, language in ipairs(treesitter_languages) do
+      for _, filetype in ipairs(language.filetypes) do
+        if filetype ~= language.parser then
+          vim.treesitter.language.register(language.parser, filetype)
+        end
+      end
+    end
+
+    vim.api.nvim_create_autocmd('FileType', {
+      pattern = treesitter_filetypes,
+      callback = function(args)
+        local has_parser = pcall(vim.treesitter.start, args.buf)
+        if has_parser then
+          vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+        end
+      end,
+    })
+
+    require('nvim-treesitter-textobjects').setup {
+      select = {
+        lookahead = true,
+      },
+      move = {
+        set_jumps = true,
+      },
+    }
+
+    -- Select text objects: { lhs, textobject }.
+    local treesitter_select = require('nvim-treesitter-textobjects.select')
+    local select_mappings = {
+      { 'aa', '@parameter.outer' },
+      { 'ia', '@parameter.inner' },
+      { 'af', '@function.outer' },
+      { 'if', '@function.inner' },
+      { 'ac', '@class.outer' },
+      { 'ic', '@class.inner' },
+    }
+    for _, mapping in ipairs(select_mappings) do
+      local lhs, textobject = mapping[1], mapping[2]
+      vim.keymap.set({ 'x', 'o' }, lhs, function()
+        treesitter_select.select_textobject(textobject, 'textobjects')
+      end)
+    end
+
+    -- Move between text objects: { lhs, move_function, textobject }.
+    local treesitter_move = require('nvim-treesitter-textobjects.move')
+    local move_mappings = {
+      { ']m', 'goto_next_start',     '@function.outer' },
+      { ']]', 'goto_next_start',     '@class.outer' },
+      { ']M', 'goto_next_end',       '@function.outer' },
+      { '][', 'goto_next_end',       '@class.outer' },
+      { '[m', 'goto_previous_start', '@function.outer' },
+      { '[[', 'goto_previous_start', '@class.outer' },
+      { '[M', 'goto_previous_end',   '@function.outer' },
+      { '[]', 'goto_previous_end',   '@class.outer' },
+    }
+    for _, mapping in ipairs(move_mappings) do
+      local lhs, move_function, textobject = mapping[1], mapping[2], mapping[3]
+      vim.keymap.set({ 'n', 'x', 'o' }, lhs, function()
+        treesitter_move[move_function](textobject, 'textobjects')
+      end)
+    end
+
+    local treesitter_swap = require('nvim-treesitter-textobjects.swap')
+    vim.keymap.set('n', '<leader>a', function()
+      treesitter_swap.swap_next('@parameter.inner')
+    end)
+    vim.keymap.set('n', '<leader>A', function()
+      treesitter_swap.swap_previous('@parameter.inner')
+    end)
+  end,
+}
+
+-- LSP stack: deferred until a real file buffer is opened.
+local lsp_spec = {
+  'neovim/nvim-lspconfig',
+  event = { 'BufReadPre', 'BufNewFile' },
+  cmd = { 'Mason', 'LspInfo', 'LspStart' },
+  dependencies = {
+    'williamboman/mason.nvim',
+    'williamboman/mason-lspconfig.nvim',
+  },
+  config = function()
+    require('mason').setup()
+
+    local servers = { 'basedpyright', 'ruff', 'tsgo', 'eslint', 'biome', 'lua_ls', 'gopls', 'emmet_ls', 'clangd',
+      'rust_analyzer' }
+
+    -- `automatic_enable = true` (the default) enables every installed server
+    -- via vim.lsp.enable(), so `ensure_installed` is the single source of truth.
+    require('mason-lspconfig').setup {
+      ensure_installed = servers,
+      automatic_enable = true,
+    }
+
+    -- blink.cmp supplies extra completion capabilities.
+    local capabilities = require('blink.cmp').get_lsp_capabilities()
+
+    -- LSP progress (replaces fidget): feed vim.lsp.status() into vim.notify so
+    -- the snacks notifier renders a spinner while servers are working.
+    vim.api.nvim_create_autocmd('LspProgress', {
+      group = vim.api.nvim_create_augroup('UserLspProgress', { clear = true }),
+      callback = function(ev)
+        local spinner = { '⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏' }
+        vim.notify(vim.lsp.status(), 'info', {
+          id = 'lsp_progress',
+          title = 'LSP Progress',
+          opts = function(notif)
+            notif.icon = ev.data.params.value.kind == 'end' and ' '
+              or spinner[math.floor(vim.uv.hrtime() / (1e6 * 80)) % #spinner + 1]
+          end,
+        })
+      end,
+    })
+
+    local lsp_float_padding_border = {
+      { ' ', 'NormalFloat' },
+      { ' ', 'NormalFloat' },
+      { ' ', 'NormalFloat' },
+      { ' ', 'NormalFloat' },
+      { ' ', 'NormalFloat' },
+      { ' ', 'NormalFloat' },
+      { ' ', 'NormalFloat' },
+      { ' ', 'NormalFloat' },
+    }
+
+    local lsp_float_options = {
+      border = lsp_float_padding_border,
+      focusable = true,
+      max_width = 80,
+      max_height = 20,
+    }
+
+    local diagnostic_float_options = vim.tbl_extend('force', {}, lsp_float_options)
+
+    vim.api.nvim_create_autocmd('LspAttach', {
+      group = vim.api.nvim_create_augroup('UserLspConfig', { clear = true }),
+      callback = function(args)
+        local bufnr = args.buf
+        local client = vim.lsp.get_client_by_id(args.data.client_id)
+        if client and client.name == 'ruff' then
+          client.server_capabilities.hoverProvider = false
+        end
+        if client and vim.tbl_contains({ 'tsgo', 'eslint', 'biome' }, client.name) then
+          client.server_capabilities.documentFormattingProvider = false
+          client.server_capabilities.documentRangeFormattingProvider = false
+        end
+
+        local nmap = function(keys, func, desc)
+          if desc then
+            desc = 'LSP: ' .. desc
+          end
+          vim.keymap.set('n', keys, func, { buffer = bufnr, desc = desc })
+        end
+
+        local show_hover_help = function()
+          local cursor_position = vim.api.nvim_win_get_cursor(0)
+          local cursor_diagnostics = vim.diagnostic.get(bufnr, {
+            lnum = cursor_position[1] - 1,
           })
-        end,
-      })
 
-      local lsp_float_padding_border = {
-        { ' ', 'NormalFloat' },
-        { ' ', 'NormalFloat' },
-        { ' ', 'NormalFloat' },
-        { ' ', 'NormalFloat' },
-        { ' ', 'NormalFloat' },
-        { ' ', 'NormalFloat' },
-        { ' ', 'NormalFloat' },
-        { ' ', 'NormalFloat' },
-      }
-
-      local lsp_float_options = {
-        border = lsp_float_padding_border,
-        focusable = true,
-        max_width = 80,
-        max_height = 20,
-      }
-
-      local diagnostic_float_options = vim.tbl_extend('force', {}, lsp_float_options)
-
-      vim.api.nvim_create_autocmd('LspAttach', {
-        group = vim.api.nvim_create_augroup('UserLspConfig', { clear = true }),
-        callback = function(args)
-          local bufnr = args.buf
-          local client = vim.lsp.get_client_by_id(args.data.client_id)
-          if client and client.name == 'ruff' then
-            client.server_capabilities.hoverProvider = false
-          end
-          if client and vim.tbl_contains({ 'tsgo', 'eslint', 'biome' }, client.name) then
-            client.server_capabilities.documentFormattingProvider = false
-            client.server_capabilities.documentRangeFormattingProvider = false
+          if #cursor_diagnostics > 0 then
+            vim.diagnostic.open_float(nil, vim.tbl_extend('force', diagnostic_float_options, {
+              scope = 'cursor',
+              prefix = '  ',
+            }))
+            return
           end
 
-          local nmap = function(keys, func, desc)
-            if desc then
-              desc = 'LSP: ' .. desc
-            end
-            vim.keymap.set('n', keys, func, { buffer = bufnr, desc = desc })
-          end
+          vim.lsp.buf.hover(lsp_float_options)
+        end
 
-          local show_hover_help = function()
-            local cursor_position = vim.api.nvim_win_get_cursor(0)
-            local cursor_diagnostics = vim.diagnostic.get(bufnr, {
-              lnum = cursor_position[1] - 1,
-            })
+        nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
+        nmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
 
-            if #cursor_diagnostics > 0 then
-              vim.diagnostic.open_float(nil, vim.tbl_extend('force', diagnostic_float_options, {
-                scope = 'cursor',
-                prefix = '  ',
-              }))
-              return
-            end
+        -- These all jump directly on a single result and fall back to the
+        -- snacks picker when there are several.
+        nmap('gd', function() Snacks.picker.lsp_definitions() end, '[G]oto [D]efinition')
+        nmap('gr', function() Snacks.picker.lsp_references() end, '[G]oto [R]eferences')
+        nmap('gI', function() Snacks.picker.lsp_implementations() end, '[G]oto [I]mplementation')
+        nmap('<leader>D', function() Snacks.picker.lsp_type_definitions() end, 'Type [D]efinition')
+        nmap('<leader>ds', function() Snacks.picker.lsp_symbols() end, '[D]ocument [S]ymbols')
 
-            vim.lsp.buf.hover(lsp_float_options)
-          end
+        nmap('gh', show_hover_help, 'Hover Help')
 
-          nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
-          nmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
+        nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
 
-          -- These all jump directly on a single result and fall back to the
-          -- snacks picker when there are several.
-          nmap('gd', function() Snacks.picker.lsp_definitions() end, '[G]oto [D]efinition')
-          nmap('gr', function() Snacks.picker.lsp_references() end, '[G]oto [R]eferences')
-          nmap('gI', function() Snacks.picker.lsp_implementations() end, '[G]oto [I]mplementation')
-          nmap('<leader>D', function() Snacks.picker.lsp_type_definitions() end, 'Type [D]efinition')
-          nmap('<leader>ds', function() Snacks.picker.lsp_symbols() end, '[D]ocument [S]ymbols')
+        vim.api.nvim_buf_create_user_command(bufnr, 'Format', function(_)
+          -- Route through conform so manual formatting picks the same
+          -- formatter as save-time formatting (biome/prettier/oxfmt/ruff/...),
+          -- falling back to the LSP only when conform has nothing.
+          require('conform').format({ async = true, lsp_format = 'fallback' })
+        end, { desc = 'Format current buffer with conform' })
+      end,
+    })
 
-          nmap('gh', show_hover_help, 'Hover Help')
+    -- Make runtime files discoverable to the lua language server.
+    local runtime_path = vim.split(package.path, ';')
+    table.insert(runtime_path, 'lua/?.lua')
+    table.insert(runtime_path, 'lua/?/init.lua')
 
-          nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
+    -- Capabilities apply to every server. Servers without extra settings
+    -- (basedpyright, ruff, gopls, tsgo, eslint, biome) need nothing further.
+    vim.lsp.config('*', {
+      capabilities = capabilities,
+    })
 
-          vim.api.nvim_buf_create_user_command(bufnr, 'Format', function(_)
-            -- Route through conform so manual formatting picks the same
-            -- formatter as save-time formatting (biome/prettier/oxfmt/ruff/...),
-            -- falling back to the LSP only when conform has nothing.
-            require('conform').format({ async = true, lsp_format = 'fallback' })
-          end, { desc = 'Format current buffer with conform' })
-        end,
-      })
+    vim.lsp.config('lua_ls', {
+      settings = {
+        Lua = {
+          runtime = {
+            version = 'LuaJIT',
+            path = runtime_path,
+          },
+          diagnostics = {
+            globals = { 'vim' },
+          },
+          workspace = { library = vim.api.nvim_get_runtime_file('', true) },
+          telemetry = { enable = false },
+        },
+      },
+    })
 
-      -- Make runtime files discoverable to the lua language server.
-      local runtime_path = vim.split(package.path, ';')
-      table.insert(runtime_path, 'lua/?.lua')
-      table.insert(runtime_path, 'lua/?/init.lua')
-
-      -- Capabilities apply to every server. Servers without extra settings
-      -- (basedpyright, ruff, gopls, tsgo, eslint, biome) need nothing further.
-      vim.lsp.config('*', {
-        capabilities = capabilities,
-      })
-
-      vim.lsp.config('lua_ls', {
-        settings = {
-          Lua = {
-            runtime = {
-              version = 'LuaJIT',
-              path = runtime_path,
-            },
-            diagnostics = {
-              globals = { 'vim' },
-            },
-            workspace = { library = vim.api.nvim_get_runtime_file('', true) },
-            telemetry = { enable = false },
+    vim.lsp.config('emmet_ls', {
+      filetypes = { 'html', 'typescriptreact', 'javascriptreact', 'css', 'sass', 'scss', 'less' },
+      init_options = {
+        html = {
+          options = {
+            ["bem.enabled"] = true,
           },
         },
-      })
-
-      vim.lsp.config('emmet_ls', {
-        filetypes = { 'html', 'typescriptreact', 'javascriptreact', 'css', 'sass', 'scss', 'less' },
-        init_options = {
-          html = {
-            options = {
-              ["bem.enabled"] = true,
-            },
-          },
-        },
-      })
-    end,
-  },
-
-  -- Autocompletion: blink.cmp (replaces nvim-cmp). Loads on first insert.
-  {
-    'saghen/blink.cmp',
-    version = '1.*', -- pulls the prebuilt Rust fuzzy-matcher binary; no toolchain needed
-    event = 'InsertEnter',
-    ---@module 'blink.cmp'
-    ---@type blink.cmp.Config
-    opts = {
-      keymap = {
-        preset = 'enter', -- <CR> accepts; <C-n>/<C-p> navigate items
-        -- Preserve the previous inverted docs-scroll (<C-d> up, <C-f> down):
-        ['<C-d>'] = { 'scroll_documentation_up', 'fallback' },
-        ['<C-f>'] = { 'scroll_documentation_down', 'fallback' },
-        -- Manual trigger. <C-Space> is the tmux prefix, so use <C-l>, which is
-        -- only mapped to pane-navigation in normal mode and free in insert mode.
-        ['<C-l>'] = { 'show', 'show_documentation', 'hide_documentation' },
-        ['<C-space>'] = {},
-        -- Toggle blink's native signature help (insert mode, while typing args).
-        -- This is already the default in every preset, but it's spelled out here
-        -- because it intentionally replaces the old normal-mode vim.lsp.buf
-        -- .signature_help binding in the LSP spec.
-        ['<C-k>'] = { 'show_signature', 'hide_signature', 'fallback' },
       },
-      appearance = { nerd_font_variant = 'mono' },
-      completion = {
-        -- Match the previous setup: no auto-popup of documentation.
-        documentation = { auto_show = false },
-      },
-      -- Signature help shown as you type function arguments (replaces the old
-      -- LSP <C-k> mapping). Toggled with <C-k> via the keymap above.
-      signature = { enabled = true },
-      sources = {
-        default = { 'lsp', 'path', 'snippets', 'buffer' },
-        providers = {
-          lsp = { min_keyword_length = 1 },
-        },
-      },
-      fuzzy = { implementation = 'prefer_rust_with_warning' },
-    },
-    opts_extend = { 'sources.default' },
-  },
+    })
+  end,
+}
 
-  -- Diagnostics / quickfix list viewer.
-  {
-    "folke/trouble.nvim",
-    cmd = "Trouble",
-    dependencies = {
-      "nvim-tree/nvim-web-devicons",
+-- Autocompletion: blink.cmp (replaces nvim-cmp). Loads on first insert.
+local blink_spec = {
+  'saghen/blink.cmp',
+  version = '1.*', -- pulls the prebuilt Rust fuzzy-matcher binary; no toolchain needed
+  event = 'InsertEnter',
+  ---@module 'blink.cmp'
+  ---@type blink.cmp.Config
+  opts = {
+    keymap = {
+      preset = 'enter', -- <CR> accepts; <C-n>/<C-p> navigate items
+      -- Preserve the previous inverted docs-scroll (<C-d> up, <C-f> down):
+      ['<C-d>'] = { 'scroll_documentation_up', 'fallback' },
+      ['<C-f>'] = { 'scroll_documentation_down', 'fallback' },
+      -- Manual trigger. <C-Space> is the tmux prefix, so use <C-l>, which is
+      -- only mapped to pane-navigation in normal mode and free in insert mode.
+      ['<C-l>'] = { 'show', 'show_documentation', 'hide_documentation' },
+      ['<C-space>'] = {},
+      -- Toggle blink's native signature help (insert mode, while typing args).
+      -- This is already the default in every preset, but it's spelled out here
+      -- because it intentionally replaces the old normal-mode vim.lsp.buf
+      -- .signature_help binding in the LSP spec.
+      ['<C-k>'] = { 'show_signature', 'hide_signature', 'fallback' },
     },
-    opts = {},
-    keys = {
-      { "<leader>xx", function() require("trouble").toggle() end,                        desc = "Trouble Toggle" },
-      { "<leader>xw", function() require("trouble").toggle("workspace_diagnostics") end, desc = "Workspace Diagnostics" },
-      { "<leader>xd", function() require("trouble").toggle("document_diagnostics") end,  desc = "Document Diagnostics" },
-      { "<leader>xq", function() require("trouble").toggle("quickfix") end,              desc = "Quickfix" },
-      { "<leader>xl", function() require("trouble").toggle("loclist") end,               desc = "Location List" },
+    appearance = { nerd_font_variant = 'mono' },
+    completion = {
+      -- Match the previous setup: no auto-popup of documentation.
+      documentation = { auto_show = false },
     },
-  },
-
-  -- Git signs in the gutter.
-  {
-    'lewis6991/gitsigns.nvim',
-    event = { 'BufReadPre', 'BufNewFile' },
-    opts = {
-      signs = {
-        add = { text = '+' },
-        change = { text = '~' },
-        delete = { text = '_' },
-        topdelete = { text = '‾' },
-        changedelete = { text = '~' },
+    -- Signature help shown as you type function arguments (replaces the old
+    -- LSP <C-k> mapping). Toggled with <C-k> via the keymap above.
+    signature = { enabled = true },
+    sources = {
+      default = { 'lsp', 'path', 'snippets', 'buffer' },
+      providers = {
+        lsp = { min_keyword_length = 1 },
       },
     },
+    fuzzy = { implementation = 'prefer_rust_with_warning' },
   },
+  opts_extend = { 'sources.default' },
+}
 
-  -- Statusline.
-  {
-    'nvim-lualine/lualine.nvim',
-    event = 'VeryLazy',
-    opts = {
-      options = {
-        icons_enabled = false,
-        -- Derive the statusline palette from the active colorscheme so it stays
-        -- in sync whether gruvbox-material or a dark-rock variant is loaded.
-        theme = 'auto',
-        component_separators = '',
-        section_separators = '',
-        disabled_filetypes = {
-          statusline = { 'snacks_terminal' },
-        },
+-- Diagnostics / quickfix list viewer.
+local trouble_spec = {
+  'folke/trouble.nvim',
+  cmd = 'Trouble',
+  dependencies = {
+    'nvim-tree/nvim-web-devicons',
+  },
+  opts = {},
+  keys = {
+    { '<leader>xx', function() require('trouble').toggle() end,                        desc = 'Trouble Toggle' },
+    { '<leader>xw', function() require('trouble').toggle('workspace_diagnostics') end, desc = 'Workspace Diagnostics' },
+    { '<leader>xd', function() require('trouble').toggle('document_diagnostics') end,  desc = 'Document Diagnostics' },
+    { '<leader>xq', function() require('trouble').toggle('quickfix') end,              desc = 'Quickfix' },
+    { '<leader>xl', function() require('trouble').toggle('loclist') end,               desc = 'Location List' },
+  },
+}
+
+-- Git signs in the gutter.
+local gitsigns_spec = {
+  'lewis6991/gitsigns.nvim',
+  event = { 'BufReadPre', 'BufNewFile' },
+  opts = {
+    signs = {
+      add = { text = '+' },
+      change = { text = '~' },
+      delete = { text = '_' },
+      topdelete = { text = '‾' },
+      changedelete = { text = '~' },
+    },
+  },
+}
+
+-- Statusline.
+local lualine_spec = {
+  'nvim-lualine/lualine.nvim',
+  event = 'VeryLazy',
+  opts = {
+    options = {
+      icons_enabled = false,
+      -- Derive the statusline palette from the active colorscheme so it stays
+      -- in sync whether gruvbox-material or a dark-rock variant is loaded.
+      theme = 'auto',
+      component_separators = '',
+      section_separators = '',
+      disabled_filetypes = {
+        statusline = { 'snacks_terminal' },
       },
     },
   },
+}
 
-  -- Detect tabstop / shiftwidth automatically.
-  {
-    'tpope/vim-sleuth',
-    event = { 'BufReadPre', 'BufNewFile' },
+-- Detect tabstop / shiftwidth automatically.
+local sleuth_spec = {
+  'tpope/vim-sleuth',
+  event = { 'BufReadPre', 'BufNewFile' },
+}
+
+-- Surround text objects.
+local surround_spec = {
+  'kylechui/nvim-surround',
+  version = '*',
+  event = 'VeryLazy',
+  opts = {},
+}
+
+-- Seamless navigation between tmux panes and vim splits.
+local tmux_navigator_spec = {
+  'christoomey/vim-tmux-navigator',
+  cmd = {
+    'TmuxNavigateLeft',
+    'TmuxNavigateDown',
+    'TmuxNavigateUp',
+    'TmuxNavigateRight',
+    'TmuxNavigatePrevious',
   },
-
-  -- Surround text objects.
-  {
-    "kylechui/nvim-surround",
-    version = "*",
-    event = "VeryLazy",
-    opts = {},
+  keys = {
+    { '<C-h>', '<cmd>TmuxNavigateLeft<cr>' },
+    { '<C-j>', '<cmd>TmuxNavigateDown<cr>' },
+    { '<C-k>', '<cmd>TmuxNavigateUp<cr>' },
+    { '<C-l>', '<cmd>TmuxNavigateRight<cr>' },
   },
+}
 
-  -- Seamless navigation between tmux panes and vim splits.
-  {
-    'christoomey/vim-tmux-navigator',
-    cmd = {
-      'TmuxNavigateLeft',
-      'TmuxNavigateDown',
-      'TmuxNavigateUp',
-      'TmuxNavigateRight',
-      'TmuxNavigatePrevious',
-    },
-    keys = {
-      { '<C-h>', '<cmd>TmuxNavigateLeft<cr>' },
-      { '<C-j>', '<cmd>TmuxNavigateDown<cr>' },
-      { '<C-k>', '<cmd>TmuxNavigateUp<cr>' },
-      { '<C-l>', '<cmd>TmuxNavigateRight<cr>' },
+-- Formatter: load just before the first write (and on :ConformInfo).
+local conform_spec = {
+  'stevearc/conform.nvim',
+  event = { 'BufWritePre' },
+  cmd = { 'ConformInfo' },
+  keys = {
+    {
+      '<leader>f',
+      function()
+        require('conform').format({ async = true, lsp_format = 'fallback' })
+      end,
+      mode = { 'n', 'v' },
+      desc = '[F]ormat buffer',
     },
   },
+  config = function()
+    local biome_config_files = { 'biome.json', 'biome.jsonc', '.biome.json', '.biome.jsonc' }
+    local prettier_config_files = {
+      '.prettierrc',
+      '.prettierrc.json',
+      '.prettierrc.yml',
+      '.prettierrc.yaml',
+      '.prettierrc.json5',
+      '.prettierrc.js',
+      '.prettierrc.cjs',
+      '.prettierrc.mjs',
+      '.prettierrc.ts',
+      '.prettierrc.cts',
+      '.prettierrc.mts',
+      '.prettierrc.toml',
+      'prettier.config.js',
+      'prettier.config.cjs',
+      'prettier.config.mjs',
+      'prettier.config.ts',
+      'prettier.config.cts',
+      'prettier.config.mts',
+    }
 
-  -- Formatter: load just before the first write (and on :ConformInfo).
-  {
-    "stevearc/conform.nvim",
-    event = { "BufWritePre" },
-    cmd = { "ConformInfo" },
-    keys = {
-      {
-        "<leader>f",
-        function()
-          require("conform").format({ async = true, lsp_format = "fallback" })
-        end,
-        mode = { "n", "v" },
-        desc = "[F]ormat buffer",
-      },
-    },
-    config = function()
-      local biome_config_files = { "biome.json", "biome.jsonc", ".biome.json", ".biome.jsonc" }
-      local prettier_config_files = {
-        ".prettierrc",
-        ".prettierrc.json",
-        ".prettierrc.yml",
-        ".prettierrc.yaml",
-        ".prettierrc.json5",
-        ".prettierrc.js",
-        ".prettierrc.cjs",
-        ".prettierrc.mjs",
-        ".prettierrc.ts",
-        ".prettierrc.cts",
-        ".prettierrc.mts",
-        ".prettierrc.toml",
-        "prettier.config.js",
-        "prettier.config.cjs",
-        "prettier.config.mjs",
-        "prettier.config.ts",
-        "prettier.config.cts",
-        "prettier.config.mts",
-      }
-
-      local function get_buffer_directory(bufnr)
-        local buffer_name = vim.api.nvim_buf_get_name(bufnr)
-        if buffer_name == "" then
-          return vim.uv.cwd()
-        end
-
-        return vim.fs.dirname(buffer_name)
+    local function get_buffer_directory(bufnr)
+      local buffer_name = vim.api.nvim_buf_get_name(bufnr)
+      if buffer_name == '' then
+        return vim.uv.cwd()
       end
 
-      local function has_root_file(bufnr, file_names)
-        return vim.fs.root(get_buffer_directory(bufnr), file_names) ~= nil
+      return vim.fs.dirname(buffer_name)
+    end
+
+    local function has_root_file(bufnr, file_names)
+      return vim.fs.root(get_buffer_directory(bufnr), file_names) ~= nil
+    end
+
+    local function has_package_json_prettier_config(bufnr)
+      local package_json = vim.fs.find('package.json', {
+        path = get_buffer_directory(bufnr),
+        upward = true,
+      })[1]
+      if not package_json then
+        return false
       end
 
-      local function has_package_json_prettier_config(bufnr)
-        local package_json = vim.fs.find("package.json", {
-          path = get_buffer_directory(bufnr),
-          upward = true,
-        })[1]
-        if not package_json then
-          return false
-        end
+      local ok, package_data = pcall(vim.json.decode, table.concat(vim.fn.readfile(package_json), '\n'))
+      return ok and package_data.prettier ~= nil
+    end
 
-        local ok, package_data = pcall(vim.json.decode, table.concat(vim.fn.readfile(package_json), "\n"))
-        return ok and package_data.prettier ~= nil
+    local function web_formatters(bufnr)
+      if has_root_file(bufnr, biome_config_files) then
+        return { 'biome', lsp_format = 'never' }
       end
 
-      local function web_formatters(bufnr)
-        if has_root_file(bufnr, biome_config_files) then
-          return { "biome", lsp_format = "never" }
-        end
-
-        if has_root_file(bufnr, prettier_config_files) or has_package_json_prettier_config(bufnr) then
-          return { "prettier", lsp_format = "never" }
-        end
-
-        return { "oxfmt", lsp_format = "never" }
+      if has_root_file(bufnr, prettier_config_files) or has_package_json_prettier_config(bufnr) then
+        return { 'prettier', lsp_format = 'never' }
       end
 
-      require("conform").setup({
-        formatters_by_ft = {
-          javascript = web_formatters,
-          javascriptreact = web_formatters,
-          typescript = web_formatters,
-          typescriptreact = web_formatters,
-          json = web_formatters,
-          jsonc = web_formatters,
-          json5 = web_formatters,
-          css = web_formatters,
-          graphql = web_formatters,
-          handlebars = web_formatters,
-          html = web_formatters,
-          less = web_formatters,
-          markdown = web_formatters,
-          scss = web_formatters,
-          toml = web_formatters,
-          vue = web_formatters,
-          yaml = web_formatters,
-          python = { "ruff_fix", "ruff_format", "ruff_organize_imports" },
-          go = { lsp_format = "prefer" },
-          lua = { lsp_format = "prefer" },
-        },
-        default_format_opts = {
-          lsp_format = "fallback",
-        },
-        format_after_save = {
-          lsp_format = "fallback",
-        },
-        notify_on_error = true,
-      })
-    end,
-  },
+      return { 'oxfmt', lsp_format = 'never' }
+    end
+
+    require('conform').setup({
+      formatters_by_ft = {
+        javascript = web_formatters,
+        javascriptreact = web_formatters,
+        typescript = web_formatters,
+        typescriptreact = web_formatters,
+        json = web_formatters,
+        jsonc = web_formatters,
+        json5 = web_formatters,
+        css = web_formatters,
+        graphql = web_formatters,
+        handlebars = web_formatters,
+        html = web_formatters,
+        less = web_formatters,
+        markdown = web_formatters,
+        scss = web_formatters,
+        toml = web_formatters,
+        vue = web_formatters,
+        yaml = web_formatters,
+        python = { 'ruff_fix', 'ruff_format', 'ruff_organize_imports' },
+        go = { lsp_format = 'prefer' },
+        lua = { lsp_format = 'prefer' },
+      },
+      default_format_opts = {
+        lsp_format = 'fallback',
+      },
+      format_after_save = {
+        lsp_format = 'fallback',
+      },
+      notify_on_error = true,
+    })
+  end,
+}
+
+local plugin_specs = {
+  gruvbox_spec,
+  snacks_spec,
+  treesitter_spec,
+  lsp_spec,
+  blink_spec,
+  trouble_spec,
+  gitsigns_spec,
+  lualine_spec,
+  sleuth_spec,
+  surround_spec,
+  tmux_navigator_spec,
+  conform_spec,
 }
 
 if has_dark_rock_theme then
@@ -871,71 +1017,11 @@ require('lazy').setup({
   },
 })
 
-
--- =================================================
--- Options
--- =================================================
--- See `:help vim.o`
-
--- Highlight all matches of the last search. Cleared on demand with <Esc>
--- (mapped in the keymaps section) so stale highlights don't linger.
-vim.o.hlsearch = true
-
--- Make line numbers default
-vim.o.number = true
-
--- Enable mouse mode
-vim.o.mouse = 'a'
-
--- Keep context around the cursor when scrolling.
-vim.o.scrolloff = 8
-
--- Open new splits to the right and below, where the eye expects them.
-vim.o.splitright = true
-vim.o.splitbelow = true
-
--- Live preview of :substitute / :s in a split as you type.
-vim.o.inccommand = 'split'
-
--- Highlight the line the cursor is on.
-vim.o.cursorline = true
-
--- Prompt to save instead of erroring on :q with unsaved changes.
-vim.o.confirm = true
-
--- Set the tab width
-vim.o.tabstop = 2
-vim.o.shiftwidth = 2
-
--- Enable break indent
-vim.o.breakindent = true
-
--- Save undo history
-vim.o.undofile = true
-
--- Set nowrap
-vim.o.wrap = false
-
--- Use the system clipboard. Deferred so clipboard-provider detection does not
--- run during startup.
-vim.schedule(function()
-  vim.o.clipboard = 'unnamedplus'
-end)
-
--- Case insensitive searching UNLESS /C or capital in search
-vim.o.ignorecase = true
-vim.o.smartcase = true
-
--- Decrease update time
-vim.o.updatetime = 250
-vim.o.ttimeoutlen = 10 -- Faster terminal key code recognition (helps with Ctrl+Space, etc.)
-vim.o.signcolumn = 'yes'
-
 -- =================================================
 -- Colorscheme and highlights
 -- =================================================
+-- Runs after lazy.setup so the colorscheme plugin is on the runtimepath.
 
-vim.o.termguicolors = true
 if has_dark_rock_theme then
   vim.g.dark_rock_transparent = true
   vim.cmd.colorscheme('night-rock')
@@ -986,80 +1072,14 @@ vim.api.nvim_create_autocmd('ColorScheme', {
 })
 
 -- =================================================
--- Keymaps
+-- Dashboard
 -- =================================================
--- See `:help vim.keymap.set()`
-vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
-vim.keymap.set('n', '<leader>w', "<cmd>w<cr>", { silent = true })
-vim.keymap.set('i', 'jk', "<Esc>", { silent = true })
-
--- Clear search highlight (hlsearch) on <Esc> in normal mode.
-vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<cr>', { silent = true })
-
--- Remap for dealing with word wrap
-vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
-vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
-
--- Change the resize pane size
-vim.keymap.set('n', '<C-w>>', '5<C-w>>', { noremap = true })
-vim.keymap.set('n', '<C-w><', '5<C-w><', { noremap = true })
-
--- =================================================
--- Diagnostics
--- =================================================
--- Sort by severity so the worst problem wins the sign column and the float.
--- `virtual_lines.current_line` shows the full message under the cursor line
--- (Neovim 0.11+), while keeping the other lines uncluttered.
-vim.diagnostic.config({
-  severity_sort = true,
-  underline = true,
-  update_in_insert = false,
-  signs = {
-    text = {
-      [vim.diagnostic.severity.ERROR] = '',
-      [vim.diagnostic.severity.WARN] = '',
-      [vim.diagnostic.severity.INFO] = '',
-      [vim.diagnostic.severity.HINT] = '',
-    },
-  },
-  virtual_text = false,
-  virtual_lines = { current_line = true },
-  float = {
-    border = 'rounded',
-    source = true,
-  },
-})
-
--- Diagnostic keymaps
-vim.keymap.set('n', '[d', function()
-  vim.diagnostic.jump({ count = -1, float = true })
-end)
-vim.keymap.set('n', ']d', function()
-  vim.diagnostic.jump({ count = 1, float = true })
-end)
-vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float)
-vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist)
-
--- =================================================
--- Autocommands
--- =================================================
-
--- Highlight on yank.
-local highlight_group = vim.api.nvim_create_augroup('YankHighlight', { clear = true })
-vim.api.nvim_create_autocmd('TextYankPost', {
-  callback = function()
-    vim.hl.on_yank()
-  end,
-  group = highlight_group,
-  pattern = '*',
-})
-
--- Dashboard on launch.
 -- The snacks dashboard (configured in its plugin spec) opens automatically for
 -- a bare `nvim`. Snacks handles `nvim <dir>` natively: with the explorer enabled
 -- and `replace_netrw`, the dashboard is kept and the explorer is opened for the
 -- directory. The BufDelete autocmd below brings the dashboard back whenever the
--- last real file buffer closes.
+-- last real file buffer closes. It lives after lazy.setup because it depends on
+-- both the snacks plugin and the window helpers above.
 local dashboard_group = vim.api.nvim_create_augroup('UserDashboard', { clear = true })
 
 -- Bring the dashboard back into the main window once no file buffer remains.
