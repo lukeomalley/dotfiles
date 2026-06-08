@@ -3,6 +3,33 @@ gui:
   # files panel easier to scan. Set to "" to disable.
   nerdFontsVersion: "3"
 
+  # Gruvbox dark theme. Colors map to the standard gruvbox palette:
+  #   fg=#ebdbb2  yellow=#fabd2f  green=#b8bb26  red=#fb4934
+  #   blue=#83a598  aqua=#8ec07c  bg1=#3c3836
+  theme:
+    activeBorderColor:
+      - "#fabd2f"
+      - bold
+    inactiveBorderColor:
+      - "#928374"
+    optionsTextColor:
+      - "#83a598"
+    selectedLineBgColor:
+      - "#3c3836"
+    cherryPickedCommitBgColor:
+      - "#3c3836"
+    cherryPickedCommitFgColor:
+      - "#fabd2f"
+    unstagedChangesColor:
+      - "#fb4934"
+    defaultFgColor:
+      - "#ebdbb2"
+    searchingActiveBorderColor:
+      - "#fe8019"
+
+  authorColors:
+    "*": "#83a598"
+
 git:
   # delta as the diff pager. --navigate is intentionally omitted: it has no
   # effect inside lazygit. --tabs=4 matches gui.tabWidth (delta defaults to 8).
