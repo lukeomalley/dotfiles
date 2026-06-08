@@ -118,6 +118,8 @@ vim.keymap.set('n', '<C-w><', '5<C-w><', { noremap = true })
 -- Diagnostics
 -- =================================================
 -- Sort by severity so the worst problem wins the sign column and the float.
+-- Keep signs visible in the gutter while showing full diagnostic text only for
+-- the current line, so diagnostics are easy to find without cluttering the file.
 -- `virtual_lines.current_line` shows the full message under the cursor line
 -- (Neovim 0.11+), while keeping the other lines uncluttered.
 vim.diagnostic.config({
@@ -126,10 +128,10 @@ vim.diagnostic.config({
   update_in_insert = false,
   signs = {
     text = {
-      [vim.diagnostic.severity.ERROR] = '',
-      [vim.diagnostic.severity.WARN] = '',
-      [vim.diagnostic.severity.INFO] = '',
-      [vim.diagnostic.severity.HINT] = '',
+      [vim.diagnostic.severity.ERROR] = 'E',
+      [vim.diagnostic.severity.WARN] = 'W',
+      [vim.diagnostic.severity.INFO] = 'I',
+      [vim.diagnostic.severity.HINT] = 'H',
     },
   },
   virtual_text = false,
@@ -143,12 +145,18 @@ vim.diagnostic.config({
 -- Diagnostic keymaps
 vim.keymap.set('n', '[d', function()
   vim.diagnostic.jump({ count = -1, float = true })
-end)
+end, { desc = 'Previous diagnostic' })
 vim.keymap.set('n', ']d', function()
   vim.diagnostic.jump({ count = 1, float = true })
-end)
-vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float)
-vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist)
+end, { desc = 'Next diagnostic' })
+vim.keymap.set('n', '<leader>gd', function()
+  vim.diagnostic.jump({ count = 1, float = true })
+end, { desc = '[G]oto next [D]iagnostic' })
+vim.keymap.set('n', '<leader>gD', function()
+  vim.diagnostic.jump({ count = -1, float = true })
+end, { desc = '[G]oto previous [D]iagnostic' })
+vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Show diagnostic float' })
+vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Diagnostics to location list' })
 
 -- =================================================
 -- Autocommands
@@ -648,6 +656,7 @@ local snacks_spec = {
     { '<leader>sw',      function() Snacks.picker.grep_word() end,   mode = { 'n', 'x' },                          desc = '[S]earch current [W]ord' },
     { '<leader>sh',      function() Snacks.picker.help() end,        desc = '[S]earch [H]elp' },
     { '<leader>sd',      function() Snacks.picker.diagnostics() end, desc = '[S]earch [D]iagnostics' },
+    { '<leader>sD',      function() Snacks.picker.diagnostics_buffer() end, desc = '[S]earch buffer [D]iagnostics' },
     { '<leader>?',       function() Snacks.picker.recent() end,      desc = '[?] Find recently opened files' },
     { '<leader><space>', function() Snacks.picker.buffers() end,     desc = '[ ] Find existing buffers' },
     { '<leader>/',       function() Snacks.picker.lines() end,       desc = '[/] Fuzzily search in current buffer' },
@@ -744,6 +753,48 @@ local treesitter_spec = {
       treesitter_swap.swap_previous('@parameter.inner')
     end)
   end,
+}
+
+-- Flash: fast label-based navigation in visible buffers.
+local flash_spec = {
+  'folke/flash.nvim',
+  event = 'VeryLazy',
+  ---@type Flash.Config
+  opts = {
+    search = {
+      exclude = {
+        'notify',
+        'cmp_menu',
+        'flash_prompt',
+        function(win)
+          local bufnr = vim.api.nvim_win_get_buf(win)
+          local filetype = vim.bo[bufnr].filetype
+          return filetype:find('snacks') == 1 or not vim.api.nvim_win_get_config(win).focusable
+        end,
+      },
+    },
+    prompt = {
+      prefix = { { 'Flash: ', 'FlashPromptIcon' } },
+    },
+    modes = {
+      -- Keep normal / and ? search unchanged. <C-s> in command-line mode can
+      -- toggle Flash search labels on when they are useful.
+      search = {
+        enabled = false,
+      },
+      char = {
+        enabled = true,
+        jump_labels = false,
+      },
+    },
+  },
+  keys = {
+    { 's',     mode = { 'n', 'x', 'o' }, function() require('flash').jump() end,              desc = 'Flash jump' },
+    { 'S',     mode = { 'n', 'x', 'o' }, function() require('flash').treesitter() end,        desc = 'Flash Treesitter' },
+    { 'r',     mode = 'o',               function() require('flash').remote() end,            desc = 'Remote Flash' },
+    { 'R',     mode = { 'o', 'x' },      function() require('flash').treesitter_search() end, desc = 'Treesitter Search' },
+    { '<C-s>', mode = 'c',               function() require('flash').toggle() end,            desc = 'Toggle Flash search' },
+  },
 }
 
 -- LSP stack: deferred until a real file buffer is opened.
@@ -956,23 +1007,6 @@ local blink_spec = {
   opts_extend = { 'sources.default' },
 }
 
--- Diagnostics / quickfix list viewer.
-local trouble_spec = {
-  'folke/trouble.nvim',
-  cmd = 'Trouble',
-  dependencies = {
-    'nvim-tree/nvim-web-devicons',
-  },
-  opts = {},
-  keys = {
-    { '<leader>xx', function() require('trouble').toggle() end,                        desc = 'Trouble Toggle' },
-    { '<leader>xw', function() require('trouble').toggle('workspace_diagnostics') end, desc = 'Workspace Diagnostics' },
-    { '<leader>xd', function() require('trouble').toggle('document_diagnostics') end,  desc = 'Document Diagnostics' },
-    { '<leader>xq', function() require('trouble').toggle('quickfix') end,              desc = 'Quickfix' },
-    { '<leader>xl', function() require('trouble').toggle('loclist') end,               desc = 'Location List' },
-  },
-}
-
 -- Git signs in the gutter.
 local gitsigns_spec = {
   'lewis6991/gitsigns.nvim',
@@ -1153,9 +1187,9 @@ local plugin_specs = {
   gruvbox_spec,
   snacks_spec,
   treesitter_spec,
+  flash_spec,
   lsp_spec,
   blink_spec,
-  trouble_spec,
   gitsigns_spec,
   lualine_spec,
   sleuth_spec,
