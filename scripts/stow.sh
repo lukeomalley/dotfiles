@@ -12,7 +12,10 @@ cd "$PROJECT_ROOT/dotfiles"
 #               (e.g., Claude writes debug/history/cache files to ~/.claude)
 for d in */; do
     [ -d "$d" ] || continue
+    if [ "${d%/}" = "agents" ]; then
+        echo "Skipping agents; run sync-agent-skills to install whole skill directory symlinks."
+        continue
+    fi
     echo "Stowing ${d%/}..."
     stow -R --no-folding -t "$HOME" "${d%/}"
 done
-

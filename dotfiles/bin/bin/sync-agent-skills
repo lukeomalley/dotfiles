@@ -3,21 +3,25 @@ set -euo pipefail
 
 DOTFILES_ROOT="${DOTFILES_ROOT:-$HOME/code/dotfiles}"
 SOURCE_DIR="${AGENT_SKILLS_SOURCE:-$DOTFILES_ROOT/dotfiles/agents/.agents/skills}"
-LINK_ROOT="${AGENT_SKILLS_LINK_ROOT:-$HOME/.agents/skills}"
 
 DEST_DIRS=(
-  "$HOME/.codex/skills"
+  "$HOME/.agents/skills"
   "$HOME/.claude/skills"
   "$HOME/.cursor/skills"
   "$HOME/.config/opencode/skills"
+)
+
+LEGACY_DEST_DIRS=(
+  "$HOME/.codex/skills"
 )
 
 usage() {
   cat <<'EOF'
 Usage: sync-agent-skills [--dry-run]
 
-Sync shared skills from dotfiles into app-specific skill directories:
-  ~/.codex/skills
+Sync shared skills from dotfiles into agent skill directories using whole
+directory symlinks:
+  ~/.agents/skills
   ~/.claude/skills
   ~/.cursor/skills
   ~/.config/opencode/skills
@@ -25,7 +29,7 @@ Sync shared skills from dotfiles into app-specific skill directories:
 The dotfiles skills directory is authoritative:
   ~/code/dotfiles/dotfiles/agents/.agents/skills
 
-Same-name app-local skills are overwritten with symlinks to ~/.agents/skills.
+Same-name app-local skills are overwritten with symlinks to the repo source.
 This script does not copy, adopt, or import app-local skills back into dotfiles.
 EOF
 }
@@ -55,6 +59,8 @@ if [[ ! -d "$SOURCE_DIR" ]]; then
   exit 1
 fi
 
+SOURCE_DIR="$(cd "$SOURCE_DIR" && pwd)"
+
 run() {
   if [[ "$DRY_RUN" == true ]]; then
     printf 'DRY RUN:'
@@ -76,16 +82,6 @@ else
   echo "Generator not found or not executable: $GENERATOR" >&2
 fi
 
-# Re-stow the agents package so newly generated files (openai.yaml, assets)
-# get symlinked into $HOME/.agents/skills. Without this step, the app-specific
-# skill dirs (which point at ~/.agents/skills) won't see the new metadata.
-if [[ -d "$DOTFILES_ROOT/dotfiles/agents" ]]; then
-  run stow -R --no-folding -t "$HOME" -d "$DOTFILES_ROOT/dotfiles" agents
-else
-  echo "Cannot restow: $DOTFILES_ROOT/dotfiles/agents not found" >&2
-fi
-
-
 sync_to_dest() {
   local dest_dir="$1"
   local skill_dir
@@ -100,20 +96,13 @@ sync_to_dest() {
 
     skill_name="$(basename "$skill_dir")"
     target="$dest_dir/$skill_name"
-    if [[ ! -e "$LINK_ROOT/$skill_name" ]]; then
-      echo "Skipping $skill_name: missing live stow target $LINK_ROOT/$skill_name" >&2
-      continue
-    fi
-
     link_target="$(
       python3 -c 'import os, sys; print(os.path.relpath(sys.argv[1], sys.argv[2]))' \
-        "$LINK_ROOT/$skill_name" \
+        "$skill_dir" \
         "$dest_dir"
     )"
 
-    if [[ -L "$target" ]]; then
-      run rm "$target"
-    elif [[ -e "$target" ]]; then
+    if [[ -L "$target" || -e "$target" ]]; then
       echo "Overwriting app-local skill: $target"
       run rm -rf "$target"
     fi
@@ -122,8 +111,31 @@ sync_to_dest() {
   done
 }
 
+cleanup_legacy_dest() {
+  local dest_dir="$1"
+  local skill_dir
+  local skill_name
+  local target
+
+  [[ -d "$dest_dir" ]] || return 0
+
+  for skill_dir in "$SOURCE_DIR"/*; do
+    [[ -d "$skill_dir" ]] || continue
+    skill_name="$(basename "$skill_dir")"
+    target="$dest_dir/$skill_name"
+    if [[ -L "$target" ]]; then
+      echo "Removing legacy skill link: $target"
+      run rm "$target"
+    fi
+  done
+}
+
 for dest_dir in "${DEST_DIRS[@]}"; do
   sync_to_dest "$dest_dir"
+done
+
+for dest_dir in "${LEGACY_DEST_DIRS[@]}"; do
+  cleanup_legacy_dest "$dest_dir"
 done
 
 echo "Synced shared skills from $SOURCE_DIR"

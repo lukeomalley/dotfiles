@@ -7,11 +7,7 @@ description: >
   ready", "track this work", "resume after compaction". Make sure to use this skill
   whenever managing multi-session work, tracking dependencies, or recovering context.
 allowed-tools: "Read,Bash(bd:*)"
-version: "0.60.0"
-author: "Steve Yegge <steve.yegge@gmail.com>"
 license: "MIT"
-compatible-with: claude-code
-tags: [issue-tracking, task-management, multi-session, dependencies]
 ---
 
 # Beads - Persistent Task Memory for AI Agents
