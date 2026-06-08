@@ -1,0 +1,3 @@
+interface:
+  display_name: "PSCI Work Jira Ticket"
+  short_description: "PSCI Work Jira Ticket helper"

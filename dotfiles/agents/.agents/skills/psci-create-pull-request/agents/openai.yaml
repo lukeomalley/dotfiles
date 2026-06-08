@@ -1,0 +1,3 @@
+interface:
+  display_name: "PSCI Create Pull Request"
+  short_description: "PSCI Create Pull Request helper"

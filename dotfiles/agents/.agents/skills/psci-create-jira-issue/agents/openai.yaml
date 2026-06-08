@@ -1,0 +1,3 @@
+interface:
+  display_name: "PSCI Create Jira Issue"
+  short_description: "PSCI Create Jira Issue helper"

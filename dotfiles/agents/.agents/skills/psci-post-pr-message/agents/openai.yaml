@@ -1,0 +1,3 @@
+interface:
+  display_name: "PSCI Post PR Message"
+  short_description: "PSCI Post PR Message helper"

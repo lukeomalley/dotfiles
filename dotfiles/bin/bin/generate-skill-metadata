@@ -1,0 +1,177 @@
+#!/usr/bin/env python3
+"""Generate agents/openai.yaml for every skill in the dotfiles source tree.
+
+This emits the UI metadata that the Codex desktop app (and similar harnesses)
+read to render skill chips, launchers, and lists. The skill's SKILL.md file
+provides the *content* that the model reads; agents/openai.yaml provides the
+*UI surface* the app reads.
+
+The generated file is intentionally minimal: display_name and short_description
+only. Add icons, brand colors, default_prompts, or other interface fields by
+hand on the specific skills you want to feature.
+
+Conventions are kept aligned with Codex's bundled generator
+(~/.codex/skills/.system/skill-creator/scripts/generate_openai_yaml.py):
+- short_description must be 25-64 characters
+- display_name uses ACRONYMS/BRANDS/SMALL_WORDS rules
+
+Behavior:
+- Force regenerates agents/openai.yaml for every skill (overwrites)
+- Walks the canonical dotfiles source dir, not the live ~/.agents/skills dir
+"""
+
+from __future__ import annotations
+
+import os
+import re
+import sys
+from pathlib import Path
+
+
+DEFAULT_SOURCE_DIR = Path.home() / "code" / "dotfiles" / "dotfiles" / "agents" / ".agents" / "skills"
+
+ACRONYMS = {
+    "API",
+    "CI",
+    "CLI",
+    "GH",
+    "LLM",
+    "MCP",
+    "PDF",
+    "PR",
+    "PRD",
+    "PSCI",
+    "QA",
+    "RPI",
+    "SQL",
+    "UI",
+    "URL",
+}
+
+BRANDS = {
+    "datadog": "DataDog",
+    "fastapi": "FastAPI",
+    "github": "GitHub",
+    "openai": "OpenAI",
+    "openapi": "OpenAPI",
+    "pagerduty": "PagerDuty",
+    "sqlite": "SQLite",
+    "vercel": "Vercel",
+}
+
+SMALL_WORDS = {"and", "or", "to", "up", "with"}
+
+MIN_DESCRIPTION_LENGTH = 25
+MAX_DESCRIPTION_LENGTH = 64
+
+
+def title_case_skill_name(skill_name: str) -> str:
+    """Format a kebab-case skill name as a human-facing display name."""
+    words = [word for word in skill_name.split("-") if word]
+    formatted = []
+    for index, word in enumerate(words):
+        lower = word.lower()
+        upper = word.upper()
+        if upper in ACRONYMS:
+            formatted.append(upper)
+            continue
+        if lower in BRANDS:
+            formatted.append(BRANDS[lower])
+            continue
+        if index > 0 and lower in SMALL_WORDS:
+            formatted.append(lower)
+            continue
+        formatted.append(word.capitalize())
+    return " ".join(formatted)
+
+
+def build_short_description(display_name: str) -> str:
+    """Build a short_description that fits the 25-64 char window.
+
+    Mirrors the fallback ladder in the bundled openai.yaml generator: try a
+    couple of suffixes for short names, trim aggressively for long names.
+    """
+    candidates = [
+        f"{display_name} helper",
+        f"{display_name} helper workflows",
+        f"{display_name} workflows and tools",
+        f"{display_name} workflows",
+        display_name,
+    ]
+
+    for candidate in candidates:
+        if MIN_DESCRIPTION_LENGTH <= len(candidate) <= MAX_DESCRIPTION_LENGTH:
+            return candidate
+
+    truncated = display_name[:MAX_DESCRIPTION_LENGTH].rstrip()
+    if len(truncated) < MIN_DESCRIPTION_LENGTH:
+        truncated = f"{truncated} helper"[:MAX_DESCRIPTION_LENGTH].rstrip()
+    return truncated
+
+
+def yaml_quote(value: str) -> str:
+    escaped = value.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n")
+    return f'"{escaped}"'
+
+
+def write_openai_yaml(skill_dir: Path) -> bool:
+    """Force-write agents/openai.yaml for one skill. Returns True on success."""
+    skill_md = skill_dir / "SKILL.md"
+    if not skill_md.is_file():
+        print(f"  skip {skill_dir.name}: no SKILL.md")
+        return False
+
+    display_name = title_case_skill_name(skill_dir.name)
+    short_description = build_short_description(display_name)
+
+    if not (MIN_DESCRIPTION_LENGTH <= len(short_description) <= MAX_DESCRIPTION_LENGTH):
+        print(
+            f"  skip {skill_dir.name}: short_description out of bounds "
+            f"({len(short_description)} chars): {short_description!r}",
+            file=sys.stderr,
+        )
+        return False
+
+    agents_dir = skill_dir / "agents"
+    agents_dir.mkdir(parents=True, exist_ok=True)
+    output_path = agents_dir / "openai.yaml"
+
+    body = (
+        "interface:\n"
+        f"  display_name: {yaml_quote(display_name)}\n"
+        f"  short_description: {yaml_quote(short_description)}\n"
+    )
+    output_path.write_text(body)
+    print(f"  wrote {output_path.relative_to(skill_dir.parent)} "
+          f"-> {display_name} | {short_description}")
+    return True
+
+
+def resolve_source_dir() -> Path:
+    raw = os.environ.get("AGENT_SKILLS_SOURCE")
+    return Path(raw).expanduser() if raw else DEFAULT_SOURCE_DIR
+
+
+def main() -> int:
+    source_dir = resolve_source_dir()
+    if not source_dir.is_dir():
+        print(f"Source skills directory not found: {source_dir}", file=sys.stderr)
+        return 1
+
+    print(f"Generating openai.yaml for skills in {source_dir}")
+
+    skill_dirs = sorted(p for p in source_dir.iterdir() if p.is_dir())
+    written = 0
+    skipped = 0
+    for skill_dir in skill_dirs:
+        if write_openai_yaml(skill_dir):
+            written += 1
+        else:
+            skipped += 1
+
+    print(f"\nGenerated {written} openai.yaml file(s). Skipped {skipped}.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

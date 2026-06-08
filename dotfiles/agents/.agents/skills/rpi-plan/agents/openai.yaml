@@ -1,0 +1,3 @@
+interface:
+  display_name: "RPI Plan"
+  short_description: "RPI Plan helper workflows"

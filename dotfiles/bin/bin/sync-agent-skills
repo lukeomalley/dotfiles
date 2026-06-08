@@ -65,6 +65,27 @@ run() {
   fi
 }
 
+# Regenerate agents/openai.yaml metadata so apps like Codex can render UI chips
+# for every skill. The generator overwrites in place; the files live next to
+# SKILL.md and travel with the rest of the skill.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+GENERATOR="$SCRIPT_DIR/generate-skill-metadata"
+if [[ -x "$GENERATOR" ]]; then
+  AGENT_SKILLS_SOURCE="$SOURCE_DIR" run "$GENERATOR"
+else
+  echo "Generator not found or not executable: $GENERATOR" >&2
+fi
+
+# Re-stow the agents package so newly generated files (openai.yaml, assets)
+# get symlinked into $HOME/.agents/skills. Without this step, the app-specific
+# skill dirs (which point at ~/.agents/skills) won't see the new metadata.
+if [[ -d "$DOTFILES_ROOT/dotfiles/agents" ]]; then
+  run stow -R --no-folding -t "$HOME" -d "$DOTFILES_ROOT/dotfiles" agents
+else
+  echo "Cannot restow: $DOTFILES_ROOT/dotfiles/agents not found" >&2
+fi
+
+
 sync_to_dest() {
   local dest_dir="$1"
   local skill_dir
