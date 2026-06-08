@@ -386,7 +386,7 @@ local function dashboard_git_status()
     items[#items + 1] = {
       text = {
         { status_code, hl = status_hl, width = 3 },
-        { file_name, hl = 'file' },
+        { file_name,   hl = 'file' },
       },
     }
   end
@@ -413,9 +413,9 @@ local function dashboard_recent_files()
   for index, item in ipairs(files) do
     local icon = Snacks.dashboard.icon(item.file, 'file')
     item.text = {
-      { tostring(index), hl = 'key' },
+      { tostring(index),                     hl = 'key' },
       { '  ' },
-      { icon[1], hl = icon.hl, width = 2 },
+      { icon[1],                             hl = icon.hl, width = 2 },
       { vim.fn.fnamemodify(item.file, ':t'), hl = 'file' },
     }
     item.key = tostring(index)
@@ -493,7 +493,7 @@ local snacks_spec = {
       },
       sections = {
         { section = 'header', padding = 2 },
-        { pane = 1, section = 'keys', gap = 1, padding = 2 },
+        { pane = 1,           section = 'keys', gap = 1, padding = 2 },
         {
           pane = 2,
           icon = ' ',
@@ -782,7 +782,7 @@ local lsp_spec = {
           title = 'LSP Progress',
           opts = function(notif)
             notif.icon = ev.data.params.value.kind == 'end' and ' '
-              or spinner[math.floor(vim.uv.hrtime() / (1e6 * 80)) % #spinner + 1]
+                or spinner[math.floor(vim.uv.hrtime() / (1e6 * 80)) % #spinner + 1]
           end,
         })
       end,
