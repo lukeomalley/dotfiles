@@ -54,11 +54,46 @@
 	tabs = 4
 	line-numbers = true
 	hyperlinks = true
-	zero-style = dim syntax    # dim unchanged context lines
-	hunk-header-style = file line-number syntax
-	hunk-header-decoration-style = none   # drop the box/underline for a cleaner header
-	file-style = bold yellow
-	file-decoration-style = none          # no heavy underline under file names
+	relative-paths = true      # paths resolve from cwd when clicked
+
+	# Gruvbox dark syntax theme
+	syntax-theme = gruvbox-dark
+
+	# Unchanged context lines: dim so changes pop
+	zero-style = dim syntax
+
+	# Added/removed line backgrounds tuned to gruvbox palette
+	minus-style = "syntax #3c1f1e"
+	minus-emph-style = "syntax bold #6c1f1e"
+	plus-style = "syntax #1e2a1a"
+	plus-emph-style = "syntax bold #2c4a1a"
+
+	# File header: gruvbox yellow with overline divider above each file
+	file-style = bold "#fabd2f"
+	file-decoration-style = "#fabd2f" ol
+	file-modified-label = modified:
+
+	# Hunk header: drop the repeated file path, keep line number with a faint divider
+	# Hide hunk header text but keep an overline as a visual separator between hunks
+	hunk-header-style = ""
+	hunk-header-decoration-style = "#504945" ol
+	hunk-label = " "
+
+	# Line numbers: subtle dividers using gruvbox bg2 tones
+	line-numbers-left-format = "{nm:>3} "
+	line-numbers-right-format = "{np:>3} "
+	line-numbers-left-style = "#665c54"
+	line-numbers-right-style = "#665c54"
+	line-numbers-minus-style = "#fb4934"
+	line-numbers-plus-style = "#b8bb26"
+	line-numbers-zero-style = "#504945"
+
+	# Wrap long lines instead of truncating
+	wrap-max-lines = 3
+
+	# Whitespace errors in gruvbox bright red
+	whitespace-error-style = "#fb4934 reverse"
+
 	# side-by-side = true  # uncomment for split view instead of inline
 
 [init]
