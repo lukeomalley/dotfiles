@@ -95,6 +95,10 @@ vim.o.signcolumn = 'yes'
 
 vim.o.termguicolors = true
 
+-- Lualine shows mode; noice routes cmdline/messages away from the native row.
+vim.o.showmode = false
+vim.o.cmdheight = 0
+
 -- =================================================
 -- Keymaps
 -- =================================================
@@ -651,19 +655,19 @@ local snacks_spec = {
     },
     -- Fuzzy finding (replaces Telescope). All sources share the snacks UI,
     -- matcher, and theme that the explorer/dashboard already use.
-    { '<leader>sf',      function() Snacks.picker.files() end,       desc = '[S]earch [F]iles' },
-    { '<leader>sg',      function() Snacks.picker.grep() end,        desc = '[S]earch by [G]rep' },
-    { '<leader>sw',      function() Snacks.picker.grep_word() end,   mode = { 'n', 'x' },                          desc = '[S]earch current [W]ord' },
-    { '<leader>sh',      function() Snacks.picker.help() end,        desc = '[S]earch [H]elp' },
-    { '<leader>sd',      function() Snacks.picker.diagnostics() end, desc = '[S]earch [D]iagnostics' },
+    { '<leader>sf',      function() Snacks.picker.files() end,              desc = '[S]earch [F]iles' },
+    { '<leader>sg',      function() Snacks.picker.grep() end,               desc = '[S]earch by [G]rep' },
+    { '<leader>sw',      function() Snacks.picker.grep_word() end,          mode = { 'n', 'x' },                          desc = '[S]earch current [W]ord' },
+    { '<leader>sh',      function() Snacks.picker.help() end,               desc = '[S]earch [H]elp' },
+    { '<leader>sd',      function() Snacks.picker.diagnostics() end,        desc = '[S]earch [D]iagnostics' },
     { '<leader>sD',      function() Snacks.picker.diagnostics_buffer() end, desc = '[S]earch buffer [D]iagnostics' },
-    { '<leader>?',       function() Snacks.picker.recent() end,      desc = '[?] Find recently opened files' },
-    { '<leader><space>', function() Snacks.picker.buffers() end,     desc = '[ ] Find existing buffers' },
-    { '<leader>/',       function() Snacks.picker.lines() end,       desc = '[/] Fuzzily search in current buffer' },
+    { '<leader>?',       function() Snacks.picker.recent() end,             desc = '[?] Find recently opened files' },
+    { '<leader><space>', function() Snacks.picker.buffers() end,            desc = '[ ] Find existing buffers' },
+    { '<leader>/',       function() Snacks.picker.lines() end,              desc = '[/] Fuzzily search in current buffer' },
     -- Git (replaces vim-fugitive / vim-rhubarb).
-    { '<leader>gg',      function() Snacks.lazygit() end,            desc = 'Lazygit' },
-    { '<leader>gb',      function() Snacks.gitbrowse() end,          mode = { 'n', 'x' },                          desc = '[G]it [B]rowse' },
-    { '<leader>gB',      function() Snacks.git.blame_line() end,     desc = '[G]it [B]lame line' },
+    { '<leader>gg',      function() Snacks.lazygit() end,                   desc = 'Lazygit' },
+    { '<leader>gb',      function() Snacks.gitbrowse() end,                 mode = { 'n', 'x' },                          desc = '[G]it [B]rowse' },
+    { '<leader>gB',      function() Snacks.git.blame_line() end,            desc = '[G]it [B]lame line' },
   },
 }
 
@@ -999,7 +1003,7 @@ local blink_spec = {
     sources = {
       default = { 'lsp', 'path', 'snippets', 'buffer' },
       providers = {
-        lsp = { min_keyword_length = 1 },
+        lsp = {},
       },
     },
     fuzzy = { implementation = 'prefer_rust_with_warning' },
@@ -1022,10 +1026,52 @@ local gitsigns_spec = {
   },
 }
 
+-- Floating cmdline + message routing. Replaces the native bottom row when
+-- cmdheight=0; lualine below shows mode, partial commands, and echo text.
+local noice_spec = {
+  'folke/noice.nvim',
+  event = 'VeryLazy',
+  dependencies = { 'MunifTanjim/nui.nvim' },
+  opts = {
+    lsp = {
+      override = {
+        ['vim.lsp.util.convert_input_to_markdown_lines'] = true,
+        ['vim.lsp.util.stylize_markdown'] = true,
+      },
+    },
+    presets = {
+      command_palette = true,
+    },
+    views = {
+      cmdline_popup = {
+        position = {
+          row = -2,
+          col = '50%',
+        },
+        size = {
+          width = 60,
+          height = 'auto',
+        },
+      },
+    },
+    routes = {
+      {
+        filter = { event = 'msg_show', kind = '', find = 'written' },
+        opts = { skip = true },
+      },
+      {
+        filter = { event = 'msg_show', kind = 'search_count' },
+        opts = { skip = true },
+      },
+    },
+  },
+}
+
 -- Statusline.
 local lualine_spec = {
   'nvim-lualine/lualine.nvim',
   event = 'VeryLazy',
+  dependencies = { 'folke/noice.nvim' },
   opts = {
     options = {
       icons_enabled = false,
@@ -1036,6 +1082,42 @@ local lualine_spec = {
       section_separators = '',
       disabled_filetypes = {
         statusline = { 'snacks_terminal' },
+      },
+    },
+    sections = {
+      lualine_c = {
+        {
+          function()
+            return require('noice').api.status.message.get_hl()
+          end,
+          cond = function()
+            return require('noice').api.status.message.has()
+          end,
+        },
+        {
+          function()
+            return require('noice').api.status.command.get()
+          end,
+          cond = function()
+            return require('noice').api.status.command.has()
+          end,
+        },
+        {
+          function()
+            return require('noice').api.status.mode.get()
+          end,
+          cond = function()
+            return require('noice').api.status.mode.has()
+          end,
+        },
+        {
+          function()
+            return require('noice').api.status.search.get()
+          end,
+          cond = function()
+            return require('noice').api.status.search.has()
+          end,
+        },
       },
     },
   },
@@ -1191,6 +1273,7 @@ local plugin_specs = {
   lsp_spec,
   blink_spec,
   gitsigns_spec,
+  noice_spec,
   lualine_spec,
   sleuth_spec,
   surround_spec,
