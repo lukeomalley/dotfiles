@@ -9,11 +9,6 @@ export OPENAI_API_KEY="op://Personal/OPENAI_API_KEY/credential"
 export GITHUB_PERSONAL_ACCESS_TOKEN="op://Personal/GITHUB_PAT/credential"
 export NODE_AUTH_TOKEN="op://Personal/GITHUB_PAT/credential"
 
-# BigQuery MCP Server Configuration
-export BIGQUERY_PROJECT="op://Personal/BIGQUERY_PROJECT/credential"
-export BIGQUERY_LOCATION="op://Personal/BIGQUERY_LOCATION/credential"
-export BIGQUERY_KEY_FILE="op://Personal/BIGQUERY_KEY_FILE/credential"
-
 # Fireflies AI Meeting Notes
 export FIREFLIES_API_KEY="op://Personal/FIREFLIES_API_KEY/credential"
 
