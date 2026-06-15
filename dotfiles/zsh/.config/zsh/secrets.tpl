@@ -14,3 +14,6 @@ export FIREFLIES_API_KEY="op://Personal/FIREFLIES_API_KEY/credential"
 
 # Context7 MCP
 export CONTEXT7_API_KEY="op://Personal/CONTEXT7_API_KEY/credential"
+
+# ntfy push notifications (write-only to the 'agents' topic)
+export NTFY_TOKEN="op://Personal/NTFY_TOKEN/credential"

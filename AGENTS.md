@@ -169,6 +169,7 @@ Scripts in `dotfiles/bin/bin/` get symlinked to `~/bin/`, which is on `$PATH`. T
 - `cloudsync` -- rclone bisync with GNU Parallel
 - `notes` -- Open notes directory in nvim
 - `psql-llm` -- Run psql with clean, deterministic CSV output for LLM agents (ignores `~/.psqlrc`, stops on error)
+- `notify` -- Send a push notification to Luke's devices via ntfy (reads `$NTFY_TOKEN`). Use it when a long task finishes, you need Luke's input, you hit an unrecoverable error, or a milestone is worth surfacing. Usage: `notify -t "Title" -p high -g white_check_mark "message"`. Don't spam.
 - `start-*` -- MCP server launchers (opencode-web, atlassian-mcp, firecrawl-mcp)
 - `animations-on` / `animations-off` -- Toggle macOS animations
 - `git-lg` / `git-lga` -- Git log formatting (these work as `git lg` because git resolves `git-*` scripts on PATH)
