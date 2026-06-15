@@ -6,14 +6,14 @@
     }
   },
   "icon_theme": {
-    "mode": "system",
+    "mode": "light",
     "light": "Zed (Default)",
     "dark": "Zed (Default)"
   },
   "theme": {
-    "mode": "system",
+    "mode": "dark",
     "light": "One Light",
-    "dark": "One Dark"
+    "dark": "Gruvbox Dark Hard"
   },
   "vim_mode": true,
   "base_keymap": "VSCode",
