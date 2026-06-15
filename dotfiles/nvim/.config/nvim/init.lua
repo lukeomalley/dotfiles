@@ -176,6 +176,22 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   pattern = '*',
 })
 
+-- Nudge the statusline to redraw once the cursor settles so the gitsigns
+-- current-line blame (shown in lualine_c) appears promptly. gitsigns sets
+-- `b:gitsigns_blame_line` on a short debounce but emits no event, and lualine
+-- otherwise only re-renders on cursor movement or its periodic timer. CursorHold
+-- fires after `updatetime` (250ms), by which point the blame (delay 100ms) has
+-- resolved.
+local blame_status_group = vim.api.nvim_create_augroup('UserBlameStatus', { clear = true })
+vim.api.nvim_create_autocmd('CursorHold', {
+  group = blame_status_group,
+  callback = function()
+    if vim.b.gitsigns_blame_line_dict ~= nil then
+      vim.cmd('redrawstatus')
+    end
+  end,
+})
+
 -- =================================================
 -- Local constants
 -- =================================================
@@ -1023,6 +1039,21 @@ local gitsigns_spec = {
       topdelete = { text = '‾' },
       changedelete = { text = '~' },
     },
+    -- Blame for the current line. The annotation is surfaced in the lualine
+    -- statusline (see the blame component in lualine_c) rather than inline, so
+    -- the inline virtual text is disabled here. gitsigns still populates the
+    -- `b:gitsigns_blame_line` / `b:gitsigns_blame_line_dict` buffer variables
+    -- regardless of the virtual text. The short delay keeps the bar responsive;
+    -- it must stay below `updatetime` so the CursorHold redraw nudge (in the
+    -- autocommands section) fires after the blame resolves.
+    current_line_blame = true,
+    current_line_blame_opts = {
+      virt_text = false,
+      delay = 100,
+    },
+    -- Keep the blame terse: date and author only (the statusline has limited
+    -- room and `<leader>gB` shows the full blame on demand).
+    current_line_blame_formatter = '<author_time:%Y-%m-%d>, <author>',
   },
 }
 
@@ -1116,6 +1147,55 @@ local lualine_spec = {
           end,
           cond = function()
             return require('noice').api.status.search.has()
+          end,
+        },
+      },
+      -- Right side. Keep the lualine defaults (encoding/fileformat/filetype) and
+      -- prepend the current-line git blame so it sits on the right of the bar.
+      lualine_x = {
+        {
+          -- Current-line git blame: date and author only. Fed by gitsigns'
+          -- current_line_blame; its inline virtual text is disabled in the
+          -- gitsigns spec, so this is the only place the annotation appears.
+          -- gitsigns clears the dict on cursor move and repopulates it once the
+          -- debounced blame resolves, so gating on the dict hides the blame while
+          -- scrolling and shows it once the cursor settles.
+          function()
+            return vim.trim(vim.b.gitsigns_blame_line or '')
+          end,
+          cond = function()
+            return vim.b.gitsigns_blame_line_dict ~= nil
+          end,
+          -- Override only the foreground so the component keeps the section's
+          -- background. A string color group (e.g. 'Comment') would also pull in
+          -- its background, which is transparent under this theme and makes the
+          -- blame look detached from the footer. Resolved via a function so it
+          -- re-evaluates on colorscheme changes. nvim_get_hl returns fg as a
+          -- 24-bit integer; lualine expects a '#rrggbb' string (a bare number is
+          -- read as a cterm color and rejected above 255).
+          color = function()
+            local comment_hl = vim.api.nvim_get_hl(0, { name = 'Comment', link = false })
+            if not comment_hl.fg then
+              return nil
+            end
+            return { fg = string.format('#%06x', comment_hl.fg) }
+          end,
+        },
+        'encoding',
+        'fileformat',
+        'filetype',
+      },
+      -- Replace the default `progress` component (which shows Top/Bot/All) with a
+      -- plain percentage through the file. lualine_z keeps the default `location`
+      -- component (line:column) to its right. The `%%%%` collapses to a literal
+      -- `%` once string.format and the statusline renderer have each consumed a
+      -- level of escaping.
+      lualine_y = {
+        {
+          function()
+            local current_line = vim.fn.line('.')
+            local total_lines = vim.fn.line('$')
+            return string.format('%d%%%%', math.floor(current_line / total_lines * 100))
           end,
         },
       },
