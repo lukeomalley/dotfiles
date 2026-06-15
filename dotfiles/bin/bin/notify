@@ -1,0 +1,140 @@
+#!/bin/bash
+
+# notify: send a push notification to Luke's devices via ntfy.
+# See the usage() heredoc below for the full, self-documenting help text.
+
+set -euo pipefail
+
+readonly NTFY_URL="https://ntfy.thistlebridge.com/agents"
+readonly DEFAULT_TITLE="Agent notification"
+readonly DEFAULT_PRIORITY="default"
+
+usage() {
+  cat <<'EOF'
+notify - send a push notification to Luke's devices via ntfy
+
+WHAT IT IS
+  Publishes an HTTP POST to a self-hosted ntfy server, delivering a push
+  notification to Luke's iPhone (and any other subscribed device). Use it to
+  surface things worth Luke's attention without making him babysit a task.
+
+USAGE
+  notify [options] "message"
+  printf 'line one\nline two\n' | notify [options]   # message from stdin
+
+OPTIONS
+  -t, --title     TITLE      Bold heading. Default: "Agent notification".
+  -p, --priority  PRIORITY   min | low | default | high | urgent.
+                             Default: default. Reserve "urgent" for genuinely
+                             time-sensitive things (it bypasses Do Not Disturb).
+  -g, --tags      TAGS       Comma-separated emoji words, e.g.
+                             white_check_mark,warning. Rendered as emoji.
+                             Full list: https://docs.ntfy.sh/emojis/
+  -h, --help                 Show this help and exit.
+
+EXAMPLES
+  notify "Backup completed"
+  notify -t "CI failure" -p high -g rotating_light "Tests failed on main"
+  notify -t "Deploy finished" -g white_check_mark "Production deploy succeeded"
+  printf 'Job done.\nResults in /tmp/out.\n' | notify -t "Long task done"
+
+WHEN TO USE IT (FOR AGENTS)
+  - A long-running task finished, so Luke does not have to watch it.
+  - Something needs Luke's input or a decision before you can continue.
+  - An error or failure you could not recover from.
+  - A milestone worth surfacing (deploy succeeded, large job done).
+  Do not spam. One clear notification per meaningful event; bundle related
+  info into a single message rather than firing several.
+
+CREDENTIALS
+  Reads the bearer token from $NTFY_TOKEN. The token is never printed or
+  logged. If $NTFY_TOKEN is unset, the command fails instead of guessing.
+
+EXIT STATUS
+  0 on success (HTTP 200). Non-zero on failure, with a clear reason on stderr:
+    401  no/invalid Authorization header
+    403  wrong/missing token (this token only works for the agents topic)
+    other / connection error reported as-is; not retried.
+EOF
+}
+
+title="$DEFAULT_TITLE"
+priority="$DEFAULT_PRIORITY"
+tags=""
+message=""
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -t | --title)
+      title="${2:?notify: --title requires a value}"
+      shift 2
+      ;;
+    -p | --priority)
+      priority="${2:?notify: --priority requires a value}"
+      shift 2
+      ;;
+    -g | --tags)
+      tags="${2:?notify: --tags requires a value}"
+      shift 2
+      ;;
+    -h | --help)
+      usage
+      exit 0
+      ;;
+    --)
+      shift
+      break
+      ;;
+    -*)
+      echo "notify: unknown option: $1" >&2
+      echo "Run 'notify --help' for usage." >&2
+      exit 2
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
+# Remaining args form the message; if none, read it from stdin.
+if [ $# -gt 0 ]; then
+  message="$*"
+elif [ ! -t 0 ]; then
+  message="$(cat)"
+fi
+
+if [ -z "$message" ]; then
+  echo "notify: no message provided (pass an argument or pipe via stdin)" >&2
+  echo "Run 'notify --help' for usage." >&2
+  exit 2
+fi
+
+if [ -z "${NTFY_TOKEN:-}" ]; then
+  echo "notify: NTFY_TOKEN is not set; cannot send notification" >&2
+  exit 1
+fi
+
+# Build headers. Tags header is only sent when tags were provided.
+curl_args=(
+  --fail
+  --silent
+  --show-error
+  -H "Authorization: Bearer $NTFY_TOKEN"
+  -H "Title: $title"
+  -H "Priority: $priority"
+)
+if [ -n "$tags" ]; then
+  curl_args+=(-H "Tags: $tags")
+fi
+
+if curl "${curl_args[@]}" --data-binary "$message" "$NTFY_URL" >/dev/null; then
+  exit 0
+fi
+
+status=$?
+echo "notify: failed to publish notification (curl exit $status)" >&2
+case "$status" in
+  22) echo "notify: HTTP error from server (401 = bad/no auth, 403 = wrong token or topic)" >&2 ;;
+  7) echo "notify: could not connect to $NTFY_URL; server may be unreachable" >&2 ;;
+esac
+exit "$status"
