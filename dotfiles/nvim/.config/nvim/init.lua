@@ -1116,7 +1116,60 @@ local lualine_spec = {
       },
     },
     sections = {
+      -- lualine_b owns branch / diff / diagnostics. Both diff and diagnostics
+      -- need explicit configuration so they pull from in-process data rather
+      -- than spawning shell processes and so their symbols stay in sync with
+      -- the rest of the editor.
+      lualine_b = {
+        'branch',
+        {
+          -- Source the diff counts from gitsigns instead of letting lualine
+          -- shell out to `git diff` on every redraw. gitsigns already has the
+          -- numbers on `b:gitsigns_status_dict`, so this is a pure variable
+          -- read with no I/O. Returning nil when the dict is missing lets
+          -- lualine fall back to its own resolver (e.g. on the very first
+          -- redraw before gitsigns attaches).
+          'diff',
+          source = function()
+            local status = vim.b.gitsigns_status_dict
+            if not status then
+              return nil
+            end
+            return {
+              added = status.added,
+              modified = status.changed,
+              removed = status.removed,
+            }
+          end,
+        },
+        {
+          -- Match the diagnostic sign text configured in vim.diagnostic.config
+          -- above (E/W/I/H) so the statusline counts read identically to the
+          -- gutter signs.
+          'diagnostics',
+          sources = { 'nvim_diagnostic' },
+          symbols = { error = 'E:', warn = 'W:', info = 'I:', hint = 'H:' },
+        },
+      },
+      -- Filename on the far left of lualine_c so the active buffer is always
+      -- visible. lualine's default `filename` component was lost when this
+      -- section was overridden to host the noice indicators, so re-add it here.
+      -- path = 1 shows the path relative to cwd; tweak to 0 for filename-only.
+      -- Symbols are spelled out explicitly because icons_enabled is false and
+      -- the defaults rely on nerd-font glyphs.
       lualine_c = {
+        {
+          'filename',
+          path = 1,
+          file_status = true,
+          newfile_status = true,
+          symbols = {
+            modified = '[+]',
+            readonly = '[ro]',
+            unnamed = '[no name]',
+            newfile = '[new]',
+          },
+        },
         {
           function()
             return require('noice').api.status.message.get_hl()
@@ -1150,8 +1203,8 @@ local lualine_spec = {
           end,
         },
       },
-      -- Right side. Keep the lualine defaults (encoding/fileformat/filetype) and
-      -- prepend the current-line git blame so it sits on the right of the bar.
+      -- Right side. Keep the lualine defaults (encoding/filetype) and prepend
+      -- the current-line git blame so it sits on the right of the bar.
       lualine_x = {
         {
           -- Current-line git blame: date and author only. Fed by gitsigns'
@@ -1182,7 +1235,8 @@ local lualine_spec = {
           end,
         },
         'encoding',
-        'fileformat',
+        -- `fileformat` (unix/dos/mac) is dropped: on a macOS-only setup it's
+        -- effectively always `unix` and just consumes space on the bar.
         'filetype',
       },
       -- Replace the default `progress` component (which shows Top/Bot/All) with a
