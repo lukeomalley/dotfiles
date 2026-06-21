@@ -3,6 +3,11 @@ plugins
 
 secrets.zsh
 
+# Stray Claude runtime config dir accidentally created at the repo root.
+# The real stow package is dotfiles/claude/.claude; this anchored ignore keeps
+# a root-level .claude/ (runtime junk) out of git without touching the package.
+/.claude/
+
 # Claude runtime files (these get created when claude runs)
 dotfiles/claude/.claude/debug/
 dotfiles/claude/.claude/file-history/

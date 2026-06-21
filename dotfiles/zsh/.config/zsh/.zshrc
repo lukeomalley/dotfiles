@@ -9,8 +9,12 @@ if [[ "${GHOSTTY_QUICK_TERMINAL:-}" == "1" ]]; then
   exit
 fi
 
-# Secrets
-source "$XDG_CONFIG_HOME/zsh/secrets.zsh"
+# Secrets (generated from secrets.tpl via `update-secrets`; absent until then)
+if [[ -r "$XDG_CONFIG_HOME/zsh/secrets.zsh" ]]; then
+  source "$XDG_CONFIG_HOME/zsh/secrets.zsh"
+elif [[ $- == *i* ]]; then
+  print -P "%F{yellow}secrets.zsh not found — run \`update-secrets\` to generate it from secrets.tpl%f"
+fi
 
 setopt AUTO_PARAM_SLASH
 unsetopt CASE_GLOB
@@ -113,9 +117,8 @@ bindkey -r '^l'
 bindkey -r '^g'
 bindkey -s '^g' 'clear\n'
 
-# Homebrew - Note: brew shellenv is already loaded in ~/.zprofile for login shells
-# Keeping this for non-login shells (e.g., tmux new panes)
-# eval "$(/opt/homebrew/bin/brew shellenv)"
+# Homebrew - brew shellenv is loaded in .zshenv, which runs for all shell types
+# (login, non-login, interactive, tmux panes), so it does not need to run here.
 
 # Zsh Autosuggestions
 # Note: Using hardcoded path instead of $(brew --prefix) for faster shell startup (~40ms per call)

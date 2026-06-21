@@ -4,7 +4,8 @@
 [user]
 	name = Luke O'Malley
 	email = luke@lukeomalley.xyz
-	signingkey = ~/.ssh/github.pub
+	# Auth (github.pub) and signing use different keys; keep them in separate files.
+	signingkey = ~/.ssh/github-signing.pub
 
 [gpg]
     format = ssh 
