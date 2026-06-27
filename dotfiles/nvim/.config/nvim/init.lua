@@ -654,8 +654,12 @@ local snacks_spec = {
         local explorer_pickers = Snacks.picker.get({ source = 'explorer' })
         if #explorer_pickers > 0 then
           explorer_pickers[1]:close()
-        else
+        elseif has_displayed_file_buffer() then
           Snacks.explorer.reveal()
+        else
+          -- On the dashboard there's no real file to reveal; reveal() would fall
+          -- back to a parent path, so root the explorer at the project cwd.
+          Snacks.explorer({ cwd = vim.fn.getcwd() })
         end
       end,
       desc = 'Toggle Explorer',
