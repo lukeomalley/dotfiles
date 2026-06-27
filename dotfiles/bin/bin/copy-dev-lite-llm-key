@@ -1,0 +1,74 @@
+#!/bin/bash
+
+# copy-dev-lite-llm-key: copy the dev LiteLLM master key to the clipboard.
+# See the usage() heredoc below for the full, self-documenting help text.
+
+set -euo pipefail
+
+readonly CLUSTER_CONTEXT="aks-sandbox-1"
+readonly NAMESPACE="shared-services"
+readonly SECRET_NAME="shared-services-litellm-masterkey"
+readonly SECRET_KEY="masterkey"
+
+usage() {
+  cat <<'EOF'
+copy-dev-lite-llm-key - copy the dev LiteLLM master key to the clipboard
+
+WHAT IT IS
+  Reads the `shared-services-litellm-masterkey` secret from the
+  shared-services namespace in the aks-sandbox-1 cluster, base64-decodes it,
+  and copies the result to the macOS clipboard via pbcopy. The key is never
+  printed to the terminal.
+
+USAGE
+  copy-dev-lite-llm-key
+  copy-dev-lite-llm-key --help
+
+REQUIREMENTS
+  - kubectl on PATH with a context named "aks-sandbox-1".
+  - Access to the shared-services namespace in that cluster.
+  - pbcopy (macOS).
+
+EXIT STATUS
+  0 on success (key copied). Non-zero on failure, with a reason on stderr.
+EOF
+}
+
+case "${1:-}" in
+  -h | --help | help)
+    usage
+    exit 0
+    ;;
+  "") ;;
+  *)
+    echo "copy-dev-lite-llm-key: unexpected argument: $1" >&2
+    echo "Run 'copy-dev-lite-llm-key --help' for usage." >&2
+    exit 2
+    ;;
+esac
+
+if ! command -v kubectl >/dev/null 2>&1; then
+  echo "copy-dev-lite-llm-key: kubectl not found on PATH" >&2
+  exit 1
+fi
+
+if ! command -v pbcopy >/dev/null 2>&1; then
+  echo "copy-dev-lite-llm-key: pbcopy not found (this script targets macOS)" >&2
+  exit 1
+fi
+
+encoded_key="$(
+  kubectl --context "$CLUSTER_CONTEXT" \
+    --namespace "$NAMESPACE" \
+    get secret "$SECRET_NAME" \
+    -o "jsonpath={.data.$SECRET_KEY}"
+)"
+
+if [ -z "$encoded_key" ]; then
+  echo "copy-dev-lite-llm-key: secret '$SECRET_NAME' has no '$SECRET_KEY' key (or is empty)" >&2
+  exit 1
+fi
+
+printf '%s' "$encoded_key" | base64 --decode | pbcopy
+
+echo "copy-dev-lite-llm-key: master key copied to clipboard"

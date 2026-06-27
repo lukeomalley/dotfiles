@@ -267,4 +267,5 @@
   "workbench.iconTheme": "vscode-icons",
   "cursor.composer.shouldChimeAfterChatFinishes": false,
   "window.autoDetectColorScheme": false,
+  "vim.disableExtension": true,
 }
