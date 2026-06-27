@@ -99,6 +99,11 @@ vim.o.termguicolors = true
 vim.o.showmode = false
 vim.o.cmdheight = 0
 
+-- Suppress the built-in intro message ("Type :qa and press <Enter> to exit
+-- Nvim..."). With cmdheight = 0 it can leak into the statusline row instead of
+-- clearing on first keystroke.
+vim.opt.shortmess:append('I')
+
 -- =================================================
 -- Keymaps
 -- =================================================
@@ -422,6 +427,31 @@ local function dashboard_git_status()
   return items
 end
 
+-- Menu items for the dashboard. Materialized directly (not via the built-in
+-- `keys` section) so we can set explicit padding on the first item. The snacks
+-- section render path overwrites the first child's padding with `{ 0, top }`
+-- when the section has both `gap` and a top-padding component, which collapses
+-- the gap between the first and second items. Returning the items with
+-- per-item padding sidesteps that and gives an even rhythm between rows.
+local dashboard_menu_items = {
+  { icon = ' ', key = 'f', desc = 'Find File', action = ":lua Snacks.dashboard.pick('files')" },
+  { icon = ' ', key = 'g', desc = 'Find Text', action = ":lua Snacks.dashboard.pick('live_grep')" },
+  { icon = ' ', key = 'r', desc = 'Recent',    action = ":lua Snacks.dashboard.pick('oldfiles')" },
+  { icon = ' ', key = 'e', desc = 'Explorer',  action = ':lua Snacks.explorer()' },
+  { icon = ' ', key = 'q', desc = 'Quit',      action = ':qa' },
+}
+
+local function dashboard_menu_keys()
+  local items = vim.deepcopy(dashboard_menu_items)
+  -- Each item carries its own bottom padding so rows are evenly spaced. The
+  -- first item also gets a top padding to leave a blank line between the
+  -- section title and the first menu entry, matching the other sections.
+  for index, item in ipairs(items) do
+    item.padding = { index == #items and 0 or 1, index == 1 and 1 or 0 }
+  end
+  return items
+end
+
 -- Recent files for the dashboard, rendered with the select number to the LEFT
 -- of the file name so each number is easy to associate with its row. The
 -- snacks built-in right-aligns the key on the far edge instead. Reuses the
@@ -501,27 +531,14 @@ local snacks_spec = {
       -- gracefully in small splits.
       width = 40,
       pane_gap = 6,
-      preset = {
-        -- Lower-profile "Standard" figlet banner instead of the default blocky
-        -- NEOVIM block, so the screen feels less top-heavy.
-        header = table.concat({
-          '  _ __   ___  _____   _(_)_ __ ___ ',
-          " | '_ \\ / _ \\/ _ \\ \\ / / | '_ ` _ \\",
-          ' | | | |  __/ (_) \\ V /| | | | | | |',
-          ' |_| |_|\\___|\\___/ \\_/ |_|_| |_| |_|',
-        }, '\n'),
-        -- The minimal action menu.
-        keys = {
-          { icon = ' ', key = 'f', desc = 'Find File', action = ":lua Snacks.dashboard.pick('files')" },
-          { icon = ' ', key = 'g', desc = 'Find Text', action = ":lua Snacks.dashboard.pick('live_grep')" },
-          { icon = ' ', key = 'r', desc = 'Recent',    action = ":lua Snacks.dashboard.pick('oldfiles')" },
-          { icon = ' ', key = 'e', desc = 'Explorer',  action = ':lua Snacks.explorer()' },
-          { icon = ' ', key = 'q', desc = 'Quit',      action = ':qa' },
-        },
-      },
       sections = {
-        { section = 'header', padding = 2 },
-        { pane = 1,           section = 'keys', gap = 1, padding = 2 },
+        {
+          pane = 1,
+          icon = ' ',
+          title = 'Menu',
+          indent = 3,
+          dashboard_menu_keys,
+        },
         {
           pane = 2,
           icon = ' ',
@@ -1116,7 +1133,13 @@ local lualine_spec = {
       component_separators = '',
       section_separators = '',
       disabled_filetypes = {
-        statusline = { 'snacks_terminal' },
+        statusline = {
+          'snacks_terminal',
+          'snacks_picker_list',
+          'snacks_picker_input',
+          'snacks_picker_preview',
+          'snacks_dashboard',
+        },
       },
     },
     sections = {
