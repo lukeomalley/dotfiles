@@ -106,44 +106,43 @@ For epics, include:
 
 ## Description Format
 
-When drafting text for Jira, use Jira wiki markup:
+**Always write Jira issue descriptions in Markdown** when calling the MCP `jira_create_issue` / `jira_update_issue` tools. Never write Jira wiki markup (`h3.`, `*bold*`, `{{code}}`) directly into the description field. The tool converts Markdown to wiki markup automatically; passing wiki markup produces literal, unrendered text like `h3.` in the ticket.
 
-```text
+Description template (Markdown):
+
+```markdown
 Brief description of the work and outcome.
 
-h3. User Stories
+## User Stories
+- As a [role], I want to [action], so that [benefit].
 
-* As a [role], I want to [action], so that [benefit].
+## Acceptance Criteria
+- [Specific, measurable criterion]
 
-h3. Acceptance Criteria
+## Technical Notes
+- [Relevant implementation context]
 
-* [Specific, measurable criterion]
-* [Specific, measurable criterion]
-
-h3. Technical Notes
-
-* [Relevant implementation context]
-
-h3. Resources
-
-* path/to/file.ts - why it matters
-* [External Doc](https://example.com)
+## Resources
+- path/to/file.ts - why it matters
+- [External Doc](https://example.com)
 ```
 
-Jira wiki markup rules:
+Markdown rules:
 
-- Headings: `h1.`, `h2.`, `h3.`
-- Bold: `*bold text*`
-- Italic: `_italic text_`
-- Inline code: `{{code}}`
-- Code blocks: `{code}` fences
-- Unordered lists: `* item`
-- Ordered lists: `# item`
-- Nested lists: use repeated asterisks, such as `** nested item`; do not rely on indentation.
+- Section headings: `## Section Name`. The converter maps `##` to Jira `h2.`; there is no reliable Markdown path to force `h3.`, so standardize on `##` for all section headings.
+- Bold: `**bold**`
+- Italic: `_italic_`
+- Inline code: backtick-wrapped `` `code` ``
+- Code blocks: triple-backtick fenced blocks.
+- Unordered list: `- item`
+- Ordered list: `1. item`
+- Nested list: two-space indent under the parent item.
 - Local file references: plain path plus a short reason.
-- External URLs: `[Label](https://example.com)`.
+- External links: `[Label](https://example.com)`
 
-When calling `jira_create_issue` through the MCP server, pass the description as plain Markdown only if the tool schema explicitly requires Markdown. Preserve the same sections and wording, and avoid complex nested formatting so Jira conversion is reliable.
+The wiki markup (`h2.`, `*bold*`, `{{code}}`) is only what the tool produces under the hood from your Markdown; never author it yourself.
+
+The same rule applies to Confluence page creation via the MCP (`confluence_create_page` with `content_format: 'markdown'`) -- write Markdown, not storage/wiki format, unless explicitly using a different `content_format`.
 
 ## Output Shape Before Creation
 
