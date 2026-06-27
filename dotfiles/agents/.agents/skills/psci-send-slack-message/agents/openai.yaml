@@ -1,0 +1,3 @@
+interface:
+  display_name: "PSCI Send Slack Message"
+  short_description: "PSCI Send Slack Message helper"
