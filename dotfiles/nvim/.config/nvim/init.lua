@@ -1425,6 +1425,85 @@ local conform_spec = {
   end,
 }
 
+-- Test runner: load on the first <leader>t* keypress or when a JS/TS buffer
+-- opens (so gutter signs and the summary are ready without an explicit run).
+-- Adapters drive the language support; jest and vitest cover Node for now and
+-- more (neotest-python, neotest-golang, ...) can be added to the list later.
+local neotest_spec = {
+  'nvim-neotest/neotest',
+  dependencies = {
+    'nvim-neotest/nvim-nio',
+    'nvim-lua/plenary.nvim',
+    'nvim-treesitter/nvim-treesitter',
+    'nvim-neotest/neotest-jest',
+    'marilari88/neotest-vitest',
+  },
+  ft = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact' },
+  keys = {
+    {
+      '<leader>tr',
+      function()
+        require('neotest').run.run()
+      end,
+      desc = 'Test: [r]un nearest',
+    },
+    {
+      '<leader>tf',
+      function()
+        require('neotest').run.run(vim.fn.expand('%'))
+      end,
+      desc = 'Test: run [f]ile',
+    },
+    {
+      '<leader>tl',
+      function()
+        require('neotest').run.run_last()
+      end,
+      desc = 'Test: run [l]ast',
+    },
+    {
+      '<leader>ts',
+      function()
+        require('neotest').summary.toggle()
+      end,
+      desc = 'Test: toggle [s]ummary',
+    },
+    {
+      '<leader>to',
+      function()
+        require('neotest').output.open({ enter = true })
+      end,
+      desc = 'Test: show [o]utput',
+    },
+    {
+      '<leader>tw',
+      function()
+        require('neotest').watch.toggle()
+      end,
+      desc = 'Test: toggle [w]atch',
+    },
+    {
+      '<leader>tx',
+      function()
+        require('neotest').run.stop()
+      end,
+      desc = 'Test: stop/kill ([x])',
+    },
+  },
+  config = function()
+    require('neotest').setup({
+      adapters = {
+        -- neotest-jest must be invoked; defaults resolve the jest binary from
+        -- the project's node_modules.
+        require('neotest-jest')({}),
+        -- neotest-vitest only claims a buffer when it detects vitest in the
+        -- project, so the two Node adapters don't fight over the same file.
+        require('neotest-vitest'),
+      },
+    })
+  end,
+}
+
 local plugin_specs = {
   gruvbox_spec,
   snacks_spec,
@@ -1439,6 +1518,7 @@ local plugin_specs = {
   surround_spec,
   tmux_navigator_spec,
   conform_spec,
+  neotest_spec,
 }
 
 if has_dark_rock_theme then
