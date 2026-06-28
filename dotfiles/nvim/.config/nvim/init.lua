@@ -127,10 +127,9 @@ vim.keymap.set('n', '<C-w><', '5<C-w><', { noremap = true })
 -- Diagnostics
 -- =================================================
 -- Sort by severity so the worst problem wins the sign column and the float.
--- Keep signs visible in the gutter while showing full diagnostic text only for
--- the current line, so diagnostics are easy to find without cluttering the file.
--- `virtual_lines.current_line` shows the full message under the cursor line
--- (Neovim 0.11+), while keeping the other lines uncluttered.
+-- VSCode-style: no inline text cluttering lines or pushing them down. The gutter
+-- signs and underline are the live signal; the full message shows on hover (float)
+-- or via <leader>e, [d / ]d.
 vim.diagnostic.config({
   severity_sort = true,
   underline = true,
@@ -144,7 +143,7 @@ vim.diagnostic.config({
     },
   },
   virtual_text = false,
-  virtual_lines = { current_line = true },
+  virtual_lines = false,
   float = {
     border = 'rounded',
     source = true,
