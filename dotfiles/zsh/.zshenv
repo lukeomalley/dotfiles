@@ -23,6 +23,10 @@ export SHELL_SESSION_HISTORY=0
 # Dotfile Dir
 export DOTFILES="$HOME/code/dotfiles"
 
+# Codex state/config directory. Keep explicit so terminal-launched Codex uses
+# the same home as GUI-launched Codex.
+export CODEX_HOME="$HOME/.codex"
+
 # 1Password SSH agent: serves SSH keys (stored in 1Password) for both auth and
 # git SSH commit signing. git signing runs `ssh-keygen -Y sign`, which uses
 # SSH_AUTH_SOCK rather than ssh_config's IdentityAgent, so it must be exported
@@ -58,4 +62,3 @@ export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
 export PSQLRC="$XDG_CONFIG_HOME/psql/psqlrc"
 export PSQL_HISTORY="$XDG_DATA_HOME/psql/history"
 [[ -d "$XDG_DATA_HOME/psql" ]] || mkdir -p "$XDG_DATA_HOME/psql"
-
