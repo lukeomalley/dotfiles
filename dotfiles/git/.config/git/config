@@ -4,8 +4,8 @@
 [user]
 	name = Luke O'Malley
 	email = luke@lukeomalley.xyz
-	# Auth (github.pub) and signing use different keys; keep them in separate files.
-	signingkey = ~/.ssh/github-signing.pub
+	# Auth (github.pub) and signing use different keys; signing via 1Password op-ssh-sign.
+	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILQ9Aq9A//Ga4n0kLH9qXvn3SspHsIStvrKsom+n91vz
 
 [gpg]
     format = ssh 
@@ -115,6 +115,7 @@
 
 [gpg "ssh"]
 	allowedSignersFile = ~/.ssh/allowed_signers
+	program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
 
 # GitHub auth over HTTPS goes through the gh CLI credential helper.
 [credential "https://github.com"]

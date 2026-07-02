@@ -27,10 +27,10 @@ export DOTFILES="$HOME/code/dotfiles"
 # the same home as GUI-launched Codex.
 export CODEX_HOME="$HOME/.codex"
 
-# 1Password SSH agent: serves SSH keys (stored in 1Password) for both auth and
-# git SSH commit signing. git signing runs `ssh-keygen -Y sign`, which uses
-# SSH_AUTH_SOCK rather than ssh_config's IdentityAgent, so it must be exported
-# here for every shell type.
+# 1Password SSH agent: serves SSH keys (stored in 1Password) for git push/pull
+# auth. Commit signing uses op-ssh-sign (see ~/.config/git/config) and talks
+# directly to 1Password; SSH_AUTH_SOCK is still exported here for SSH auth in
+# every shell type (including subprocesses that only load .zshenv).
 export SSH_AUTH_SOCK="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
 
 # Editor export EDITOR="nvim"
