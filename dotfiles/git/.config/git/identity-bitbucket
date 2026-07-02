@@ -1,5 +1,6 @@
 # Included by ~/.config/git/config for repos whose remote is on bitbucket.org.
 # Overrides the personal defaults with the work (Nevada Nano) identity.
+# gpg.ssh.program (op-ssh-sign) is inherited from the main config.
 [user]
 	email = lukeomalley7@gmail.com
-	signingkey = ~/.ssh/bitbucket.pub
+	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFgVkyRNMqg/MXv4MqyS4VfaXzs1hj0aTdSdAMeL9bMp
