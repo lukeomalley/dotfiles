@@ -4,21 +4,21 @@ root: ~/code/psci
 
 windows:
   - name: code
-    root:  chatbot-ui # a relative path to root
-    layout: main-vertical
+    root: chatbot-ui
+    selected: true
     commands:
       - nvim .
 
-  - name: chatbot-ui
-    root:  chatbot-ui # a relative path to root
+  - name: terminals
+    root: chatbot-ui
     layout: main-horizontal
-    commands:
-      - fnm use
     panes:
       - type: horizontal
+        root: shared-services-api
+      - type: horizontal
+        root: labs/agenting
 
-  - name: desk-dance
-    root: ~/code/desk-dance
+  - name: psci-hq
+    root: /Users/luke/code/psci-hq
     commands:
       - pnpm dev
-
