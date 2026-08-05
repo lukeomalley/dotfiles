@@ -14,9 +14,9 @@ windows:
     layout: main-horizontal
     panes:
       - type: horizontal
-        root: shared-services-api
-      - type: horizontal
         root: labs/agenting
+      - type: horizontal
+        root: shared-services-api
 
   - name: psci-hq
     root: /Users/luke/code/psci-hq

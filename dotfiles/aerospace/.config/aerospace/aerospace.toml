@@ -4,6 +4,9 @@
 # Config version for compatibility (enables persistent-workspaces and other v2 features)
 config-version = 2
 
+# Keep the small, fixed workspace set available even when empty
+persistent-workspaces = ['0', '1', '2', '3', '4', '5']
+
 # Start AeroSpace at login
 start-at-login = true
 
@@ -64,29 +67,20 @@ alt-minus = 'resize smart -100'
 alt-equal = 'resize smart +100'
 
 # Workspace switching with cmd (⌘) key
-# Named workspaces
-cmd-backtick = 'workspace term' # Terminal workspace
-cmd-1 = 'workspace code'        # Code editor workspace
-cmd-2 = 'workspace browser'     # Browser workspace
-cmd-3 = 'workspace docs'
-cmd-4 = 'workspace chat'
-cmd-5 = 'workspace music'
-cmd-6 = 'workspace 7'
-cmd-7 = 'workspace 8'
-cmd-8 = 'workspace 9'
-cmd-9 = 'workspace 0'
+cmd-backtick = 'workspace 0' # Terminal workspace
+cmd-1 = 'workspace 1'        # Code editor workspace
+cmd-2 = 'workspace 2'        # Browser workspace
+cmd-3 = 'workspace 3'        # Documents workspace
+cmd-4 = 'workspace 4'        # Chat workspace
+cmd-5 = 'workspace 5'        # Music workspace
 
 # Move windows to workspaces (option+shift+number)
-alt-shift-backtick = 'move-node-to-workspace term --focus-follows-window'
-alt-shift-1 = 'move-node-to-workspace code --focus-follows-window'
-alt-shift-2 = 'move-node-to-workspace browser --focus-follows-window'
-alt-shift-3 = 'move-node-to-workspace docs --focus-follows-window'
-alt-shift-4 = 'move-node-to-workspace chat --focus-follows-window'
-alt-shift-5 = 'move-node-to-workspace music --focus-follows-window'
-alt-shift-6 = 'move-node-to-workspace 7 --focus-follows-window'
-alt-shift-7 = 'move-node-to-workspace 8 --focus-follows-window'
-alt-shift-8 = 'move-node-to-workspace 9 --focus-follows-window'
-alt-shift-9 = 'move-node-to-workspace 0 --focus-follows-window'
+alt-shift-backtick = 'move-node-to-workspace 0 --focus-follows-window'
+alt-shift-1 = 'move-node-to-workspace 1 --focus-follows-window'
+alt-shift-2 = 'move-node-to-workspace 2 --focus-follows-window'
+alt-shift-3 = 'move-node-to-workspace 3 --focus-follows-window'
+alt-shift-4 = 'move-node-to-workspace 4 --focus-follows-window'
+alt-shift-5 = 'move-node-to-workspace 5 --focus-follows-window'
 
 # Switch between monitors (screens)
 cmd-shift-left = 'move-workspace-to-monitor --wrap-around prev'
@@ -105,6 +99,7 @@ cmd-alt-h = []
 # Service binding mode for less frequent operations
 [mode.service.binding]
 esc = ['reload-config', 'mode main']
+alt-shift-semicolon = 'mode main'
 r = ['flatten-workspace-tree', 'mode main'] # reset layout
 f = [
     'layout floating tiling',
@@ -141,65 +136,83 @@ if.app-id = 'cc.ffitch.shottr'
 run = 'layout floating'
 
 
-# Application assignments - Ghostty to workspace 1
+# Application assignments - Ghostty to workspace 0
 [[on-window-detected]]
 if.app-id = 'com.mitchellh.ghostty'
-run = 'move-node-to-workspace term'
+run = 'move-node-to-workspace 0'
 
-# VS Code and Cursor to workspace 2
+# VS Code and Cursor to workspace 1
 [[on-window-detected]]
 if.app-id = 'com.microsoft.VSCode'
-run = 'move-node-to-workspace code'
+run = 'move-node-to-workspace 1'
 
 [[on-window-detected]]
 if.app-name-regex-substring = 'cursor'
-run = 'move-node-to-workspace code'
+run = 'move-node-to-workspace 1'
+
+[[on-window-detected]]
+if.app-id = 'com.openai.codex'
+run = 'move-node-to-workspace 1'
+
+[[on-window-detected]]
+if.app-id = 'com.anthropic.claudefordesktop'
+run = 'move-node-to-workspace 1'
 
 [[on-window-detected]]
 if.app-name-regex-substring = 'tldraw'
-run = 'move-node-to-workspace docs'
+run = 'move-node-to-workspace 3'
 
 [[on-window-detected]]
 if.app-name-regex-substring = 'notion'
-run = 'move-node-to-workspace docs'
+run = 'move-node-to-workspace 3'
 
 # Notion Calendar
 [[on-window-detected]]
 if.app-id = 'notion.id.calendar'
-run = 'move-node-to-workspace docs'
+run = 'move-node-to-workspace 3'
 
 # Apple Calendar
 [[on-window-detected]]
 if.app-id = 'com.apple.iCal'
-run = 'move-node-to-workspace docs'
+run = 'move-node-to-workspace 3'
+
+# Slack huddle pop-outs look like dialogs, so AeroSpace floats them by default.
+[[on-window-detected]]
+if.app-id = 'com.tinyspeck.slackmacgap'
+if.window-title-regex-substring = '^Huddle:'
+run = ['move-node-to-workspace 4', 'layout tiling']
 
 [[on-window-detected]]
 if.app-name-regex-substring = 'slack'
-run = 'move-node-to-workspace chat'
+run = 'move-node-to-workspace 4'
 
 [[on-window-detected]]
 if.app-name-regex-substring = 'teams'
-run = 'move-node-to-workspace chat'
+run = 'move-node-to-workspace 4'
 
 [[on-window-detected]]
 if.app-name-regex-substring = 'spotify'
-run = 'move-node-to-workspace music'
+run = 'move-node-to-workspace 5'
 
-# Browsers to workspace 3
+# Browsers to workspace 2
 [[on-window-detected]]
 if.app-id = 'com.apple.Safari'
-run = 'move-node-to-workspace browser'
+run = 'move-node-to-workspace 2'
 
 [[on-window-detected]]
 if.app-id = 'com.google.Chrome'
-run = 'move-node-to-workspace browser'
+run = 'move-node-to-workspace 2'
 
 [[on-window-detected]]
 if.app-id = 'com.brave.Browser'
-run = 'move-node-to-workspace browser'
+run = 'move-node-to-workspace 2'
+
+[[on-window-detected]]
+if.app-id = 'net.imput.helium'
+run = 'move-node-to-workspace 2'
 
 # Assign specific workspaces to monitors
 [workspace-to-monitor-force-assignment]
-"term" = 'main'    # Terminal (Ghostty) on main monitor
-"code" = 'main'    # Code editors on main monitor  
-"browser" = 'main' # Browsers on secondary monitor if available
+"0" = 'main' # Terminal (Ghostty) on main monitor
+"1" = 'main' # Code editors on main monitor
+"2" = 'main' # Browsers on main monitor

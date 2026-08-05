@@ -1,0 +1,171 @@
+#!/bin/bash
+
+# git-ai-commit-msg: generate a conventional-commit message from staged changes
+# using `opencode run`. Designed to be called from lazygit (see the
+# customCommands entry in dotfiles/lazygit/.config/lazygit/config.yml), but
+# works standalone too.
+
+set -euo pipefail
+
+# Haiku is the fastest Anthropic model and is more than capable of summarizing
+# a diff into a conventional commit. Precedence for the model: the -m/--model
+# flag, then the GIT_AI_COMMIT_MODEL env var, then this default. Any
+# provider/model that `opencode run --model` accepts works (anthropic, openai,
+# google, openrouter, groq, ...), so this stays as flexible as opencode itself.
+readonly DEFAULT_MODEL="anthropic/claude-haiku-4-5"
+readonly MAX_DIFF_LINES=2000
+
+# Conventional Commits subject pattern: type(optional-scope)!: summary
+readonly CONVENTIONAL_TYPES="feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert"
+readonly CONVENTIONAL_RE="^(${CONVENTIONAL_TYPES})(\([^)]+\))?!?: .+"
+
+usage() {
+  cat <<'EOF'
+git-ai-commit-msg - generate a conventional-commit message from staged changes
+
+WHAT IT IS
+  Reads the staged diff (git diff --cached), sends it to an LLM via
+  `opencode run`, and prints a single conventional-commit message to stdout.
+  Nothing is committed; the message is meant to be reviewed and edited before
+  you commit it.
+
+USAGE
+  git-ai-commit-msg [options]    # uses currently staged changes
+  git ai-commit-msg [options]    # same, via git's PATH resolution of git-*
+
+  In lazygit: press <c-a> in the Files panel. The generated message is
+  pre-filled into the commit prompt for review before you confirm.
+
+OPTIONS
+  -m, --model PROVIDER/MODEL  Model to use, in opencode's provider/model form
+                             (e.g. anthropic/claude-haiku-4-5,
+                             openai/gpt-4o-mini, google/gemini-2.5-flash,
+                             openrouter/..., groq/...). Falls back to the
+                             GIT_AI_COMMIT_MODEL env var, then a fast default.
+  -h, --help                 Show this help and exit.
+
+BEHAVIOR
+  - Operates on STAGED changes only (git diff --cached). Stage what you want
+    described first.
+  - Exits non-zero with a message on stderr if nothing is staged.
+  - Large diffs are truncated to keep the request fast and within limits.
+
+REQUIREMENTS
+  opencode (on PATH) with credentials for whichever provider you select.
+EOF
+}
+
+# Model precedence: --model flag > GIT_AI_COMMIT_MODEL > DEFAULT_MODEL.
+model="${GIT_AI_COMMIT_MODEL:-${DEFAULT_MODEL}}"
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -h | --help)
+      usage
+      exit 0
+      ;;
+    -m | --model)
+      if [[ $# -lt 2 || -z "${2:-}" ]]; then
+        echo "git-ai-commit-msg: ${1} requires a provider/model argument" >&2
+        exit 1
+      fi
+      model="$2"
+      shift 2
+      ;;
+    --model=*)
+      model="${1#*=}"
+      shift
+      ;;
+    --)
+      shift
+      break
+      ;;
+    -*)
+      echo "git-ai-commit-msg: unknown option: $1" >&2
+      echo "try 'git-ai-commit-msg --help'" >&2
+      exit 1
+      ;;
+    *)
+      echo "git-ai-commit-msg: unexpected argument: $1" >&2
+      exit 1
+      ;;
+  esac
+done
+
+readonly model
+
+# Must be inside a git work tree.
+if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  echo "git-ai-commit-msg: not inside a git repository" >&2
+  exit 1
+fi
+
+readonly staged_diff="$(git diff --cached)"
+
+if [[ -z "${staged_diff}" ]]; then
+  echo "git-ai-commit-msg: no staged changes (stage files first)" >&2
+  exit 1
+fi
+
+# A compact list of changed files gives the model useful structure cheaply.
+readonly staged_files="$(git diff --cached --name-status)"
+
+# Truncate very large diffs so the request stays fast and within model limits.
+readonly trimmed_diff="$(printf '%s\n' "${staged_diff}" | head -n "${MAX_DIFF_LINES}")"
+
+readonly prompt="$(cat <<EOF
+You are generating a git commit message. Output ONLY the commit message text,
+with no preamble, no code fences, no explanation, and no trailing commentary.
+
+Rules:
+- Follow Conventional Commits: a subject line of the form
+  type(optional-scope): short imperative summary
+  where type is one of feat, fix, docs, style, refactor, perf, test, build,
+  ci, chore, revert.
+- The subject line MUST start with one of those types. This is mandatory.
+- Subject line <= 72 characters, imperative mood, no trailing period.
+- If the change is non-trivial, add a blank line then a concise body (wrapped
+  at ~72 cols) explaining the WHY, not a restatement of the diff. Use short
+  bullet points starting with "- " when there are multiple distinct changes.
+- If the change is trivial, output only the subject line.
+- Do not invent changes that are not in the diff.
+
+Changed files (name-status):
+${staged_files}
+
+Staged diff:
+${trimmed_diff}
+EOF
+)"
+
+# --pure skips external plugins for a faster, side-effect-free run. --format
+# json emits one event per line; we concatenate the text from "text" events to
+# get just the model's message, with none of opencode's banner/log output.
+readonly raw_message="$(
+    opencode run --pure --format json --model "${model}" "${prompt}" 2>/dev/null \
+    | jq -rj 'select(.type == "text") | .part.text'
+)"
+
+# Clean up anything the model might wrap around the message: leading/trailing
+# blank lines, and code fences (``` or ```text) on their own lines.
+readonly message="$(
+  printf '%s\n' "${raw_message}" \
+    | sed -e '/^[[:space:]]*```/d' \
+    | sed -e '/./,$!d' \
+    | awk 'NF {p=1} p'
+)"
+
+if [[ -z "${message}" ]]; then
+  echo "git-ai-commit-msg: model returned an empty message" >&2
+  exit 1
+fi
+
+# Deterministic safety net: the subject line must be a Conventional Commit.
+readonly subject="$(printf '%s\n' "${message}" | head -n 1)"
+if [[ ! "${subject}" =~ ${CONVENTIONAL_RE} ]]; then
+  echo "git-ai-commit-msg: generated subject is not a conventional commit:" >&2
+  echo "  ${subject}" >&2
+  exit 1
+fi
+
+printf '%s\n' "${message}"

@@ -37,3 +37,36 @@ git:
   # to that line in $EDITOR (nvim).
   pagers:
     - pager: delta --dark --paging=never --tabs=4 --line-numbers --hyperlinks --hyperlinks-file-link-format=lazygit-edit://{path}:{line}
+
+customCommands:
+  # <c-a> in the Files panel: generate a conventional-commit message from the
+  # staged diff (via git-ai-commit-msg -> opencode), then drop it into the
+  # commit message editor for review/edit before committing. Nothing is
+  # committed automatically.
+  - key: "<c-a>"
+    context: "files"
+    description: "AI commit message from staged changes"
+    # loadingText shows while opencode is thinking.
+    loadingText: "Generating commit message (haiku)..."
+    # Capture the message first; only open the commit editor if generation
+    # succeeded and produced a non-empty message. --edit lets you review/tweak
+    # in $EDITOR (nvim) before saving to commit.
+    command: 'msg="$(git-ai-commit-msg)" && [ -n "$msg" ] && git commit --edit --message "$msg"'
+    output: terminal
+
+  # <c-v> in the Files panel: same as <c-a>, but first prompts for a model in
+  # opencode's provider/model form (e.g. openai/gpt-4o-mini,
+  # google/gemini-2.5-flash, anthropic/claude-sonnet-4-5). Leave blank to use
+  # the script default.
+  - key: "<c-v>"
+    context: "files"
+    description: "AI commit message (choose model)"
+    loadingText: "Generating commit message..."
+    prompts:
+      - type: "input"
+        title: "Model (provider/model, blank for default)"
+        initialValue: ""
+    # The prompt response is templated into MODEL before the shell runs. If it
+    # is empty, omit the --model flag so the script falls back to its default.
+    command: 'MODEL="{{ index .PromptResponses 0 }}"; if [ -n "$MODEL" ]; then msg="$(git-ai-commit-msg --model "$MODEL")"; else msg="$(git-ai-commit-msg)"; fi; [ -n "$msg" ] && git commit --edit --message "$msg"'
+    output: terminal
