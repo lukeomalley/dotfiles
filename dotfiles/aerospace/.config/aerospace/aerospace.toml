@@ -1,5 +1,5 @@
-# ~/.aerospace.toml
-# Custom AeroSpace config with cmd+num for monitor switching and cmd+backtick/cmd+1 for first windows
+# ~/.config/aerospace/aerospace.toml
+# Numeric workspaces keep applications grouped by role across two monitors.
 
 # Config version for compatibility (enables persistent-workspaces and other v2 features)
 config-version = 2
@@ -10,11 +10,14 @@ persistent-workspaces = ['0', '1', '2', '3', '4', '5']
 # Start AeroSpace at login
 start-at-login = true
 
-# Auto-start commands after login
-after-login-command = []
+# Reload the config automatically after tracked dotfile changes
+auto-reload-config = true
 
 # Auto-start commands after AeroSpace startup
 after-startup-command = []
+
+# Include stowed personal scripts while preserving AeroSpace's Homebrew paths
+exec.env-vars.PATH = '${HOME}/bin:/opt/homebrew/bin:/opt/homebrew/sbin:${PATH}'
 
 # Normalizations
 enable-normalization-flatten-containers = true
@@ -82,9 +85,13 @@ alt-shift-3 = 'move-node-to-workspace 3 --focus-follows-window'
 alt-shift-4 = 'move-node-to-workspace 4 --focus-follows-window'
 alt-shift-5 = 'move-node-to-workspace 5 --focus-follows-window'
 
-# Switch between monitors (screens)
-cmd-shift-left = 'move-workspace-to-monitor --wrap-around prev'
-cmd-shift-right = 'move-workspace-to-monitor --wrap-around next'
+# Focus monitors
+cmd-shift-left = 'focus-monitor --wrap-around left'
+cmd-shift-right = 'focus-monitor --wrap-around right'
+
+# Move the focused window between monitors
+alt-shift-left = 'move-node-to-monitor --focus-follows-window --wrap-around left'
+alt-shift-right = 'move-node-to-monitor --focus-follows-window --wrap-around right'
 
 # Toggle between previous workspace
 alt-tab = 'workspace-back-and-forth'
@@ -100,7 +107,8 @@ cmd-alt-h = []
 [mode.service.binding]
 esc = ['reload-config', 'mode main']
 alt-shift-semicolon = 'mode main'
-r = ['flatten-workspace-tree', 'mode main'] # reset layout
+r = ['flatten-workspace-tree', 'mode main'] # Flatten nested containers
+b = ['balance-sizes', 'mode main'] # Balance window sizes
 f = [
     'layout floating tiling',
     'mode main',
@@ -120,95 +128,46 @@ shift-down = ['volume set 0', 'mode main']
 
 # Float dialog-like apps (work better not tiled)
 [[on-window-detected]]
-if.app-id = 'com.apple.systempreferences'
+if = 'test %{app-bundle-id} = com.apple.systempreferences || test %{app-bundle-id} = com.apple.calculator || test %{app-bundle-id} = com.apple.finder || test %{app-bundle-id} = cc.ffitch.shottr'
 run = 'layout floating'
 
+# Ghostty to workspace 0
 [[on-window-detected]]
-if.app-id = 'com.apple.calculator'
-run = 'layout floating'
-
-[[on-window-detected]]
-if.app-id = 'com.apple.finder'
-run = 'layout floating'
-
-[[on-window-detected]]
-if.app-id = 'cc.ffitch.shottr'
-run = 'layout floating'
-
-
-# Application assignments - Ghostty to workspace 0
-[[on-window-detected]]
-if.app-id = 'com.mitchellh.ghostty'
+if = 'test %{app-bundle-id} = com.mitchellh.ghostty'
 run = 'move-node-to-workspace 0'
 
-# VS Code and Cursor to workspace 1
+# Code and AI editors to workspace 1
 [[on-window-detected]]
-if.app-id = 'com.microsoft.VSCode'
+if = 'test %{app-bundle-id} = com.microsoft.VSCode || test %{app-bundle-id} = com.todesktop.230313mzl4w4u92 || test %{app-bundle-id} = com.openai.codex || test %{app-bundle-id} = ai.opencode.desktop || test %{app-bundle-id} = com.t3tools.t3code || test %{app-bundle-id} = com.anthropic.claudefordesktop'
 run = 'move-node-to-workspace 1'
 
+# Documents to workspace 3
 [[on-window-detected]]
-if.app-name-regex-substring = 'cursor'
-run = 'move-node-to-workspace 1'
-
-[[on-window-detected]]
-if.app-id = 'com.openai.codex'
-run = 'move-node-to-workspace 1'
-
-[[on-window-detected]]
-if.app-id = 'com.anthropic.claudefordesktop'
-run = 'move-node-to-workspace 1'
-
-[[on-window-detected]]
-if.app-name-regex-substring = 'tldraw'
+if = 'test %{app-name} ~= tldraw'
 run = 'move-node-to-workspace 3'
 
 [[on-window-detected]]
-if.app-name-regex-substring = 'notion'
-run = 'move-node-to-workspace 3'
-
-# Notion Calendar
-[[on-window-detected]]
-if.app-id = 'notion.id.calendar'
-run = 'move-node-to-workspace 3'
-
-# Apple Calendar
-[[on-window-detected]]
-if.app-id = 'com.apple.iCal'
+if = 'test %{app-bundle-id} = notion.id || test %{app-bundle-id} = com.cron.electron || test %{app-bundle-id} = com.apple.iCal'
 run = 'move-node-to-workspace 3'
 
 # Slack huddle pop-outs look like dialogs, so AeroSpace floats them by default.
 [[on-window-detected]]
-if.app-id = 'com.tinyspeck.slackmacgap'
-if.window-title-regex-substring = '^Huddle:'
+if = 'test %{app-bundle-id} = com.tinyspeck.slackmacgap && test %{window-title} ~= ^Huddle:'
 run = ['move-node-to-workspace 4', 'layout tiling']
 
+# Chat to workspace 4
 [[on-window-detected]]
-if.app-name-regex-substring = 'slack'
+if = 'test %{app-bundle-id} = com.tinyspeck.slackmacgap || test %{app-bundle-id} = com.microsoft.teams2'
 run = 'move-node-to-workspace 4'
 
+# Music to workspace 5
 [[on-window-detected]]
-if.app-name-regex-substring = 'teams'
-run = 'move-node-to-workspace 4'
-
-[[on-window-detected]]
-if.app-name-regex-substring = 'spotify'
+if = 'test %{app-bundle-id} = com.spotify.client'
 run = 'move-node-to-workspace 5'
 
 # Browsers to workspace 2
 [[on-window-detected]]
-if.app-id = 'com.apple.Safari'
-run = 'move-node-to-workspace 2'
-
-[[on-window-detected]]
-if.app-id = 'com.google.Chrome'
-run = 'move-node-to-workspace 2'
-
-[[on-window-detected]]
-if.app-id = 'com.brave.Browser'
-run = 'move-node-to-workspace 2'
-
-[[on-window-detected]]
-if.app-id = 'net.imput.helium'
+if = 'test %{app-bundle-id} = com.apple.Safari || test %{app-bundle-id} = com.google.Chrome || test %{app-bundle-id} = com.brave.Browser || test %{app-bundle-id} = net.imput.helium'
 run = 'move-node-to-workspace 2'
 
 # Assign specific workspaces to monitors
@@ -216,3 +175,6 @@ run = 'move-node-to-workspace 2'
 "0" = 'main' # Terminal (Ghostty) on main monitor
 "1" = 'main' # Code editors on main monitor
 "2" = 'main' # Browsers on main monitor
+"3" = 'main' # Documents on main monitor
+"4" = 'main' # Chat on main monitor
+"5" = ['secondary', 'main'] # Music on secondary monitor, main as fallback
