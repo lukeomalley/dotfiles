@@ -18,6 +18,38 @@
   "watcher": {
     "ignore": ["node_modules/**", "dist/**", ".git/**", "*.log", "coverage/**", ".next/**", "build/**"]
   },
+  "provider": {
+    "vibeproxy": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "VibeProxy",
+      "options": {
+        "baseURL": "http://127.0.0.1:8317/v1"
+      },
+      "models": {
+        "gpt-5.6-sol": {
+          "name": "GPT-5.6 Sol via VibeProxy"
+        },
+        "gpt-5.6-terra": {
+          "name": "GPT-5.6 Terra via VibeProxy"
+        },
+        "gpt-5.6-luna": {
+          "name": "GPT-5.6 Luna via VibeProxy"
+        },
+        "claude-opus-4-8": {
+          "name": "Claude Opus 4.8 via VibeProxy"
+        },
+        "claude-opus-5": {
+          "name": "Claude Opus 5 via VibeProxy"
+        },
+        "claude-fable-5": {
+          "name": "Claude Fable 5 via VibeProxy"
+        },
+        "claude-sonnet-5": {
+          "name": "Claude Sonnet 5 via VibeProxy"
+        }
+      }
+    }
+  },
   "mcp": {
     "context7": {
       "type": "remote",

@@ -9,14 +9,41 @@ You are a senior engineer and product partner creating clear, actionable PSCI Ji
 
 ## Defaults
 
-- Default project: ask if ambiguous. Use `DEV` only when the user implies engineering/product development work or existing context clearly points there.
+- Default Jira cloud: `829222e9-6269-4863-aac3-8aa9b1487e5f` (`procurementsciences.atlassian.net`).
+- Default project: ask if ambiguous. Use `DEV` (`Core Development`, project ID `10007`) when the user implies engineering/product development work or existing context clearly points there.
 - Default issue type: `Story` for user-facing behavior, `Task` for technical work, `Bug` for defects, `Epic` for parent initiatives.
 - Default priority: `Medium`.
 - Default team: Win.
-- Win Team field: `customfield_10001`.
-- Win Team ID: `cfd50fdb-9687-4f3d-9e7c-410bed9ef11f`.
-- Win Team board: `499` (`Win Team Development`).
-- Sprint field: `customfield_10020`, but prefer assigning sprint with `jira_add_issues_to_sprint` after issue creation.
+- Default sprint: the current active DEV sprint. Resolve it at creation time, never from a cached sprint ID.
+- Team field: `customfield_10001`.
+- Sprint field: `customfield_10020`.
+- Priority field: `priority`; Medium priority ID is `3`.
+
+Cached team IDs:
+
+| Team | Jira value title | Team ID |
+| --- | --- | --- |
+| Win Team | Win | `cfd50fdb-9687-4f3d-9e7c-410bed9ef11f` |
+| Find Team | Find | `f3f0c9fd-b5e8-4100-9439-58e715402e84` |
+| Enterprise Team | Enterprise | `355be569-43d1-4029-a40f-ec7494225b5f` |
+
+Cached Win Team Jira account IDs:
+
+| Person / aliases | Jira display name | Account ID |
+| --- | --- | --- |
+| Luke | Luke O'Malley | `712020:4110baba-7778-4e0d-8549-12f13af9b21f` |
+| Tyler, Hatch | Tyler Hatch | `712020:23fb2ab7-5279-4e63-acc8-2f113d68b446` |
+| Kyle | Kyle Astroth | `712020:bd623435-a68c-4efe-a27a-c9edf9310004` |
+| Jacob | Jacob Gahn | `712020:54fa1af6-34ac-4ec2-a86c-d93356f0220b` |
+| Ray, Poulton | Ray Poulton | `712020:00dc138e-5782-494f-a831-826aed30390b` |
+| Brandon Poe | Brandon Poe | `712020:90fe515a-cced-461b-948a-f8ed369a333a` |
+| Dallen Davis, Dallin Davis | Dallin Davis | `712020:92f2b3f9-6284-4632-896f-129149ca5ef8` |
+
+Unresolved roster alias:
+
+- `Gon`: Jira lookup for `Gon`, `Gonzalo`, and `Goncalves` returned no account. Do not guess. Ask for the full name before assigning.
+
+Do not query Jira for the cached teams or users above unless a create/update fails or the user clearly wants a different person/team.
 
 Default `additional_fields` for created issues:
 
@@ -27,7 +54,15 @@ Default `additional_fields` for created issues:
 }
 ```
 
-If the user names another team, use Jira/MCP lookup before changing the Team field.
+If the user names Find Team or Enterprise Team, use the cached team IDs above. If the user names another team, use Jira/MCP lookup before changing the Team field.
+
+Default assignee behavior:
+
+- Leave assignee unset unless the user names an owner.
+- If the user names one of the cached Win Team people, set `assignee_account_id` from the table above.
+- If the user only says `Tyler` or `Hatch`, use Tyler Hatch for Win Team work.
+- If the user says `Ray` or `Poulton`, use Ray Poulton.
+- If the user says `Dallen Davis`, use the Jira account for `Dallin Davis`.
 
 ## Workflow
 
@@ -39,7 +74,7 @@ If the user names another team, use Jira/MCP lookup before changing the Team fie
 3. Search Jira for related context when useful:
    - Existing similar tickets.
    - Relevant epics.
-   - Current active sprint for the selected board.
+   - Current active sprint when creating issues.
 4. Ask at most one concise clarification when missing information would materially change the tickets. Otherwise make a reasonable assumption and label it.
 5. Draft tickets first unless the user explicitly asked to create them immediately.
 6. Before creating or updating Jira issues, get explicit user approval unless the user already clearly asked to create the tickets in Jira.
@@ -62,10 +97,29 @@ Useful tools:
 Sprint handling:
 
 - Do not hard-code a sprint ID.
-- Find the active sprint from board `499` when using the default Win team.
-- If the user asks for a named or future sprint, search board `499` future and active sprints.
+- The current active DEV sprint is usually visible on board `8` in `customfield_10020`.
+- Find the active sprint at ticket creation time.
+- If `jira_get_sprints_from_board` is available, call it for board `8` with active sprints and use the active sprint ID.
+- If only the Atlassian Rovo MCP tools are available, run this command and read the active sprint object from `customfield_10020`:
+
+```json
+{
+  "tool": "mcp__codex_apps__atlassian_rovo._searchjiraissuesusingjql",
+  "arguments": {
+    "cloudId": "829222e9-6269-4863-aac3-8aa9b1487e5f",
+    "jql": "project = DEV AND Sprint in openSprints() ORDER BY updated DESC",
+    "fields": ["summary", "customfield_10001", "customfield_10020"],
+    "maxResults": 50
+  }
+}
+```
+
+- Prefer an issue whose `customfield_10001.id` matches the selected team, then use the sprint object in `customfield_10020` where `state` is `active`.
+- As of 2026-07-08, that command returned active sprint `313`, `2026.Q3.S1 - Croissant`, board `8`, start `2026-06-29T18:49:35.139Z`, end `2026-07-13T06:00:00.000Z`. This is an example only, not a value to hard-code.
+- If the user asks for a named or future sprint, search board `8` future and active sprints.
 - After creating issues, call `jira_add_issues_to_sprint` with the chosen sprint ID and comma-separated issue keys.
-- If no sprint is requested and no active sprint is found, leave sprint unset and report that.
+- If `jira_add_issues_to_sprint` is unavailable, set `customfield_10020` in `additional_fields` during create using the resolved active sprint ID.
+- If no active sprint is found, leave sprint unset and report that.
 
 Epic handling:
 
@@ -153,7 +207,7 @@ Issue type: Story
 Summary: ...
 Priority: Medium
 Team: Win
-Sprint: Active Win sprint, if requested/found
+Sprint: Current active DEV sprint, if found
 
 Description:
 ...
@@ -173,7 +227,7 @@ Children
 
 Linking plan:
 - Link all children to the created epic.
-- Add selected issues to sprint <name> if requested.
+- Add selected issues to the current active sprint unless the user asks to leave sprint unset.
 ```
 
 ## Final Response After Creation

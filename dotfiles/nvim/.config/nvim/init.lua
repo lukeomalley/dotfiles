@@ -505,6 +505,37 @@ local gruvbox_spec = {
   priority = 1000,
 }
 
+-- Follow the macOS system appearance. auto-dark-mode polls the OS light/dark
+-- setting and fires set_dark_mode / set_light_mode when it flips, so the editor
+-- tracks the same toggle that switches Ghostty's theme. The colorschemes chosen
+-- mirror the dark-rock-theme palette (night-rock / light-rock) when that local
+-- theme is present, and fall back to gruvbox-material's own dark/light variants
+-- otherwise. set_*_mode only runs after startup, so the initial colorscheme is
+-- still applied by the block further down; this just keeps it in sync on toggle.
+local function apply_appearance(background, colorscheme)
+  vim.o.background = background
+  pcall(vim.cmd.colorscheme, colorscheme)
+end
+
+local auto_dark_mode_spec = {
+  'f-person/auto-dark-mode.nvim',
+  lazy = false,
+  priority = 999,
+  -- Disabled for now: the editor is pinned to the dark theme (see the startup
+  -- colorscheme block) while the light-mode setup gets dialed in. Set this back
+  -- to true (or remove the line) to resume following the macOS appearance.
+  enabled = false,
+  opts = {
+    update_interval = 3000,
+    set_dark_mode = function()
+      apply_appearance('dark', has_dark_rock_theme and 'night-rock' or 'gruvbox-material')
+    end,
+    set_light_mode = function()
+      apply_appearance('light', has_dark_rock_theme and 'light-rock' or 'gruvbox-material')
+    end,
+  },
+}
+
 -- Snacks: core utility suite. Loaded eagerly (provides terminal, etc).
 local snacks_spec = {
   'folke/snacks.nvim',
@@ -1519,6 +1550,7 @@ local plugin_specs = {
   tmux_navigator_spec,
   conform_spec,
   neotest_spec,
+  auto_dark_mode_spec,
 }
 
 if has_dark_rock_theme then
@@ -1571,11 +1603,17 @@ require('lazy').setup({
 -- =================================================
 -- Runs after lazy.setup so the colorscheme plugin is on the runtimepath.
 
+-- Pinned to the dark theme for now while the light-mode setup gets dialed in.
+-- auto_dark_mode_spec is disabled to match, so nothing flips this at runtime. To
+-- resume following the macOS appearance, re-enable that spec and restore the
+-- appearance-aware selection (git history has the version that read
+-- AppleInterfaceStyle to pick night-rock vs light-rock at startup).
 if has_dark_rock_theme then
   vim.g.dark_rock_transparent = true
   vim.cmd.colorscheme('night-rock')
 else
   vim.g.gruvbox_material_transparent_background = 2
+  vim.o.background = 'dark'
   vim.cmd.colorscheme('gruvbox-material')
 end
 
