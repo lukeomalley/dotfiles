@@ -78,6 +78,16 @@ defaults write -g NSUserKeyEquivalents -dict-add "Exit Full Screen" '@~^$f'
 defaults write -g NSUserKeyEquivalents -dict-add "Toggle Full Screen" '@~^$f'
 
 # =============================================================================
+# Screenshot Hotkeys
+# =============================================================================
+
+# Disable cmd+shift+3 (save screen as file, key 28) and cmd+shift+4
+# (save selected area as file, key 30). The clipboard variants
+# (cmd+shift+ctrl+3/4) and cmd+shift+5 (Screenshot app) stay enabled.
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 28 '<dict><key>enabled</key><false/><key>value</key><dict><key>parameters</key><array><integer>51</integer><integer>20</integer><integer>1179648</integer></array><key>type</key><string>standard</string></dict></dict>'
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 30 '<dict><key>enabled</key><false/><key>value</key><dict><key>parameters</key><array><integer>52</integer><integer>21</integer><integer>1179648</integer></array><key>type</key><string>standard</string></dict></dict>'
+
+# =============================================================================
 # Apply Changes
 # =============================================================================
 
@@ -85,6 +95,9 @@ defaults write -g NSUserKeyEquivalents -dict-add "Toggle Full Screen" '@~^$f'
 killall Dock 2>/dev/null || true
 killall Finder 2>/dev/null || true
 killall SystemUIServer 2>/dev/null || true
+
+# Reload symbolic hotkeys without requiring logout
+/System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u 2>/dev/null || true
 
 echo "macOS settings configured!"
 echo "NOTE: Some settings (like 'Displays have separate Spaces') require logout to take effect."
