@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+profile=""
+host="$(hostname -s)"
+target="$HOME"
+apply=false
+backup_root=""
+
+usage() { echo "Usage: $0 [--profile darwin|omarchy] [--host NAME] [--target DIR] [--apply] [--backup-dir DIR]"; }
+while (($#)); do
+  case "$1" in
+    --profile) profile="${2:?missing profile}"; shift 2 ;;
+    --host) host="${2:?missing host}"; shift 2 ;;
+    --target) target="${2:?missing target}"; shift 2 ;;
+    --backup-dir) backup_root="${2:?missing directory}"; shift 2 ;;
+    --apply) apply=true; shift ;;
+    -h|--help) usage; exit 0 ;;
+    *) echo "Unknown argument: $1" >&2; usage >&2; exit 2 ;;
+  esac
+done
+profile="${profile:-$($repo_root/scripts/detect-profile)}"
+[[ "$profile" == darwin || "$profile" == omarchy ]] || { echo "Invalid profile: $profile" >&2; exit 2; }
+backup_root="${backup_root:-$HOME/.local/state/dotfiles-backup/$(date +%Y%m%d-%H%M%S)}"
+
+conflicts=0
+removable=0
+report="$(mktemp)"
+trap 'rm -f "$report"' EXIT
+while IFS= read -r record; do
+  layer="${record%%$'\t'*}"; source="${record#*$'\t'}"
+  relative="${source#"$layer/"}"; relative="${relative#*/}"
+  destination="$target/$relative"
+  [[ -e "$destination" || -L "$destination" ]] || continue
+  if [[ -L "$destination" ]]; then
+    resolved="$(readlink -f "$destination" 2>/dev/null || true)"
+    [[ "$resolved" == "$source" ]] && continue
+    echo "CONFLICT symlink $destination -> $(readlink "$destination")"
+    printf 'conflict\t%s\t%s\n' "$relative" "$destination" >> "$report"
+    ((conflicts += 1)); continue
+  fi
+  if [[ -f "$destination" ]] && cmp -s "$source" "$destination"; then
+    echo "IDENTICAL $destination"
+    printf 'identical\t%s\t%s\n' "$relative" "$destination" >> "$report"
+    ((removable += 1))
+  else
+    echo "CONFLICT differs $destination"
+    [[ -f "$destination" ]] && diff -u "$source" "$destination" || true
+    printf 'conflict\t%s\t%s\n' "$relative" "$destination" >> "$report"
+    ((conflicts += 1))
+  fi
+done < <(
+  for layer in "$repo_root/stow/common" "$repo_root/stow/$profile" "$repo_root/stow/hosts/$host"; do
+    [[ -d "$layer" ]] || continue
+    find "$layer" -mindepth 2 -type f ! -path "$layer/agents/*" -print0 |
+      while IFS= read -r -d '' source; do printf '%s\t%s\n' "$layer" "$source"; done
+  done | LC_ALL=C sort
+)
+
+echo "Summary: $removable identical targets, $conflicts conflicts"
+((conflicts == 0)) || { echo "No files changed; reconcile conflicts and retry." >&2; exit 1; }
+if $apply && ((removable > 0)); then
+  while IFS=$'\t' read -r status relative destination; do
+    [[ "$status" == identical ]] || continue
+    mkdir -p "$backup_root/$(dirname "$relative")"
+    cp -a "$destination" "$backup_root/$relative"
+    rm "$destination"
+  done < "$report"
+  find "$backup_root" -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > "$backup_root/SHA256SUMS"
+  echo "Backups written to $backup_root"
+fi
+$apply || echo "Report only. Re-run with --apply to back up and remove identical regular files, then run stow-profile."

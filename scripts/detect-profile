@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+case "$(uname -s)" in
+  Darwin) printf '%s\n' darwin ;;
+  Linux)
+    if command -v omarchy >/dev/null 2>&1 || [[ -d /usr/share/omarchy ]]; then
+      printf '%s\n' omarchy
+    else
+      printf 'Unsupported Linux distribution (Omarchy not detected)\n' >&2
+      exit 1
+    fi
+    ;;
+  *) printf 'Unsupported operating system: %s\n' "$(uname -s)" >&2; exit 1 ;;
+esac

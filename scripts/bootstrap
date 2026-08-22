@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+profile=""
+dry_run=false
+skip_packages=false
+skip_secrets=false
+skip_tpm=false
+host=""
+selected_package=""
+while (($#)); do
+  case "$1" in
+    --profile) profile="${2:?missing profile}"; shift 2 ;;
+    --dry-run) dry_run=true; shift ;;
+    --skip-packages) skip_packages=true; shift ;;
+    --skip-secrets) skip_secrets=true; shift ;;
+    --skip-tpm) skip_tpm=true; shift ;;
+    --host) host="${2:?missing host}"; shift 2 ;;
+    --package) selected_package="${2:?missing package}"; shift 2 ;;
+    *) echo "Unknown argument: $1" >&2; exit 2 ;;
+  esac
+done
+profile="${profile:-$($repo_root/scripts/detect-profile)}"
+if $dry_run; then skip_packages=true; skip_secrets=true; skip_tpm=true; fi
+$skip_packages || "$repo_root/scripts/install-packages-$profile"
+args=(--profile "$profile")
+[[ -n "$host" ]] && args+=(--host "$host")
+[[ -n "$selected_package" ]] && args+=(--package "$selected_package")
+"$repo_root/scripts/stow-profile" "${args[@]}" --dry-run
+$dry_run && exit 0
+"$repo_root/scripts/stow-profile" "${args[@]}"
+command -v sync-agent-skills >/dev/null 2>&1 && sync-agent-skills || true
+[[ "$profile" == darwin ]] && "$repo_root/scripts/configure-darwin-keyboard" && "$repo_root/scripts/configure-darwin"
+[[ "$profile" == omarchy ]] && "$repo_root/scripts/configure-omarchy"
+$skip_tpm || "$repo_root/scripts/setup-tmux"
+if ! $skip_secrets && command -v op >/dev/null 2>&1 && command -v update-secrets >/dev/null 2>&1; then update-secrets; fi
+"$repo_root/scripts/verify" --profile "$profile"

@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+case "${1:-}" in
+--install-keyd)
+  command -v keyd >/dev/null 2>&1 || { echo "Install keyd first" >&2; exit 1; }
+  sudo install -Dm644 "$repo_root/system/omarchy/etc/keyd/default.conf" /etc/keyd/default.conf
+  sudo keyd check
+  sudo systemctl enable --now keyd
+  ;;
+--disable-keyd)
+  echo "This stops keyd and preserves the configuration as /etc/keyd/default.conf.disabled."
+  sudo systemctl disable --now keyd
+  sudo mv /etc/keyd/default.conf /etc/keyd/default.conf.disabled
+  ;;
+"")
+  echo "Omarchy files are deployed by stow-profile."
+  echo "Optional privileged step: $0 --install-keyd"
+  ;;
+*) echo "Usage: $0 [--install-keyd|--disable-keyd]" >&2; exit 2 ;;
+esac

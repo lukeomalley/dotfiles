@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+profile=""
+target="${HOME}"
+host="$(hostname -s)"
+dry_run=false
+unstow=false
+selected_package=""
+
+usage() {
+  echo "Usage: $0 [--profile darwin|omarchy] [--host NAME] [--target DIR] [--package NAME] [--dry-run] [--unstow]"
+}
+
+while (($#)); do
+  case "$1" in
+    --profile) profile="${2:?missing profile}"; shift 2 ;;
+    --host) host="${2:?missing host}"; shift 2 ;;
+    --target) target="${2:?missing target}"; shift 2 ;;
+    --package) selected_package="${2:?missing package}"; shift 2 ;;
+    --dry-run) dry_run=true; shift ;;
+    --unstow) unstow=true; shift ;;
+    -h|--help) usage; exit 0 ;;
+    *) echo "Unknown argument: $1" >&2; usage >&2; exit 2 ;;
+  esac
+done
+
+profile="${profile:-$($repo_root/scripts/detect-profile)}"
+[[ "$profile" == darwin || "$profile" == omarchy ]] || { echo "Invalid profile: $profile" >&2; exit 2; }
+command -v stow >/dev/null 2>&1 || { echo "GNU Stow is required" >&2; exit 1; }
+mkdir -p "$target"
+
+declare -a stow_args=(-R --no-folding --target "$target")
+$unstow && stow_args=(-D --no-folding --target "$target")
+$dry_run && stow_args+=(--simulate --verbose=2)
+
+applied=0
+skipped=0
+action=apply
+$dry_run && action=simulate
+for layer in "$repo_root/stow/common" "$repo_root/stow/$profile" "$repo_root/stow/hosts/$host"; do
+  [[ -d "$layer" ]] || continue
+  while IFS= read -r package_path; do
+    package="${package_path##*/}"
+    [[ -z "$selected_package" || "$package" == "$selected_package" ]] || continue
+    if [[ "$package" == agents ]]; then
+      echo "skip agents (managed by sync-agent-skills)"
+      ((skipped += 1))
+      continue
+    fi
+    echo "$action $profile/$package"
+    stow "${stow_args[@]}" --dir "$layer" "$package"
+    ((applied += 1))
+  done < <(find "$layer" -mindepth 1 -maxdepth 1 -type d | LC_ALL=C sort)
+done
+
+if [[ -n "$selected_package" && $applied -eq 0 && $skipped -eq 0 ]]; then
+  echo "Package not found for profile $profile: $selected_package" >&2
+  exit 1
+fi
+echo "Done: $applied applied, $skipped skipped"

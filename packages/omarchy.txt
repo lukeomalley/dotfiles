@@ -1,0 +1,15 @@
+# Packages intentionally added beyond the Omarchy base installation.
+stow
+zsh
+atuin
+zoxide
+fzf
+fd
+bat
+eza
+direnv
+git-delta
+github-cli
+rclone
+ranger
+keyd

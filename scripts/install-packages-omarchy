@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+command -v omarchy >/dev/null 2>&1 || { echo "Omarchy is required" >&2; exit 1; }
+[[ "$(uname -s)" == Linux ]] || { echo "This installer only supports Omarchy Linux" >&2; exit 1; }
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+mapfile -t packages < <(sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' "$repo_root/packages/omarchy.txt")
+((${#packages[@]})) || exit 0
+missing=()
+for package in "${packages[@]}"; do
+  pacman -Q "$package" >/dev/null 2>&1 || missing+=("$package")
+done
+((${#missing[@]})) && omarchy pkg add "${missing[@]}" || echo "All declared Omarchy packages are installed."

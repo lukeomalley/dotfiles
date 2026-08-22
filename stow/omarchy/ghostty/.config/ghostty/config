@@ -1,0 +1,21 @@
+clipboard-read = allow
+clipboard-write = allow
+window-theme = dark
+theme = night-rock
+font-size = 12
+font-family = Inconsolata Nerd Font Mono
+background-opacity = 0.95
+background-blur = true
+window-padding-x = 8
+window-padding-y = 8
+clipboard-paste-protection = true
+clipboard-paste-bracketed-safe = true
+clipboard-trim-trailing-spaces = true
+mouse-hide-while-typing = true
+mouse-scroll-multiplier = 3
+cursor-style = block
+cursor-style-blink = true
+shell-integration = zsh
+shell-integration-features = cursor,sudo,title
+copy-on-select = true
+keybind = shift+enter=text:\x1b\r

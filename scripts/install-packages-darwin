@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+[[ "$(uname -s)" == Darwin ]] || { echo "This installer only supports macOS" >&2; exit 1; }
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+upgrade=false
+case "${1:-}" in "") ;; --upgrade) upgrade=true ;; *) echo "Usage: $0 [--upgrade]" >&2; exit 2 ;; esac
+if ! command -v brew >/dev/null 2>&1; then
+  echo "Homebrew is missing. Install it from https://brew.sh, then rerun this script." >&2
+  exit 1
+fi
+brew bundle --file "$repo_root/packages/Brewfile"
+$upgrade && brew upgrade || true

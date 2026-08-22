@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+profile=""
+target="$HOME"
+while (($#)); do case "$1" in --profile) profile="${2:?}"; shift 2;; --target) target="${2:?}"; shift 2;; *) echo "Unknown argument: $1" >&2; exit 2;; esac; done
+profile="${profile:-$($repo_root/scripts/detect-profile)}"
+bash -n "$repo_root"/scripts/*
+if command -v shellcheck >/dev/null 2>&1; then shellcheck "$repo_root"/scripts/*; else echo "note: shellcheck not installed; skipped"; fi
+if command -v zsh >/dev/null 2>&1; then HOME="$target" ZDOTDIR="$target/.config/zsh" zsh -dfc 'source "$ZDOTDIR/.zshrc"' >/dev/null; else echo "note: zsh not installed; skipped"; fi
+if [[ "$profile" == omarchy && "$target" == "$HOME" ]] && command -v hyprctl >/dev/null 2>&1; then hyprctl configerrors; fi
+if command -v rg >/dev/null 2>&1 && rg -n '/Users/luke|/opt/homebrew|Library/Group Containers|\bpbcopy\b|\bpbpaste\b' "$repo_root/stow/common" --glob '!*.md' --glob '!zsh/.config/zsh/platform/*'; then
+  echo "Platform-specific path found in common profile" >&2; exit 1
+fi
+echo "Verification passed for $profile"

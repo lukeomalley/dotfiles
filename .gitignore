@@ -20,3 +20,5 @@ dotfiles/claude/.claude/statsig/
 dotfiles/claude/.claude/todos/
 dotfiles/claude/.claude/history.jsonl
 dotfiles/claude/.claude/stats-cache.json
+*.bak
+*.bak.*
