@@ -2,10 +2,10 @@
 -- replace Omarchy's defaults.
 
 -- Omarchy normally uses Caps Lock as Compose. This machine delegates Caps Lock
--- to keyd instead (Escape when tapped, Control when held), and swaps Alt/Super.
+-- to keyd instead (Escape when tapped, Control when held).
 hl.config({
   input = {
-    kb_options = "shift:both_capslock_cancel,altwin:swap_alt_win",
+    kb_options = "shift:both_capslock_cancel",
   },
 })
 
