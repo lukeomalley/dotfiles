@@ -8,7 +8,6 @@ hl.config({
     kb_options = "shift:both_capslock_cancel",
     repeat_rate = 50,
     repeat_delay = 200,
-    sensitivity = -0.45,
   },
 })
 
