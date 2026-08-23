@@ -104,6 +104,15 @@ Emergency keyd stop chord: `Backspace + Escape + Enter`. Roll back with
 `./scripts/configure-omarchy --disable-keyd`; this preserves the configuration
 as `/etc/keyd/default.conf.disabled`.
 
+Voxtype uses the CPU-friendly Parakeet TDT int8 model with Insert as a
+Hyprland-managed push-to-talk key. The config and binding are stowed; the model
+and ONNX backend are installed separately because generated model data does not
+belong in Git:
+
+```bash
+./scripts/configure-omarchy --install-voxtype
+```
+
 The current `monitors.lua` is host-specific under `stow/hosts/omarchy`. Rename
 that host directory to the output of `hostname -s` on another machine.
 

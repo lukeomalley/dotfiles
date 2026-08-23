@@ -13,3 +13,5 @@ github-cli
 rclone
 ranger
 keyd
+voxtype-bin
+playerctl

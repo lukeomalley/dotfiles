@@ -7,13 +7,15 @@ host="$(hostname -s)"
 target="$HOME"
 apply=false
 backup_root=""
+selected_package=""
 
-usage() { echo "Usage: $0 [--profile darwin|omarchy] [--host NAME] [--target DIR] [--apply] [--backup-dir DIR]"; }
+usage() { echo "Usage: $0 [--profile darwin|omarchy] [--host NAME] [--target DIR] [--package NAME] [--apply] [--backup-dir DIR]"; }
 while (($#)); do
   case "$1" in
     --profile) profile="${2:?missing profile}"; shift 2 ;;
     --host) host="${2:?missing host}"; shift 2 ;;
     --target) target="${2:?missing target}"; shift 2 ;;
+    --package) selected_package="${2:?missing package}"; shift 2 ;;
     --backup-dir) backup_root="${2:?missing directory}"; shift 2 ;;
     --apply) apply=true; shift ;;
     -h|--help) usage; exit 0 ;;
@@ -54,7 +56,12 @@ done < <(
   for layer in "$repo_root/stow/common" "$repo_root/stow/$profile" "$repo_root/stow/hosts/$host"; do
     [[ -d "$layer" ]] || continue
     find "$layer" -mindepth 2 -type f ! -path "$layer/agents/*" -print0 |
-      while IFS= read -r -d '' source; do printf '%s\t%s\n' "$layer" "$source"; done
+      while IFS= read -r -d '' source; do
+        package="${source#"$layer"/}"
+        package="${package%%/*}"
+        [[ -z "$selected_package" || "$package" == "$selected_package" ]] || continue
+        printf '%s\t%s\n' "$layer" "$source"
+      done
   done | LC_ALL=C sort
 )
 

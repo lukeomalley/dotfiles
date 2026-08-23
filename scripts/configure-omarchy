@@ -13,6 +13,37 @@ install_shell_plugins() {
   done < <(find "$plugin_root" -type f | LC_ALL=C sort)
 }
 
+install_voxtype() {
+  local model="parakeet-tdt-0.6b-v3-int8"
+  local model_dir="$HOME/.local/share/voxtype/models/$model"
+  local setup_config_root=""
+
+  command -v voxtype >/dev/null 2>&1 || {
+    echo "Install the declared voxtype-bin package first" >&2
+    exit 1
+  }
+
+  if [[ "$(readlink -f "$(command -v voxtype)")" != */voxtype-onnx-avx2 ]]; then
+    sudo voxtype setup onnx --enable
+  fi
+
+  if [[ ! -s "$model_dir/encoder-model.int8.onnx" ||
+        ! -s "$model_dir/decoder_joint-model.int8.onnx" ||
+        ! -s "$model_dir/vocab.txt" ||
+        ! -s "$model_dir/config.json" ]]; then
+    setup_config_root="$(mktemp -d)"
+    trap '[[ -n "$setup_config_root" ]] && rm -rf -- "$setup_config_root"' EXIT
+    install -Dm600 "$HOME/.config/voxtype/config.toml" "$setup_config_root/voxtype/config.toml"
+    XDG_CONFIG_HOME="$setup_config_root" voxtype setup --download --model "$model" --no-post-install
+    rm -rf -- "$setup_config_root"
+    setup_config_root=""
+    trap - EXIT
+  fi
+
+  systemctl --user restart voxtype.service
+  echo "Voxtype is using $model with the ONNX AVX2 backend."
+}
+
 case "${1:-}" in
 --install-keyd)
   command -v keyd >/dev/null 2>&1 || { echo "Install keyd first" >&2; exit 1; }
@@ -25,10 +56,14 @@ case "${1:-}" in
   sudo systemctl disable --now keyd
   sudo mv /etc/keyd/default.conf /etc/keyd/default.conf.disabled
   ;;
+--install-voxtype)
+  install_voxtype
+  ;;
 "")
   install_shell_plugins
   echo "Omarchy dotfiles are deployed by stow-profile; shell plugins were copied into place."
   echo "Optional privileged step: $0 --install-keyd"
+  echo "Optional Voxtype model/backend step: $0 --install-voxtype"
   ;;
-*) echo "Usage: $0 [--install-keyd|--disable-keyd]" >&2; exit 2 ;;
+*) echo "Usage: $0 [--install-keyd|--disable-keyd|--install-voxtype]" >&2; exit 2 ;;
 esac
