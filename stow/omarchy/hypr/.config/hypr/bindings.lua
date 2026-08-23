@@ -23,15 +23,15 @@
 -- Disable a default binding without replacing it.
 -- hl.unbind("SUPER + SHIFT + B")
 
--- Add workspace 0 on the physical grave/backtick key. Hyprland reserves the
--- numeric workspace ID 0, so use a named workspace that is displayed as "0".
+-- Put Omarchy's workspace 10 (displayed as "0" in the bar) on the physical
+-- grave/backtick key as well as its default SUPER+0 binding.
 -- Using the keycode keeps the same physical key when Shift produces a tilde.
-o.bind("SUPER + code:49", "Switch to workspace 0", hl.dsp.focus({ workspace = "name:0" }))
-o.bind("SUPER + SHIFT + code:49", "Move window to workspace 0", hl.dsp.window.move({ workspace = "name:0" }))
+o.bind("SUPER + code:49", "Switch to workspace 0", hl.dsp.focus({ workspace = "10" }))
+o.bind("SUPER + SHIFT + code:49", "Move window to workspace 0", hl.dsp.window.move({ workspace = "10" }))
 o.bind(
   "SUPER + SHIFT + ALT + code:49",
   "Move window silently to workspace 0",
-  hl.dsp.window.move({ workspace = "name:0", follow = false })
+  hl.dsp.window.move({ workspace = "10", follow = false })
 )
 
 -- Logitech MX Keys examples:

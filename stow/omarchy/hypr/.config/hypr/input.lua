@@ -6,6 +6,7 @@
 hl.config({
   input = {
     kb_options = "shift:both_capslock_cancel",
+    sensitivity = -0.35,
   },
 })
 

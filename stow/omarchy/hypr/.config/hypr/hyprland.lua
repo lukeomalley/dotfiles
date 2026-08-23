@@ -29,4 +29,4 @@ require("default.hypr.toggles")
 -- o.window("qemu", { workspace = "5" })
 
 -- Keep Ghostty terminals on workspace 0.
-o.window("^com\\.mitchellh\\.ghostty$", { workspace = "name:0" })
+o.window("^com\\.mitchellh\\.ghostty$", { workspace = "10" })
