@@ -1,6 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+install_shell_plugins() {
+  local plugin_root="$repo_root/config/omarchy/plugins"
+  local source relative
+
+  [[ -d "$plugin_root" ]] || return 0
+  while IFS= read -r source; do
+    relative="${source#"$plugin_root"/}"
+    install -Dm644 "$source" "$HOME/.config/omarchy/plugins/$relative"
+  done < <(find "$plugin_root" -type f | LC_ALL=C sort)
+}
+
 case "${1:-}" in
 --install-keyd)
   command -v keyd >/dev/null 2>&1 || { echo "Install keyd first" >&2; exit 1; }
@@ -14,7 +26,8 @@ case "${1:-}" in
   sudo mv /etc/keyd/default.conf /etc/keyd/default.conf.disabled
   ;;
 "")
-  echo "Omarchy files are deployed by stow-profile."
+  install_shell_plugins
+  echo "Omarchy dotfiles are deployed by stow-profile; shell plugins were copied into place."
   echo "Optional privileged step: $0 --install-keyd"
   ;;
 *) echo "Usage: $0 [--install-keyd|--disable-keyd]" >&2; exit 2 ;;
