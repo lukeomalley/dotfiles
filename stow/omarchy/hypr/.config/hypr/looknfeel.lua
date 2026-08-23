@@ -1,5 +1,12 @@
 -- Change the default Omarchy look'n'feel.
 
+-- Remove borders while leaving Omarchy's gap and layout defaults intact.
+hl.config({
+  general = {
+    border_size = 0,
+  },
+})
+
 -- https://wiki.hypr.land/Configuring/Basics/Variables/#general
 -- hl.config({
 --   general = {
