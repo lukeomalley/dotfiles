@@ -23,6 +23,24 @@
 -- Disable a default binding without replacing it.
 -- hl.unbind("SUPER + SHIFT + B")
 
+-- Send a single shortcut to the focused surface while Super remains held.
+-- Splitting key-down and key-up avoids synthetic keys becoming stuck or
+-- repeating, matching Omarchy's universal clipboard shortcut behavior.
+local function send_shortcut_once(mods, key)
+  return function()
+    hl.dispatch(hl.dsp.send_key_state({ mods = mods, key = key, state = "down" }))
+
+    hl.timer(function()
+      hl.dispatch(hl.dsp.send_key_state({ mods = mods, key = key, state = "up" }))
+    end, { timeout = 50, type = "oneshot" })
+  end
+end
+
+-- Mac-style Command shortcuts using the keyboard's Super/Command key.
+o.bind("SUPER + A", "Universal select all", send_shortcut_once("CTRL", "A"))
+hl.unbind("SUPER + T")
+o.bind("SUPER + T", "Universal new tab", send_shortcut_once("CTRL", "T"))
+
 -- Put Omarchy's workspace 10 (displayed as "0" in the bar) on the physical
 -- grave/backtick key as well as its default SUPER+0 binding.
 -- Using the keycode keeps the same physical key when Shift produces a tilde.
