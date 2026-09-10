@@ -131,6 +131,11 @@ shift-down = ['volume set 0', 'mode main']
 if = 'test %{app-bundle-id} = com.apple.systempreferences || test %{app-bundle-id} = com.apple.calculator || test %{app-bundle-id} = com.apple.finder || test %{app-bundle-id} = cc.ffitch.shottr'
 run = 'layout floating'
 
+# Raycast AI Chat should overlay the current workspace instead of tiling into it.
+[[on-window-detected]]
+if = 'test %{app-bundle-id} = com.raycast.macos'
+run = 'layout floating'
+
 # Ghostty to workspace 0
 [[on-window-detected]]
 if = 'test %{app-bundle-id} = com.mitchellh.ghostty'
