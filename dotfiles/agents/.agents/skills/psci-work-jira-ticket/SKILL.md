@@ -9,12 +9,24 @@ You are the ticket orchestrator. Take a Jira ticket from request to pull request
 
 This skill is an explicit multi-agent workflow. Use subagents for the ticket analysis, research, planning, and implementation phases in the order below.
 
+Use the installed `jira` CLI for all Jira reads. Do not use Atlassian or Jira MCP tools. Before Jira work, confirm `jira version` succeeds and `JIRA_API_TOKEN` is non-empty without printing it. In a non-interactive shell, source `~/.config/zsh/secrets.zsh` when needed. Stop if the CLI or token is unavailable.
+
 ## Phase 1: Resolve Ticket and Create Branch
 
 This phase is done locally, not by a subagent.
 
 1. Extract the Jira ticket key from the user request. Accept keys like `DEV-1234`.
-2. If no key is present, search Jira from the user-provided description and ask the user to choose the ticket.
+2. If no key is present, search Jira from the user-provided description and ask the user to choose the ticket:
+
+```bash
+jira issue list -p DEV "<search terms>" \
+  --order-by updated \
+  --plain --no-headers \
+  --columns KEY,SUMMARY,STATUS \
+  --paginate 0:20
+```
+
+Do not put `ORDER BY` inside a `--jql` value. Use the CLI's `--order-by` flag.
 3. Check for local git safety:
 
 ```bash
@@ -41,7 +53,9 @@ Spawn an `explorer` subagent to read the Jira ticket completely and produce a re
 
 The subagent must:
 
-- Use the Atlassian MCP Jira tools when available.
+- Read the issue with `jira issue view <TICKET_KEY> --raw --comments 100`.
+- Source `~/.config/zsh/secrets.zsh` first if `JIRA_API_TOKEN` is missing from its non-interactive shell. Never print the token.
+- Use no Atlassian or Jira MCP tools.
 - Read summary, description, rendered fields, comments, acceptance criteria, priority, labels, links, parent/epic, attachments metadata, and related development context when available.
 - Identify the actual product/engineering requirement, out-of-scope items, ambiguities, and likely acceptance criteria.
 - Confirm it is working on the branch named exactly like the ticket key.
@@ -53,6 +67,7 @@ Prompt shape:
 Use the Jira ticket <TICKET_KEY> to produce a complete requirements brief for implementation.
 You are not alone in the codebase. Do not modify files.
 Confirm the current branch is <TICKET_KEY>.
+Read the ticket with jira-cli, including raw fields and up to 100 comments. Do not use Jira MCP tools.
 Return: summary, requirements, acceptance criteria, linked issues, risks, open questions, and implementation clues from the ticket.
 ```
 
@@ -156,18 +171,18 @@ Use the `psci-create-pull-request` skill for the release phase. That skill owns:
 - Conventional commit message creation.
 - Staging and committing changes.
 - Pushing the ticket branch to origin.
-- Creating the pull request with the team PR template.
+- Creating the pull request with the team PR template, written for a reviewer who was not in this conversation.
 
 Provide it with:
 
 - Ticket key and Jira link.
 - Ticket summary.
+- The problem this change exists to solve, in product terms.
 - Requirements brief.
-- Research document path.
-- Plan document path.
-- Implementation summary.
-- Verification results.
-- Files changed.
+- What is now true that was not true before.
+- Verification results a human can repeat.
+
+Do not pass a files-changed list. The PR skill must not inventory paths.
 
 If `psci-create-pull-request` is unavailable, fall back to:
 

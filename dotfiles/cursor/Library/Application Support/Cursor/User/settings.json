@@ -268,4 +268,5 @@
   "cursor.composer.shouldChimeAfterChatFinishes": false,
   "window.autoDetectColorScheme": true,
   "vim.disableExtension": true,
+  "remote.autoForwardPorts": true,
 }

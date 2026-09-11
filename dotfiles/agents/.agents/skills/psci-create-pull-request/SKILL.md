@@ -1,69 +1,106 @@
 ---
 name: psci-create-pull-request
-description: Creates professional pull requests with proper commit messages and descriptions. Use proactively when ready to commit and create PRs after user approval.
+description: Creates PSCI pull requests with the team PR template, written for a human reviewer who was not in the implementation conversation. Focuses on purpose and why. Uses pseudocode and Mermaid instead of file lists. Use when creating a PSCI PR, opening a pull request after ticket work, or when the user asks to create a PR.
 ---
 
-You are a release engineer specializing in professional pull request creation and git workflow completion.
+# PSCI Create Pull Request
 
-When invoked:
+Write the pull request for a teammate who did not watch the work happen. They can open the Files tab. They cannot recover the purpose from a path list.
 
-1. Create conventional commit messages using ticket information
-2. Commit changes with proper formatting and descriptions
-3. Push branches with proper upstream tracking
-4. Generate comprehensive PR descriptions following team standards
-5. Create pull requests using GitHub CLI
+Read [writing-style.md](writing-style.md) before writing the body. Follow it for all original PR prose.
 
-Commit message format:
+Template headings, checklist lines, and ticket links stay exactly as specified below even when they conflict with sentence-case headings.
 
-- Use conventional commits: `feat([ticket_number]): [change_title]`
-- Add descriptive body explaining the implementation approach
-- Use bullet points for multi-line commit body descriptions
-- NEVER include AI attribution, co-authoring, or Claude references
-- Keep messages concise but informative
+## Audience
 
-PR body format:
+The reviewer is missing the conversation, the ticket rabbit holes, and the dead ends. Answer two questions first:
 
-**CRITICAL: Follow the team's PR template EXACTLY - use the exact format specified below.**
+1. Why does this exist?
+2. What is now true that was not true before?
 
-The PR body must include these sections in this exact order:
+If a sentence only helps someone who already knows the diff, cut it.
 
-- **Ticket(s)**: Link to Jira ticket with proper formatting
-- **Problem Statement**: Clear motivation behind the change
-- **Scope of Work**: Specific changes included in the PR
-- **Related Work**: Links to related PRs, tickets, RFCs, or docs
-- **Quality Checklist**: Required checkboxes for testing and validation
-- **Test Plan**: Detailed testing explanation with steps and edge cases
+## Hard bans
 
-Commands you'll use:
+Never put any of these in the PR body:
 
-- `git commit -m "feat([ticket]): [title]" -m "[description bullet points]"`
-- `git push -u origin [branch_name]`
-- `gh pr create --title "[ticket] [title]" --body "[formatted_body]" --base "[base_branch]"`
+- A files-changed list
+- `git diff --stat`, path inventories, or "touched X, Y, Z"
+- New file, module, or API inventories by path
+- File trees
+- HTML explainers (GitHub will not open them)
+- AI attribution, co-author trailers, or tool watermarks
+- Sycophantic filler or "comprehensive" throat-clearing
 
-PR body template structure:
+`git diff` is for you. The Files tab is for the reviewer. The body is the why.
+
+Do not invent product claims, metrics, or motivations that are not in the ticket, the conversation, or the diff. If the ticket and the diff disagree, say so.
+
+## Workflow
+
+1. Confirm branch, ticket key, and git state.
+2. Read the Jira ticket and the actual diff until you can state the purpose in one paragraph without looking at paths.
+3. Commit with a conventional message if there are uncommitted changes the user asked to ship.
+4. Push with upstream tracking.
+5. Create the PR with `gh`, using the exact section headings below.
+
+```bash
+git status --short --branch
+git log --oneline -5
+git diff [base]...HEAD
+```
+
+Inspect the diff to understand behavior. Do not paste that output into the PR.
+
+Commit:
+
+```bash
+git commit -m "feat(DEV-1234): short imperative subject" -m "Why this change exists.
+What behavior is now different."
+```
+
+Push:
+
+```bash
+git push -u origin HEAD
+```
+
+Never force push without explicit user approval. Never update git config. Never add `Co-authored-by` trailers for AI tools. Never skip hooks unless the user asks.
+
+## PR title
+
+`DEV-XXXX <type>: <description>`
+
+- Ticket key first, uppercase
+- Conventional type: `feat`, `fix`, `refactor`, `chore`, `docs`, `test`, `perf`
+- Description is the human-facing change, not a file name
+
+Examples:
+
+- `DEV-1235 fix: keep Enter from sending chat messages inside code fences`
+- `DEV-4321 feat: add Okta SSO login`
+- `DEV-2890 refactor: share validation between invite and signup`
+
+## PR body
+
+Use these headings, in this order, with the `---` separators. Do not add sections. Do not rename sections.
 
 ```markdown
 ### Ticket(s)
 
-[DEV-####](link)
+[DEV-####](https://procurementsciences.atlassian.net/browse/DEV-####)
 
 ---
 
 ### Problem Statement
 
-Clearly describe the problem or motivation behind this change. Why is this work being done? What issue does it address?
-
 ---
 
 ### Scope of Work
 
-What specific changes are included in this PR? List the components, features, or services impacted. Include screenshots or recordings for clarity. Mention any new files, modules, APIs, etc.
-
 ---
 
 ### Related Work
-
-Link to related PRs, tickets, RFCs, design specs, or context docs.
 
 ---
 
@@ -78,17 +115,158 @@ Link to related PRs, tickets, RFCs, design specs, or context docs.
 
 ### Test Plan
 
-Explain how this PR was tested. Include steps to reproduce, test data used, edge cases checked, and anything specific reviewers should try.
 ```
 
-Key responsibilities:
+Create it with a HEREDOC so markdown survives:
 
-- Ensure commit messages follow conventional commit standards
-- Never include AI-generated watermarks or attributions
-- **CRITICAL: Use the team's PR template EXACTLY as specified - follow it to the letter**
-- Create comprehensive PR descriptions using the exact template format
-- Push branches with proper upstream tracking
-- Provide the PR URL to the user upon successful creation
-- Handle any git or GitHub CLI errors gracefully
+```bash
+gh pr create --title "DEV-1234 fix: short description" --body "$(cat <<'EOF'
+[formatted_body]
+EOF
+)" --base "[base_branch]"
+```
 
-Always confirm successful PR creation and provide the direct link for the user to review.
+### Ticket(s)
+
+One Jira link per ticket. Nothing else.
+
+### Problem Statement
+
+The why. Write it for someone who has never seen the ticket.
+
+Cover:
+
+- Who hurts today, and how
+- What is broken, missing, or unsafe
+- What happens if we do not ship this
+
+Use the product name for the thing that changed: the chat composer, the token refresher, the invoice export. Not the file that implements it.
+
+Bad:
+
+> This PR updates keyboard handling in the chat composer and adds coverage.
+
+Good:
+
+> Authors writing code in chat hit Enter and send a half-finished message. Support keeps seeing truncated requests. The composer should treat a fence as a text area, not a submit shortcut.
+
+### Scope of Work
+
+What is now true. Behavior, contracts, and flow. Not an inventory.
+
+Lead with the change in the world. Then show it. Pick the smallest visual that makes the point. Skip visuals on a one-line copy fix.
+
+For UI changes, include screenshots or recordings when you have them.
+
+Use the `show-me` patterns below, GitHub-safe only. Do not list files, modules, or paths. Naming a user-facing feature or a service is fine. Naming `src/hooks/useComposer.ts` is not.
+
+Bad:
+
+> - Updated `ChatInput.tsx`
+> - Modified `useComposer.ts`
+> - Added `codeFence.ts`
+> - Added unit tests
+
+Good:
+
+> Enter inside a fenced code block inserts a newline. Cmd-Enter still sends.
+
+```text
+on(Enter)
+  if cursor is inside a code fence
+    insert newline
+    return
+  submit message
+```
+
+### Related Work
+
+Links only: other PRs, tickets, RFCs, design specs. If there is nothing to link, write `None.`
+
+Do not dump local research or plan file paths. Those are not review artifacts.
+
+### Quality Checklist
+
+Keep the four lines verbatim. Check a box only when that work actually happened. Leave optional items unchecked unless a PM, designer, or observability pass really happened.
+
+### Test Plan
+
+What a reviewer should do with the running app or the failing case. Steps, data, and edge cases.
+
+Do not list test files. Do not write "covered by unit tests" as a substitute for a path a human can follow. Mention checks only if they were actually run.
+
+## Show the change
+
+Follow the `show-me` skill for conversation explainers. In the PR body, use only what GitHub renders.
+
+Place each visual next to the sentence it supports. One good diagram beats three.
+
+**Pseudocode** for logic:
+
+```text
+on(save)
+  if content is unchanged
+    return cached result
+  write new content
+  return fresh result
+```
+
+**Call tree** for runtime order. Names of operations, not files:
+
+```text
+submitForm
+  createSession
+    persistPrompt
+    launchAgent
+  navigateToSession
+```
+
+**Component tree** for UI structure. Component names, not paths:
+
+```tsx
+<SessionPage>
+  useSessionEvents()
+  <SessionToolbar>
+    <RunSkillButton>
+```
+
+**Mermaid** for interaction or data flow:
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Composer
+    User->>Composer: press Enter
+    Composer->>Composer: inside fence?
+    Composer-->>User: insert newline
+```
+
+**Conceptual diff** when the surrounding shape already exists. Diff the behavior, not the repo layout:
+
+```diff
+ on(Enter)
+-  submit message
++  if cursor is inside a code fence
++    insert newline
++    return
++  submit message
+```
+
+Do not use file-layout diffs, file trees, or local HTML artifacts in the PR body.
+
+## Writing the prose
+
+Follow [writing-style.md](writing-style.md). In this skill that means:
+
+- Purpose first, then the change, then how to check it
+- Short sentences. One idea each
+- Active voice. Name the actor
+- Pick one term and keep it
+- No em dashes, no double hyphens in prose, no decorative emoji
+- No banned filler: utilize, leverage, facilitate, streamline, crucial, notably, furthermore, moreover
+- Command flags like `--base` are fine. Double hyphens in sentences are not
+- You are writing original copy. Do not invent meaning. Do not pad.
+
+## After create
+
+Return the PR URL, title, and base branch. Stop. No "next steps" sermon.

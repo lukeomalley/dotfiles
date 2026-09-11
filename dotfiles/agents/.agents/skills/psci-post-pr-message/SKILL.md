@@ -1,21 +1,24 @@
 ---
 name: psci-post-pr-message
-description: Post a PR announcement message to the #pr-review Slack channel using agent-browser with a fixed format (bold title line on top, blockquoted GitHub link, Jira link, team mentions, t-shirt size + diff stats). Use when the user asks to post a PR message, announce a PR in Slack, share a PR in pr-review, or mentions posting to #pr-review.
+description: "Post a PR announcement message to the #pr-review Slack channel with a fixed format (bold title line on top, blockquoted GitHub link, Jira link, team mentions, t-shirt size + diff stats). Ships a script that composes, verifies, and sends the message through the running Slack desktop app in a few seconds. Use when the user asks to post a PR message, announce a PR in Slack, share a PR in pr-review, or mentions posting to #pr-review."
 ---
 
 # Post PR Message to #pr-review
 
-Posts a structured PR announcement in the `#pr-review` Slack channel using agent-browser over CDP. The first line is bold; the four detail lines sit inside a single blockquote block. Team mentions must resolve to actual Slack user groups (not plain text) and custom emojis must render as emojis (not literal `:name:` text).
+Posts a structured PR announcement in `#pr-review`. All the browser work is done by
+`scripts/post-pr-message.sh`, which drives the Slack desktop app over CDP with
+agent-browser and refuses to send unless the composed message has the exact
+expected structure (1 bold line, 4 blockquote lines, 4 rendered emojis, one real
+mention chip per team). Do not hand-drive agent-browser for this task unless the
+script fails and you are debugging why.
 
 ## Exact Message Format
-
-Five lines, in this order, no extra blank lines. The title line is **bold**; lines 2-5 are grouped inside a **single blockquote**:
 
 ```
 *{TICKET} {type}: {short description}*
 > :github:  {github_pr_url}
 > :jira:  {jira_ticket_url}
-> :eyes:  @{team1} @{team2}
+> :eyes:  @{group or person} [@{group or person} ...]
 > :shirt:  {size} +{additions}-{deletions}
 ```
 
@@ -24,32 +27,92 @@ Rendered example:
 > *DEV-9694 fix: harden integration token refresher against transient failures*
 > > :github:  https://github.com/procurement-sciences/chatbot-ui/pull/7089
 > > :jira:  https://procurementsciences.atlassian.net/browse/DEV-9694
-> > :eyes:  @team-win-engineers @team-aiml-engineers
+> > :eyes:  @team-win-engineers
 > > :shirt:  Medium +403-132
 
-Formatting rules:
-- Two spaces after each emoji (`:github:  `, `:jira:  `, etc.)
-- T-shirt sizes: XS, Small, Medium, Large, XL
-- Diff stats come from `git diff --shortstat main...HEAD` or the PR's files-changed count
-- Default team mentions: `@team-win-engineers` and `@team-aiml-engineers` (ask user to confirm or override)
-- ASCII hyphen-minus only; never substitute an em dash
+Rules the script enforces:
+- Two spaces after each emoji
+- T-shirt sizes: XS, Small, Medium, Large, XL (derived from total changed lines when not given: XS <50, Small <200, Medium <500, Large <1000, XL otherwise)
+- ASCII hyphen-minus only; the script rejects em/en dashes in any field
+- Default mention: `@team-win-engineers`. The old `@team-aiml-engineers` user group no longer exists in the workspace (checked 2026-09-04). Any other group or person can be tagged; nothing is hardcoded, see Mentions below.
 
-## Required Inputs
+## Workflow
 
-Gather these before posting. Ask the user for anything missing.
+The script lives at `scripts/post-pr-message.sh` next to this file. Resolve its
+path from the skill directory (for example `~/.agents/skills/psci-post-pr-message/scripts/post-pr-message.sh`).
 
-| Input | Example | How to infer |
-|-------|---------|--------------|
-| Ticket ID | `DEV-9694` | From branch name, PR title, or user |
-| Commit type | `fix`, `feat`, `chore`, `refactor` (scope OK) | From PR title or commits |
-| Description | `harden integration token refresher...` | From PR title |
-| PR URL | `https://github.com/procurement-sciences/chatbot-ui/pull/7089` | `gh pr view --json url -q .url` |
-| Jira URL | `https://procurementsciences.atlassian.net/browse/DEV-9694` | Build from ticket ID |
-| Team mentions | `@team-win-engineers @team-aiml-engineers` | Default; confirm with user |
-| T-shirt size | `Medium` | Ask user (judgment call) |
-| Diff stats | `+403-132` | `git diff --shortstat main...HEAD` or `gh pr view --json additions,deletions` |
+### 1. Build and show the message (no browser)
 
-If the user just says "post a PR message", try to infer as much as possible from the current git branch and open PR, then confirm the full message before sending.
+From the repo with the PR checked out:
+
+```bash
+post-pr-message.sh --infer --print
+```
+
+`--infer` fills the PR URL, title, diff stats, and ticket from `gh pr view` and
+the branch name, parses `<type>[(scope)]: <desc>` from the title, builds the Jira
+URL, and derives the size. Override anything with explicit flags:
+
+```
+--ticket DEV-9694  --type fix  --desc "..."  --pr-url URL  --jira-url URL
+--teams team-win-engineers,team-data  --people "Ray Poulton,Ben Stoker"
+--size Medium  --stats +403-132  --title "raw PR title"  --pr 7089
+```
+
+### Mentions
+
+Groups go in `--teams` (handles, comma or space separated, `@` optional). People
+go in `--people` (comma separated, names may contain spaces). Pass `--teams ""`
+to tag no group. Every entry is resolved live against Slack's autocomplete, so new
+groups and people work without touching the script:
+
+- A group matches by handle (`team-data`) or display name (`Data Team`).
+- A person matches by full name as Slack shows it (`Ray Poulton`) or by display
+  handle when they have one (`Ben Stoker` for Benjamin Stoker).
+- A partial name is accepted only if it narrows the popup to exactly one person,
+  and the script logs which one it picked. `Ben` alone fails because several
+  people match; `Stoker` succeeds.
+- Anything that does not resolve makes the script exit 4 with the options Slack
+  offered, leaving the draft in the composer. It never posts a plain-text `@name`.
+
+If the user names someone in a form the script rejects, rerun with the name
+exactly as it appears in Slack rather than guessing.
+
+Show the printed message to the user. Ask them to confirm the t-shirt size and
+the team mentions (size is a judgment call; the derived value is only a default).
+
+### 2. Send
+
+After the user approves, rerun the same flags with `--send`:
+
+```bash
+post-pr-message.sh --infer --size Medium --send
+```
+
+This navigates to `#pr-review`, clears the composer, types the message with the
+right Slack shortcuts, waits for each mention to resolve in the autocomplete
+popup, checks the structure, writes a composer screenshot to
+`/tmp/pr-message-preview.png`, presses Enter, and confirms the composer emptied.
+Total time is a few seconds. Exit code 0 means it posted.
+
+If the user wants to see the rendered message before it goes out, run without
+`--send` first. That leaves the message as a draft in the composer and writes
+the screenshot; show it, then run `--send` (which re-composes from scratch).
+
+### Other actions
+
+```bash
+post-pr-message.sh --clear                 # wipe whatever is in the #pr-review composer
+post-pr-message.sh ... --json              # machine-readable summary on stdout
+post-pr-message.sh ... --reset             # full agent-browser daemon reset first
+post-pr-message.sh ... --relaunch-slack    # quit + relaunch Slack with the CDP flag if it is not listening
+post-pr-message.sh ... --allow-missing-emoji
+post-pr-message.sh ... --channel NAME --channel-id C0XXXX   # different destination
+```
+
+Exit codes: 1 usage or missing fields, 2 Slack/agent-browser preflight, 3 could
+not navigate, 4 structure mismatch (draft left in place for inspection), 5 Enter
+was pressed but the composer did not empty.
 
 ## Prerequisites
 
@@ -59,7 +122,8 @@ Slack must be running with CDP enabled on port `9222`:
 curl -s http://localhost:9222/json/version | head -1
 ```
 
-If that fails, relaunch Slack with the debugging flag (this closes the current Slack instance):
+If that fails, either pass `--relaunch-slack` or do it by hand (this closes the
+current Slack instance):
 
 ```bash
 osascript -e 'quit app "Slack"' && sleep 2
@@ -67,222 +131,44 @@ open -a "Slack" --args --remote-debugging-port=9222
 sleep 5
 ```
 
-See the `electron` skill for details on Electron app CDP setup.
+The script also resets agent-browser automatically when it detects it is not
+attached to Slack (empty or `about:blank` title, or a rogue spawned Chrome).
 
-## Connecting agent-browser
+## Troubleshooting
 
-**Always pass `--cdp 9222` on every command.** The `AGENT_BROWSER_CDP` env var is read inconsistently by the daemon -- if the daemon was started without it, a later `export` will be ignored and you'll get `about:blank`. `--cdp 9222` on the command line is the only reliable form. All example commands below omit it for readability; prefix every one.
+**Exit 4 with `mention autocomplete never offered 'X'`.** The group or person does
+not exist under that name, or the name is ambiguous. The error lists what Slack
+offered; pick the exact label from that list and rerun with `--teams`/`--people`.
+Do not try to send a plain-text mention.
 
-**Do not use `agent-browser connect 9222`.** The `connect` subcommand reports "Done" but can leave the session attached to `about:blank` in some builds. `--cdp 9222` on each call is equivalent and more predictable.
+**Exit 4 with `emojis=N (want 4)`.** A custom emoji (`:github:` or `:jira:`) is
+not installed in the workspace. Confirm with the user; `--allow-missing-emoji`
+sends anyway with literal text.
 
-### Preflight diagnostic (run this first, every time)
+**Exit 3 (navigation).** `#pr-review` is not in the sidebar and the quick
+switcher did not open. Pass `--channel-id C04KP0TJWSD` (the pr-review
+conversation id as of 2026-09-04) or open the channel in Slack and rerun.
 
-Before doing anything else, verify the full stack in one shot. This takes ~2 seconds and saves 10+ minutes of debugging later:
-
-```bash
-# 1. Slack is actually listening on 9222 with a real page target.
-curl -s http://localhost:9222/json/list \
-  | python3 -c "import sys,json;[print(t['type'],'|',t['title'][:60]) for t in json.load(sys.stdin)]"
-# expect: a "page" row with your Slack workspace title
-# if connection refused -> Slack isn't running with the debug flag; go to Prerequisites
-
-# 2. agent-browser attaches to THAT target (not its own spawned Chrome).
-agent-browser --cdp 9222 get title
-# expect: your Slack window title (e.g. "pr-review (Channel) - ...")
-# if "" or about:blank -> go to "Full reset" below
-
-# 3. No rogue spawned Chrome.
-pgrep -lf "agent-browser-chrome-" || echo "clean"
-# expect: "clean"
-# if it lists any Chrome PID -> agent-browser launched its own headless Chrome
-# and is ignoring --cdp 9222; go to "Full reset"
-```
-
-If all three pass, skip to the Posting Workflow.
-
-### Full reset (when `about:blank` won't go away)
-
-`agent-browser close --all` alone is NOT always enough -- it closes the daemon's session state but can leave a spawned headless Chrome running, and the next daemon start will re-attach to its own Chrome instead of your Slack CDP port. The complete reset:
+**Exit 2 and `about:blank` will not go away.** The full reset the script runs:
 
 ```bash
-pkill -f "agent-browser"                      # kill the daemon
-pkill -f "agent-browser-chrome-"              # kill any spawned headless Chrome
-rm -f ~/.agent-browser/default.*              # clear daemon socket, pid, engine marker
+pkill -f "agent-browser"; pkill -f "agent-browser-chrome-"
+rm -f ~/.agent-browser/default.*
 sleep 2
-
-# First call after reset sometimes exits 1 silently while the daemon initializes.
-# Retry up to 3 times before giving up.
-for i in 1 2 3; do
-  if out=$(agent-browser --cdp 9222 tab list 2>&1); then
-    echo "$out"
-    break
-  fi
-  sleep 1
-done
+agent-browser --cdp 9222 tab list    # may need 2-3 tries while the daemon starts
 ```
 
-After this, re-run the preflight. You should see your Slack tab with a real URL.
+## Manual fallback (only if the script is broken)
 
-## Posting Workflow
+Everything below is what the script does; keep it in sync if you change either.
 
-Follow these steps in order. Re-snapshot after every action that changes the UI.
-
-### 1. Navigate to #pr-review
-
-```bash
-agent-browser press "Meta+k"
-sleep 1
-agent-browser snapshot -i | head -40          # find the Query combobox ref
-agent-browser fill @<query-ref> "pr-review"
-sleep 1
-agent-browser press "Enter"
-sleep 2
-agent-browser snapshot -i | rg -i "pr-review|message to"   # find the composer ref, verify channel
-```
-
-Verify the channel header shows `#pr-review` before continuing.
-
-### 2. Focus and clear the composer
-
-Clicking the composer ref works sometimes but can miss (especially if a right-hand panel like a Slackbot DM is open). The reliable pattern is to focus via eval, then hard-clear with `execCommand`:
-
-```bash
-# focus the main composer (always index 0 in Slack's contenteditable list)
-agent-browser eval 'document.querySelectorAll("[contenteditable=\"true\"]")[0]?.focus(); "ok"'
-
-# hard-clear any draft or stray newlines
-agent-browser eval '(() => { const el = document.querySelectorAll("[contenteditable=\"true\"]")[0]; el.focus(); document.execCommand("selectAll"); document.execCommand("delete"); return el.innerHTML; })()'
-# expect: "<p><br></p>"
-```
-
-`Meta+a` + `Delete` often only partially clears Slack's composer (you'll see lingering `<p><br></p>` repeats). Prefer `execCommand`.
-
-### 3. Type the message
-
-Two critical gotchas:
-
-1. **Use `keyboard type`, not `type`.** The `type` command requires a selector; without one, `agent-browser` reports `Element not found` silently. `keyboard type` sends real keystrokes to the focused element.
-2. **Never chain multiple `@mentions` in a single `keyboard type` call.** When the mention popup opens on `@`, subsequent characters filter the popup instead of going to the composer -- characters from the second mention end up in the wrong order (you'll get `team-aiml-engineers@` as literal text). Handle mentions one at a time with explicit `sleep` and listbox verification between them.
-
-Build the message line by line:
-
-```bash
-# line 1 - bold title (wrap in *...*; Slack auto-formats to <strong> on the closing *)
-agent-browser keyboard type "*DEV-9694 fix: harden integration token refresher against transient failures*"
-agent-browser press "Shift+Enter"
-
-# enter blockquote mode BEFORE the emoji lines.
-# typing bare ">" at line start does NOT work -- it's swallowed by Slack's
-# emoji auto-replace when followed by " :name:". Use Slack's blockquote shortcut instead:
-agent-browser press "Meta+Shift+9"
-sleep 0.3
-
-# line 2 - github link (blockquote mode is active; it persists across Shift+Enter)
-agent-browser keyboard type ":github:  https://github.com/procurement-sciences/chatbot-ui/pull/7089"
-agent-browser press "Shift+Enter"
-
-# line 3 - jira link
-agent-browser keyboard type ":jira:  https://procurementsciences.atlassian.net/browse/DEV-9694"
-agent-browser press "Shift+Enter"
-
-# line 4 - eyes emoji + first mention
-agent-browser keyboard type ":eyes:  @team-win-engineers"
-sleep 2
-# verify the mention listbox picked the right group before confirming
-agent-browser snapshot -i -s '[role="listbox"]'
-# expect: option "Team Win Engineers, @team-win-engineers (N members)"
-agent-browser press "Enter"
-sleep 1
-
-# second mention - type the space separately, then the handle
-agent-browser keyboard type " "
-sleep 0.3
-agent-browser keyboard type "@team-aiml-engineers"
-sleep 2
-agent-browser snapshot -i -s '[role="listbox"]'
-# expect: option "AI and ML Engineering Team, @team-aiml-engineers (N members)"
-agent-browser press "Enter"
-sleep 1
-
-agent-browser press "Shift+Enter"
-
-# line 5 - shirt
-agent-browser keyboard type ":shirt:  Medium +403-132"
-```
-
-### 4. Verify before sending
-
-Don't rely on full-page screenshots -- with `~/.agent-browser/config.json` set to `--force-device-scale-factor=0.8` they render too small to read. Verify structurally via `innerHTML`, then capture a composer-scoped screenshot for the user:
-
-```bash
-# structural check: should find 1 <strong>, 4 <blockquote>, 4 emoji <img>, 2 <ts-mention>
-agent-browser eval '(() => {
-  const el = document.querySelectorAll("[contenteditable=\"true\"]")[0];
-  const html = el.innerHTML;
-  return JSON.stringify({
-    bold: (html.match(/<strong>/g) || []).length,
-    quotes: (html.match(/<blockquote>/g) || []).length,
-    emojis: (html.match(/class=\\\"emoji\\\"/g) || []).length,
-    mentions: (html.match(/<ts-mention/g) || []).length,
-  });
-})()'
-# expect: {"bold":1,"quotes":4,"emojis":4,"mentions":2}
-
-# tight screenshot of just the composer (readable at 0.8 DPR)
-agent-browser screenshot '[contenteditable="true"]' /tmp/pr-message-preview.png
-```
-
-Show the preview to the user and get explicit confirmation before pressing Enter.
-
-If any count is off:
-- `mentions` < 2 -> a mention posted as plain text. Backspace-deconstructing a mention chip turns it into malformed plain text (`@team-win-engineer@` with a trailing `@`). Safer to `execCommand("selectAll"); document.execCommand("delete")` and restart the typing flow.
-- `emojis` < 4 -> the workspace may not have that custom emoji installed. Confirm with the user before sending.
-- `quotes` < 4 -> you forgot `Meta+Shift+9` before line 2, or it fired too early. Clear and restart.
-- `bold` != 1 -> the `*...*` wrapping didn't take (usually because the closing `*` was typed before the opening one registered). Clear and retype line 1.
-
-### 5. Send
-
-After the user confirms:
-
-```bash
-agent-browser press "Enter"
-sleep 2
-# verify the posted message landed (look for the shirt line at the bottom of the channel)
-agent-browser snapshot -i | rg -iB 2 "XS|Small|Medium|Large|XL" | tail -15
-```
-
-## Common Pitfalls
-
-**`connect 9222` vs `--cdp 9222`.** The `connect` subcommand attaches but creates its own `about:blank` context in some builds. Always use `--cdp 9222` on every command. The `AGENT_BROWSER_CDP` env var is read inconsistently and is not a substitute.
-
-**Silent spawned Chrome.** If `--cdp 9222` still produces `about:blank` after `agent-browser close --all`, run `pgrep -lf "agent-browser-chrome-"`. If it returns any Chrome PID, agent-browser launched its own headless Chrome (visible as a process with `--headless=new --remote-debugging-port=0 --user-data-dir=/var/folders/.../agent-browser-chrome-...`) and is talking to that instead of your CDP port. The full reset (`pkill -f agent-browser && pkill -f agent-browser-chrome- && rm -f ~/.agent-browser/default.*`) is the only fix -- the standard `close --all` will not clear this state.
-
-**First call after reset may need retries.** After a clean daemon reset, the first one or two `agent-browser --cdp 9222 ...` calls may exit 1 with empty output while the daemon initializes and attaches. Wrap the first invocation in a small retry loop (see Full reset above), or just run it twice.
-
-**`type` vs `keyboard type`.** `agent-browser type "text"` without a selector fails silently with `Element not found`. Use `keyboard type` for focused-element typing.
-
-**Double-send from `fill`.** `agent-browser fill` on Slack's composer appends rather than replacing. Never use `fill` for the composer; use `keyboard type` after an `execCommand("selectAll"); execCommand("delete")`.
-
-**Chained mention typing.** Never put multiple `@handles` (or `@handle + more text`) in one `keyboard type` call. The autocomplete popup eats characters and they come out reordered. One mention per call, `sleep 2` for the popup, verify the listbox, then `Enter`.
-
-**Plain `>` for blockquote.** `>` at line start gets swallowed by Slack's emoji replacement when followed by ` :emoji:`. Use `Meta+Shift+9` instead -- it enters a proper `<blockquote>` block that persists across `Shift+Enter`.
-
-**Broken mention recovery.** Backspacing through a `<ts-mention>` chip doesn't produce clean plain text; you get garbled artifacts like `@team-win-engineer@`. Don't try to patch up a broken composer line by line -- hard-clear and restart.
-
-**Plain Enter sends early.** In Slack's composer, `Enter` alone submits. Use `Shift+Enter` for line breaks inside the message. Only press bare `Enter` when ready to send.
-
-**Wrong channel.** Always verify the channel header shows `#pr-review` before typing. The quick switcher can match multiple channels if more than one contains "pr-review".
-
-**Em dash in PR titles.** Never substitute an em dash for a hyphen. Use ASCII `-` only.
-
-## Minimal Prompt Shortcut
-
-If the user invokes this skill with just a ticket ID (e.g. "post-pr-message DEV-9694"), try this inference chain before asking:
-
-1. `gh pr view --json url,title,additions,deletions -q .` for PR URL, title, diff stats
-2. Parse `{type}: {description}` from the PR title (keep any scope like `feat(web-scraper)`)
-3. Build Jira URL as `https://procurementsciences.atlassian.net/browse/{TICKET}`
-4. Default teams: `@team-win-engineers` and `@team-aiml-engineers`
-5. Infer t-shirt size from total line changes (XS <50, Small <200, Medium <500, Large <1000, XL otherwise) and confirm with the user
-
-Always show the final message for approval before sending.
+- Always pass `--cdp 9222` on every agent-browser call. Never `connect 9222`; the env var is read inconsistently.
+- Navigate by real click on the sidebar entry: `agent-browser --cdp 9222 click '[data-qa="channel_sidebar_name_pr-review"]'`. JS `.click()` does nothing (React handlers), and `Meta+k` is ignored when the composer holds focus or the window is not frontmost.
+- Verify the destination through the composer's `aria-label` (`Message to pr-review`), not a snapshot.
+- Clear with `execCommand("selectAll"); execCommand("delete")` on `document.querySelectorAll('[contenteditable="true"]')[0]`; `Meta+a` + Delete leaves fragments.
+- Type with `keyboard type` (real keystrokes). `type` without a selector fails silently; `fill` appends.
+- `Shift+Enter` for newlines. Bare `Enter` sends.
+- `Meta+Shift+9` to enter blockquote mode before line 2; a literal `>` is eaten by emoji auto-replace. The blockquote persists across `Shift+Enter`.
+- One `@mention` at a time, one word per `keyboard type` call with a pause between words (Slack drops the popup if a multi-word name arrives in one burst). Poll `[role="listbox"] [role="option"]` and match on `aria-label`: groups look like `Team Win Engineers, @team-win-engineers (4 members)`, people like `Ray Poulton (not in channel)` or `Benjamin Stoker, @Ben Stoker (away), ...`. Click the matching option by its `#tab_complete_ui_item_N` id rather than trusting Enter. Slack inserts a space after the chip; only type a separator if it did not.
+- Verify with counts on `innerHTML`: `<strong>` 1, `<blockquote>` 4, `class="emoji"` 4, `<ts-mention` one per team. Never backspace through a broken mention chip; clear and restart.
+- Element screenshots land at the wrong offset because Slack renders at a non-1 devicePixelRatio. Take a full screenshot and crop to `[data-qa="message_input"]`'s bounding box scaled by `pixelWidth / window.innerWidth`.

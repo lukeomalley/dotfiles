@@ -8,12 +8,16 @@ export ANTHROPIC_API_KEY="op://Personal/ANTHROPIC_API_KEY/credential"
 export OPENAI_API_KEY="op://Personal/OPENAI_API_KEY/credential"
 export GITHUB_PERSONAL_ACCESS_TOKEN="op://Personal/GITHUB_PAT/credential"
 export NODE_AUTH_TOKEN="op://Personal/GITHUB_PAT/credential"
+export GITHUB_TOKEN="op://Personal/GITHUB_PAT/credential"
 
 # Fireflies AI Meeting Notes
 export FIREFLIES_API_KEY="op://Personal/FIREFLIES_API_KEY/credential"
 
 # Context7 MCP
 export CONTEXT7_API_KEY="op://Personal/CONTEXT7_API_KEY/credential"
+
+# Jira CLI
+export JIRA_API_TOKEN="op://Personal/ATLASSIAN_KEYS/JIRA_API_KEY"
 
 # ntfy push notifications (write-only to the 'agents' topic)
 export NTFY_TOKEN="op://Personal/NTFY_TOKEN/credential"

@@ -49,7 +49,7 @@ ACRONYMS = {
 }
 
 BRANDS = {
-    "datadog": "DataDog",
+    "datadog": "Datadog",
     "fastapi": "FastAPI",
     "github": "GitHub",
     "openai": "OpenAI",

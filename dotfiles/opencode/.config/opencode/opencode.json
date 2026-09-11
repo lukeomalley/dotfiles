@@ -119,7 +119,7 @@
       "mode": "subagent"
     },
     "pr-creator": {
-      "description": "Creates professional pull requests with comprehensive descriptions",
+      "description": "Creates PSCI pull requests written for human reviewers, purpose and why first",
       "mode": "subagent"
     }
   }

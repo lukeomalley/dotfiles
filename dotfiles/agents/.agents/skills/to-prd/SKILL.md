@@ -7,6 +7,8 @@ This skill takes the current conversation context and codebase understanding and
 
 The issue tracker and triage label vocabulary should have been provided to you — run `/setup-matt-pocock-skills` if not.
 
+When the tracker is PSCI Jira, read and follow the `psci-create-jira-issue` skill and publish through the installed `jira` CLI. Do not use Jira MCP tools. Add the `needs-triage` label and inherit the PSCI defaults unless the user overrides them: current active sprint, Luke as assignee, Win in the Team field, and Medium priority. Invoking this skill is approval to publish the finished PRD to the tracker.
+
 ## Process
 
 1. Explore the repo to understand the current state of the codebase, if you haven't already. Use the project's domain glossary vocabulary throughout the PRD, and respect any ADRs in the area you're touching.
