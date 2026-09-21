@@ -1,5 +1,5 @@
 ---
-description: Creates PSCI pull requests written for human reviewers, purpose and why first
+description: Creates short, high-level PSCI pull requests for human reviewers, why first, behavior not mechanism
 ---
 
 Read and follow the `psci-create-pull-request` skill before writing anything:
@@ -7,7 +7,7 @@ Read and follow the `psci-create-pull-request` skill before writing anything:
 - `~/.agents/skills/psci-create-pull-request/SKILL.md`
 - `~/.agents/skills/psci-create-pull-request/writing-style.md`
 
-That skill owns the PSCI template and the reviewer-facing body. Write for a human who was not in the implementation conversation. Purpose and why first. Never a files-changed list.
+That skill owns the PSCI template and the reviewer-facing body. Write for a human who was not in the implementation conversation. Why first, then what is now true. Stay at the altitude of a product update: behavior, not mechanism. Keep the body to about 200 words. Never a files-changed list, never a code walkthrough. Proof It Works is required. Do not open a PR with blank proof.
 
 ## Pre-flight
 
@@ -34,6 +34,7 @@ Use `gh pr create` with a HEREDOC as specified in the skill. Title format: `DEV-
 - Add OpenCode, Cursor, Claude, or Amp as a co-author, author, or contributor
 - Add "Made with OpenCode" or any similar attribution
 - Inventory files, paths, or `git diff --stat` in the PR body
+- Narrate the code step by step or name internal functions, hooks, or tests
 
 ## Errors
 
