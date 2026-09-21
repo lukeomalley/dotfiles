@@ -181,8 +181,9 @@ Provide it with:
 - Requirements brief.
 - What is now true that was not true before.
 - Verification results a human can repeat.
+- Proof It Works: an ephemeral URL if one exists, and any screenshot, GIF, video, or terminal capture of the run.
 
-Do not pass a files-changed list. The PR skill must not inventory paths.
+Do not pass a files-changed list, the implementation plan, or phase-by-phase notes. The PR skill writes at product altitude and must not inventory paths or narrate the code. Do not create the PR with empty Proof It Works.
 
 If `psci-create-pull-request` is unavailable, fall back to:
 

@@ -9,11 +9,13 @@ DEST_DIRS=(
   "$HOME/.claude/skills"
   "$HOME/.cursor/skills"
   "$HOME/.config/opencode/skills"
+  "$HOME/.codex/skills"
+  "$HOME/.copilot/skills"
+  "$HOME/Library/Application Support/ai.opencode.desktop/skills"
 )
 
-LEGACY_DEST_DIRS=(
-  "$HOME/.codex/skills"
-)
+# Directories that used to receive skill links and should no longer.
+LEGACY_DEST_DIRS=()
 
 usage() {
   cat <<'EOF'
@@ -25,12 +27,16 @@ directory symlinks:
   ~/.claude/skills
   ~/.cursor/skills
   ~/.config/opencode/skills
+  ~/.codex/skills
+  ~/.copilot/skills
+  ~/Library/Application Support/ai.opencode.desktop/skills
 
 The dotfiles skills directory is authoritative:
   ~/code/dotfiles/dotfiles/agents/.agents/skills
 
 Same-name app-local skills are overwritten with symlinks to the repo source.
 This script does not copy, adopt, or import app-local skills back into dotfiles.
+It never touches Codex's .system skills.
 EOF
 }
 
@@ -134,8 +140,10 @@ for dest_dir in "${DEST_DIRS[@]}"; do
   sync_to_dest "$dest_dir"
 done
 
-for dest_dir in "${LEGACY_DEST_DIRS[@]}"; do
-  cleanup_legacy_dest "$dest_dir"
-done
+if ((${#LEGACY_DEST_DIRS[@]})); then
+  for dest_dir in "${LEGACY_DEST_DIRS[@]}"; do
+    cleanup_legacy_dest "$dest_dir"
+  done
+fi
 
 echo "Synced shared skills from $SOURCE_DIR"

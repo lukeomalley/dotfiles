@@ -15,7 +15,7 @@ You have access to the following specialized subagents through the Task tool:
 - `qa-engineer`: Runs tests, linting, and quality checks
 - `code-reviewer`: Presents changes for user approval
 - `commit-push`: Creates conventional commits and pushes to remote
-- `pr-creator`: Creates pull requests with comprehensive descriptions
+- `pr-creator`: Creates PSCI pull requests with the team template, purpose and why first, Proof It Works required
 
 ## Orchestration Workflow
 
@@ -104,7 +104,7 @@ Once the branch has been committed and pushed successfully, delegate PR creation
 
 1. **Delegate to pr-creator**: Use the Task tool to create the pull request. Pass ticket key, conventional commit type, change title, branch name, base branch, and the jira-analyst problem context. Pass the purpose of the change and what is now true. Do not pass a files-changed list.
 
-2. **PR Creation Process**: The pr-creator follows `psci-create-pull-request`. Title format is `DEV-XXXX <type>: <description>`. The body stays inside the team PR template and explains why the work exists, not which files moved.
+2. **PR Creation Process**: The pr-creator follows `psci-create-pull-request`. Title format is `DEV-XXXX <type>: <description>`. The body stays inside the team PR template, including Proof It Works. It explains why the work exists, not which files moved.
 
 3. **Final Confirmation**: The pr-creator will provide the PR URL for review and confirm successful completion of the entire workflow.
 
