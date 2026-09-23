@@ -162,23 +162,32 @@
       "skillFolderHash": "0bdb821a21e793a4f6f82a7078c052154447e5cc",
       "installedAt": "2026-09-11T23:15:15.716Z",
       "updatedAt": "2026-09-11T23:15:15.716Z"
+    },
+    "archify": {
+      "source": "tt-a1i/archify",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/tt-a1i/archify.git",
+      "skillPath": "archify/SKILL.md",
+      "skillFolderHash": "b799ee7c865bec20b580cb1dfe493bcfb1f79e6d",
+      "installedAt": "2026-09-13T05:36:32.677Z",
+      "updatedAt": "2026-09-13T05:36:32.677Z"
     }
   },
   "dismissed": {
     "findSkillsPrompt": true
   },
   "lastSelectedAgents": [
-    "antigravity",
+    "amp",
     "cline",
     "codex",
     "cursor",
-    "deepagents",
-    "dexto",
-    "firebender",
+    "droid",
     "gemini-cli",
     "github-copilot",
-    "kimi-cli",
+    "kilo",
+    "kimi-code-cli",
     "opencode",
-    "warp"
+    "warp",
+    "zed"
   ]
 }
