@@ -1,0 +1,23 @@
+#!/bin/bash
+set -euo pipefail
+
+readonly VIBEPROXY_EXECUTABLE="/Applications/VibeProxy.app/Contents/MacOS/CLIProxyMenuBar"
+
+if [ -z "${CLIPROXYAPI_MANAGEMENT_PASSWORD:-}" ]; then
+    echo "Error: CLIPROXYAPI_MANAGEMENT_PASSWORD is not set. Run update-secrets and reload your shell." >&2
+    exit 1
+fi
+
+if [ ! -x "$VIBEPROXY_EXECUTABLE" ]; then
+    echo "Error: VibeProxy is not installed in /Applications." >&2
+    exit 1
+fi
+
+if pgrep -x CLIProxyMenuBar > /dev/null; then
+    echo "Error: Quit VibeProxy first so it can restart with the management password." >&2
+    exit 1
+fi
+
+# Finder and login-item launches do not inherit the shell's secrets.
+export MANAGEMENT_PASSWORD="$CLIPROXYAPI_MANAGEMENT_PASSWORD"
+exec "$VIBEPROXY_EXECUTABLE"
