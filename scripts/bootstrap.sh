@@ -12,13 +12,9 @@ echo "Setting up Homebrew..."
 echo "Stowing dotfiles..."
 ./scripts/stow.sh
 
-# Sync agent skills into app-specific directories (Codex, Claude, Cursor, OpenCode)
-echo "Syncing agent skills..."
-if [ -x "$HOME/bin/sync-agent-skills" ]; then
-    "$HOME/bin/sync-agent-skills" || echo "Warning: Agent skill sync failed."
-else
-    echo "Warning: sync-agent-skills script not found in $HOME/bin"
-fi
+# Install agent skills (private repo at ~/.agents)
+echo "Setting up agent skills..."
+./scripts/agent-skills.sh || echo "Warning: Agent skills setup failed."
 
 # Configure Keyboard
 echo "Configuring keyboard..."

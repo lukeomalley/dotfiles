@@ -25,6 +25,10 @@ This script will:
 - Symlink configuration files using `stow`
 - Apply macOS keyboard settings
 
+## Agent Skills
+
+Agent skills live in their own private repo, [lukeomalley/agent-skills](https://github.com/lukeomalley/agent-skills), cloned to `~/.agents`. Codex, Cursor, OpenCode, Copilot, and Gemini read `~/.agents/skills` directly; `~/.agents/bin/sync` links each skill into `~/.claude/skills` for Claude Code. Bootstrap runs `scripts/agent-skills.sh` to clone and link them. See that repo's README for adding and updating skills.
+
 ## Atlassian TWG CLI
 
 Jira skills use Atlassian's TWG CLI with OAuth. After bootstrap on a new machine, install TWG using the [official setup guide](https://developer.atlassian.com/cloud/twg-cli/getting-started/installation/). The installer requires an interactive terminal for consent and browser sign-in and installs Atlassian's agent skills. It is separate from Homebrew bootstrap.
