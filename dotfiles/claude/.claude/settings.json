@@ -7,11 +7,12 @@
       "Read(~/.zshrc)"
     ]
   },
+  "model": "opus[1m]",
   "effortLevel": "medium",
   "tui": "fullscreen",
   "skipDangerousModePermissionPrompt": true,
   "feedbackSurveyState": {
     "lastShownTime": 1753928186805
   },
-  "model": "opus[1m]"
+  "switchModelsOnFlag": false
 }
