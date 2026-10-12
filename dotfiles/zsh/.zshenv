@@ -47,6 +47,11 @@ export GOPATH="$HOME/go"
 export PATH="$PATH:$GOPATH/bin"
 export GO111MODULE=on
 
+# Rust (rustup is keg-only, so brew does not symlink its cargo/rustc/rust-analyzer
+# proxies; ~/.cargo/bin holds binaries from `cargo install`)
+export PATH="/opt/homebrew/opt/rustup/bin:$PATH"
+export PATH="$PATH:$HOME/.cargo/bin"
+
 # Bun
 export PATH="$PATH:$HOME/.bun/bin"
 

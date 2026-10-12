@@ -89,7 +89,7 @@ Add the line to `Brewfile` and commit. The format is `brew "package-name"` for C
 
 `scripts/bootstrap.sh` is the main entry point for setting up a fresh machine. It runs these steps in order:
 
-1. **homebrew.sh** -- Installs Homebrew itself (if missing), then installs all packages from `Brewfile`
+1. **homebrew.sh** -- Installs Homebrew itself (if missing), then installs all packages from `Brewfile`, then the Rust stable toolchain (plus rust-analyzer) via the keg-only `rustup` formula, whose bin dir `.zshenv` puts on PATH
 2. **stow.sh** -- Symlinks all dotfile packages to `$HOME`
 3. **agent-skills.sh** -- Clones the private agent-skills repo to `~/code/agent-skills` and links the skills for every agent
 4. **keyboard.sh** -- Sets fast key repeat (InitialKeyRepeat: 10, KeyRepeat: 1), disables press-and-hold

@@ -21,6 +21,14 @@ brew update
 echo "Installing dependencies from Brewfile..."
 brew bundle --file=Brewfile
 
+# rustup ships without a toolchain. Install stable plus rust-analyzer (not in
+# the default profile); on an existing machine this just updates stable.
+RUSTUP="$(brew --prefix rustup)/bin/rustup"
+if [ -x "$RUSTUP" ]; then
+    echo "Installing Rust stable toolchain..."
+    "$RUSTUP" toolchain install stable --component rust-analyzer
+fi
+
 # Upgrade existing packages
 echo "Upgrading packages..."
 brew upgrade
