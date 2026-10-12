@@ -55,6 +55,11 @@ export PATH="$PATH:$HOME/.cargo/bin"
 # Bun
 export PATH="$PATH:$HOME/.bun/bin"
 
+# OrbStack (docker, docker compose, orb). Appended so Homebrew's kubectl wins
+# over the one OrbStack bundles.
+export PATH="$PATH:$HOME/.orbstack/bin"
+fpath+=("$HOME/.orbstack/shell/completions/zsh")
+
 # Z config
 export _Z_DATA="$XDG_DATA_HOME/.z"
 

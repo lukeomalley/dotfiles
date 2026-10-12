@@ -62,10 +62,6 @@
       "type": "remote",
       "url": "http://localhost:9000/sse"
     },
-    "firecrawl": {
-      "type": "remote",
-      "url": "http://localhost:3015/mcp"
-    },
     "fireflies": {
       "type": "remote",
       "url": "https://api.fireflies.ai/mcp",

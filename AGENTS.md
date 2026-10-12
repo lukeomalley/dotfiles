@@ -65,7 +65,7 @@ Delete the directory from `dotfiles/` and remove the symlinks manually, or run `
 All system packages and applications are declared in the root `Brewfile`. This is the single source for what gets installed.
 
 - **`brew` entries**: CLI tools and libraries (stow, git, neovim, tmux, ripgrep, fzf, etc.)
-- **`cask` entries**: GUI applications (Ghostty, Docker Desktop, AeroSpace, 1Password CLI, etc.)
+- **`cask` entries**: GUI applications (Ghostty, OrbStack, AeroSpace, 1Password CLI, etc.)
 
 ### Installing packages
 
@@ -170,7 +170,7 @@ Scripts in `dotfiles/bin/bin/` get symlinked to `~/bin/`, which is on `$PATH`. T
 - `psql-llm` -- Run psql with clean, deterministic CSV output for LLM agents (ignores `~/.psqlrc`, stops on error)
 - `git-ai-commit-msg` -- Generate a conventional commit message from staged changes (used by lazygit)
 - `git-lg` / `git-lga` -- Git log formatting (these work as `git lg` because git resolves `git-*` scripts on PATH)
-- `start-atlassian-mcp` / `start-firecrawl-mcp` / `start-vibeproxy` -- Start local MCP servers and VibeProxy with secrets from 1Password
+- `start-atlassian-mcp` / `start-vibeproxy` -- Start the local Atlassian MCP server and VibeProxy with secrets from 1Password
 - `copy-dev-lite-llm-key` -- Copy the dev LiteLLM master key from the sandbox cluster to the clipboard
 - `tmp` -- Edit a throwaway temp file in nvim
 - `yt-transcript` / `srt-to-txt` / `pdf-to-txt` -- Extract plain text from a YouTube video, SRT subtitles, or a folder of PDFs
