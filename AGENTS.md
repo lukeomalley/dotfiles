@@ -129,7 +129,6 @@ Add the line to `Brewfile` and commit. The format is `brew "package-name"` for C
     ├── nvim/              # Neovim configuration
     ├── opencode/          # OpenCode settings and agents
     ├── psql/              # PostgreSQL client config (psqlrc)
-    ├── rclone/            # Rclone cloud sync
     ├── smug/              # Smug tmux session manager
     ├── ssh/               # SSH configuration
     ├── starship/          # Starship prompt
@@ -173,12 +172,8 @@ Scripts in `dotfiles/bin/bin/` get symlinked to `~/bin/`, which is on `$PATH`. T
 - `git-lg` / `git-lga` -- Git log formatting (these work as `git lg` because git resolves `git-*` scripts on PATH)
 - `start-atlassian-mcp` / `start-firecrawl-mcp` / `start-vibeproxy` -- Start local MCP servers and VibeProxy with secrets from 1Password
 - `copy-dev-lite-llm-key` -- Copy the dev LiteLLM master key from the sandbox cluster to the clipboard
-- `cloudsync` / `rc` -- rclone bisync with GNU Parallel / rclone with the B2 encryption keys loaded
-- `notes` / `snotes` -- Open the notes directory in nvim / commit and sync it with git
 - `tmp` -- Edit a throwaway temp file in nvim
 - `yt-transcript` / `srt-to-txt` / `pdf-to-txt` -- Extract plain text from a YouTube video, SRT subtitles, or a folder of PDFs
-- `animations-on` / `animations-off` -- Toggle macOS animations
-- `clear-desktop` -- Delete everything on the Desktop
 
 ### The --no-folding Rule
 

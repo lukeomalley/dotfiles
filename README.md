@@ -8,7 +8,7 @@ Personal dotfiles and configuration scripts for macOS, managed with **GNU Stow**
 - **Terminal**: Ghostty, Tmux (with Smug sessions)
 - **Window manager**: AeroSpace
 - **AI agents**: Claude Code, OpenCode
-- **Tools**: Git, lazygit, lf, k9s, psql, rclone, SSH (1Password agent)
+- **Tools**: Git, lazygit, lf, k9s, psql, SSH (1Password agent)
 
 ## Installation
 
