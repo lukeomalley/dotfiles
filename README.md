@@ -7,8 +7,8 @@ Personal dotfiles and configuration scripts for macOS, managed with **GNU Stow**
 - **Editors**: Neovim, Cursor
 - **Terminal**: Ghostty, Tmux (with Smug sessions)
 - **Window manager**: AeroSpace
-- **AI agents**: Claude Code, OpenCode
-- **Tools**: Git, lazygit, lf, k9s, psql, SSH
+- **AI agents**: Claude Code
+- **Tools**: Git, lf, k9s, psql, SSH
 
 ## Installation
 

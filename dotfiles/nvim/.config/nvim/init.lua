@@ -732,7 +732,6 @@ local snacks_spec = {
     { '<leader><space>', function() Snacks.picker.buffers() end,            desc = '[ ] Find existing buffers' },
     { '<leader>/',       function() Snacks.picker.lines() end,              desc = '[/] Fuzzily search in current buffer' },
     -- Git (replaces vim-fugitive / vim-rhubarb).
-    { '<leader>gg',      function() Snacks.lazygit() end,                   desc = 'Lazygit' },
     { '<leader>gb',      function() Snacks.gitbrowse() end,                 mode = { 'n', 'x' },                          desc = '[G]it [B]rowse' },
     { '<leader>gB',      function() Snacks.git.blame_line() end,            desc = '[G]it [B]lame line' },
   },

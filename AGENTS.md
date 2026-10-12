@@ -14,7 +14,7 @@ The `dotfiles/` directory contains stow packages. Each package mirrors the targe
 dotfiles/zsh/.zshenv          -->  ~/.zshenv
 dotfiles/zsh/.config/zsh/.zshrc  -->  ~/.config/zsh/.zshrc
 dotfiles/git/.config/git/config  -->  ~/.config/git/config
-dotfiles/bin/bin/review-pr       -->  ~/bin/review-pr
+dotfiles/bin/bin/notify          -->  ~/bin/notify
 ```
 
 Git tracks the real files in this repo. The symlinks in `$HOME` point back here. Edits to either side are the same file.
@@ -125,11 +125,9 @@ Add the line to `Brewfile` and commit. The format is `brew "package-name"` for C
     ├── ghostty/           # Ghostty terminal
     ├── git/               # Git config and global ignore
     ├── k9s/               # Kubernetes CLI tool
-    ├── lazygit/           # Lazygit terminal UI
     ├── lf/                # lf file manager
     ├── npm/               # npm registry config (token comes from the environment)
     ├── nvim/              # Neovim configuration
-    ├── opencode/          # OpenCode settings and agents
     ├── psql/              # PostgreSQL client config (psqlrc)
     ├── smug/              # Smug tmux session manager
     ├── ssh/               # SSH configuration
@@ -165,7 +163,7 @@ Never commit API keys, tokens, or credentials. Use the 1Password template patter
 
 ### Git and SSH Keys
 
-Each machine has its own SSH key at `~/.ssh/id_ed25519`, with no passphrase, used for both GitHub auth and commit signing. Git and agents never wait on a prompt. `scripts/git-keys.sh` creates it (named after the machine, e.g. `psci-mbp`), registers it on GitHub as an auth and a signing key, and writes `~/.ssh/allowed_signers` from the account's signing keys. Revoke a lost machine by deleting its key on GitHub.
+Each machine has its own SSH key at `~/.ssh/id_ed25519`, with no passphrase, used for both GitHub auth and commit signing. Git and agents never wait on a prompt. `scripts/git-keys.sh` creates it (named after the machine, e.g. `psci-mbp`), registers it on GitHub as an auth and a signing key, writes `~/.ssh/allowed_signers` from the account's signing keys, and adds GitHub's host keys to `known_hosts` so SSH clones never prompt. Revoke a lost machine by deleting its key on GitHub.
 
 - GitHub over HTTPS uses the `gh` CLI login as the git credential helper. Don't put a GitHub token in the environment; `gh` would prefer it over its own login.
 - Bitbucket is optional, per machine: add `~/.ssh/id_ed25519.pub` in Bitbucket for auth and signing. Repos with a bitbucket.org remote use the Bitbucket email via `~/.config/git/identity-bitbucket`.
@@ -178,9 +176,7 @@ Scripts in `dotfiles/bin/bin/` get symlinked to `~/bin/`, which is on `$PATH`. T
 - `update-secrets` -- Regenerate secrets from 1Password
 - `notify` -- Send a push notification to Luke's devices via ntfy (reads `$NTFY_TOKEN`). Use it when a long task finishes, you need Luke's input, you hit an unrecoverable error, or a milestone is worth surfacing. Usage: `notify -t "Title" -p high -g white_check_mark "message"`. Don't spam.
 - `psql-llm` -- Run psql with clean, deterministic CSV output for LLM agents (ignores `~/.psqlrc`, stops on error)
-- `git-ai-commit-msg` -- Generate a conventional commit message from staged changes (used by lazygit)
 - `git-lg` / `git-lga` -- Git log formatting (these work as `git lg` because git resolves `git-*` scripts on PATH)
-- `start-atlassian-mcp` -- Start the local Atlassian MCP server with secrets from 1Password
 - `copy-dev-lite-llm-key` -- Copy the dev LiteLLM master key from the sandbox cluster to the clipboard
 - `yt-transcript` / `srt-to-txt` / `pdf-to-txt` -- Extract plain text from a YouTube video, SRT subtitles, or a folder of PDFs
 

@@ -51,7 +51,7 @@
 	graphColors = blue,yellow,cyan,magenta,green,red
 
 [delta]
-	navigate = true            # n/N jumps between files (CLI only, not in lazygit)
+	navigate = true            # n/N jumps between files
 	dark = true
 	tabs = 4
 	line-numbers = true

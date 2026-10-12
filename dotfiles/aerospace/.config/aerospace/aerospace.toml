@@ -143,7 +143,7 @@ run = 'move-node-to-workspace 0'
 
 # Code and AI editors to workspace 1
 [[on-window-detected]]
-if = 'test %{app-bundle-id} = com.microsoft.VSCode || test %{app-bundle-id} = com.todesktop.230313mzl4w4u92 || test %{app-bundle-id} = com.openai.codex || test %{app-bundle-id} = ai.opencode.desktop || test %{app-bundle-id} = com.t3tools.t3code || test %{app-bundle-id} = com.anthropic.claudefordesktop'
+if = 'test %{app-bundle-id} = com.microsoft.VSCode || test %{app-bundle-id} = com.todesktop.230313mzl4w4u92 || test %{app-bundle-id} = com.openai.codex || test %{app-bundle-id} = com.t3tools.t3code || test %{app-bundle-id} = com.anthropic.claudefordesktop'
 run = 'move-node-to-workspace 1'
 
 # Documents to workspace 3
