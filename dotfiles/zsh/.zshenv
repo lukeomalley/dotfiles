@@ -58,18 +58,8 @@ export PATH="$PATH:$HOME/.bun/bin"
 # Z config
 export _Z_DATA="$XDG_DATA_HOME/.z"
 
-# vckpg
-export VCPKG_ROOT=/Users/luke/code/vcpkg
-export PATH=$VCPKG_ROOT:$PATH
-
 # PostgreSQL client (libpq is keg-only, so its bin is not symlinked by brew)
 export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
 export PSQLRC="$XDG_CONFIG_HOME/psql/psqlrc"
 export PSQL_HISTORY="$XDG_DATA_HOME/psql/history"
 [[ -d "$XDG_DATA_HOME/psql" ]] || mkdir -p "$XDG_DATA_HOME/psql"
-
-# Java tooling (Maestro requires Java 17 or newer).
-export JAVA_HOME="/opt/homebrew/opt/openjdk/libexec/openjdk.jdk/Contents/Home"
-export PATH="$JAVA_HOME/bin:$PATH"
-export MAESTRO_CLI_NO_ANALYTICS=1
-export MAESTRO_CLI_ANALYSIS_NOTIFICATION_DISABLED=true

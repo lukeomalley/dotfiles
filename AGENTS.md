@@ -81,7 +81,7 @@ Or run the full setup:
 
 ### Adding a new package
 
-Add the line to `Brewfile` and commit. The format is `brew "package-name"` for CLI tools or `cask "app-name"` for GUI apps. Keep the file sorted by category.
+Add the line to `Brewfile` and commit. The format is `brew "package-name"` for CLI tools or `cask "app-name"` for GUI apps.
 
 ---
 
