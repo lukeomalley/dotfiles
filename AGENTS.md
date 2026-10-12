@@ -118,7 +118,7 @@ Add the line to `Brewfile` and commit. The format is `brew "package-name"` for C
     ├── aerospace/         # AeroSpace tiling window manager
     ├── atuin/             # Atuin shell history
     ├── bin/               # Personal scripts (~/bin/)
-    ├── claude/            # Claude Code settings and subagents
+    ├── claude/            # Claude Code settings
     ├── cursor/            # Cursor IDE settings
     ├── ghostty/           # Ghostty terminal
     ├── git/               # Git config and global ignore
@@ -170,9 +170,8 @@ Scripts in `dotfiles/bin/bin/` get symlinked to `~/bin/`, which is on `$PATH`. T
 - `psql-llm` -- Run psql with clean, deterministic CSV output for LLM agents (ignores `~/.psqlrc`, stops on error)
 - `git-ai-commit-msg` -- Generate a conventional commit message from staged changes (used by lazygit)
 - `git-lg` / `git-lga` -- Git log formatting (these work as `git lg` because git resolves `git-*` scripts on PATH)
-- `start-atlassian-mcp` / `start-vibeproxy` -- Start the local Atlassian MCP server and VibeProxy with secrets from 1Password
+- `start-atlassian-mcp` -- Start the local Atlassian MCP server with secrets from 1Password
 - `copy-dev-lite-llm-key` -- Copy the dev LiteLLM master key from the sandbox cluster to the clipboard
-- `tmp` -- Edit a throwaway temp file in nvim
 - `yt-transcript` / `srt-to-txt` / `pdf-to-txt` -- Extract plain text from a YouTube video, SRT subtitles, or a folder of PDFs
 
 ### The --no-folding Rule
