@@ -1,228 +1,42 @@
-# Dotfiles Repository
+# Dotfiles
 
-This repository is the single source of truth for macOS system configuration. Every config file lives here, tracked by git, and gets symlinked to its functional location on disk using GNU Stow. The goal: clone this repo on a fresh Mac, run bootstrap, and have a fully configured environment.
+macOS configuration, managed with GNU Stow and Homebrew. Clone to `~/code/dotfiles` and run `scripts/bootstrap.sh` to set up a fresh Mac.
 
----
+## Layout
 
-## Core Architecture
+- `dotfiles/<package>/` mirrors `$HOME`. `scripts/stow.sh` symlinks each file into place, e.g. `dotfiles/git/.config/git/config` -> `~/.config/git/config`. Edits are live; re-run `stow.sh` only after adding or removing files.
+- `Brewfile` declares every package and app. Keep it in sync with what is installed.
+- `scripts/` holds setup steps; `bootstrap.sh` runs them in order.
 
-**Configs live here. Symlinks make them work.**
+## Rules
 
-The `dotfiles/` directory contains stow packages. Each package mirrors the target filesystem structure relative to `$HOME`. When stowed, individual files get symlinked to where macOS and applications expect them.
+- Stow runs with `--no-folding` so only files are linked, never directories. Keep it that way, or app runtime files leak into the repo.
+- Stow links every file in a package, gitignored or not. Never leave untracked files (plugins, `node_modules`, generated files) inside a package.
+- Track only files you configure, not caches or state. Prefer `~/.config/<tool>/`.
+- Don't symlink by hand or create tracked files directly in `$HOME`; add them to a package and re-stow.
+- Never commit secrets. The repo is public.
 
-```
-dotfiles/zsh/.zshenv          -->  ~/.zshenv
-dotfiles/zsh/.config/zsh/.zshrc  -->  ~/.config/zsh/.zshrc
-dotfiles/git/.config/git/config  -->  ~/.config/git/config
-dotfiles/bin/bin/notify          -->  ~/bin/notify
-```
+## Environment
 
-Git tracks the real files in this repo. The symlinks in `$HOME` point back here. Edits to either side are the same file.
+`dotfiles/zsh/.zshenv` sets `XDG_CONFIG_HOME=~/.config`, `XDG_DATA_HOME=~/.config/local/share`, `XDG_CACHE_HOME=~/.config/cache` and `ZDOTDIR=~/.config/zsh`, and builds PATH for every shell type, so put env and PATH there rather than in `.zshrc`.
 
----
+## Secrets
 
-## GNU Stow
+`dotfiles/zsh/.config/zsh/secrets.tpl` holds 1Password `op://` references. `update-secrets` renders it to `secrets.zsh` (gitignored), which `.zshrc` sources. Add new secrets to the template.
 
-Stow is the symlink manager. It takes a package directory and creates symlinks in a target directory (always `$HOME` for us).
+## Git and SSH keys
 
-### How stow.sh works
+Each machine has its own passphrase-free key at `~/.ssh/id_ed25519`, used for GitHub auth and commit signing, so git never prompts. `scripts/git-keys.sh` creates it, registers it on GitHub, and writes `~/.ssh/allowed_signers` and GitHub's host keys.
 
-```bash
-stow -R --no-folding -t "$HOME" "${package}"
-```
+- GitHub HTTPS auth uses the `gh` login. Don't put a GitHub token in the environment; `gh` would prefer it.
+- Bitbucket is optional per machine: add the same public key there. Bitbucket repos use the email in `~/.config/git/identity-bitbucket`.
+- Keep 1Password out of git and SSH.
 
-The flags matter:
+## Scripts in ~/bin
 
-- **`-R` (restow)**: Removes then recreates symlinks. Cleans up stale links.
-- **`--no-folding`**: Only symlinks individual files, never entire directories. Without this, stow would symlink `~/.config/zsh/` as a directory symlink, and then runtime files (history, caches) would end up tracked by git. With `--no-folding`, only the specific config files get symlinked.
-- **`-t "$HOME"`**: Target directory is always the user's home.
-
-If stow encounters a real file (not a symlink) at the target location, it will error. Remove or rename the conflicting file, then re-run stow.
-
-### Adding a new package
-
-1. Create a directory under `dotfiles/` named after the tool (e.g., `dotfiles/mytool/`)
-2. Inside it, recreate the directory structure as it would appear relative to `$HOME`
-3. Place your config files there
-4. Run `./scripts/stow.sh` to create the symlinks
-
-Example -- adding a hypothetical `wezterm` config:
-
-```
-dotfiles/wezterm/.config/wezterm/wezterm.lua
-```
-
-After stowing, this becomes `~/.config/wezterm/wezterm.lua` (a symlink).
-
-### Removing a package
-
-Delete the directory from `dotfiles/` and remove the symlinks manually, or run `stow -D <package>` from the `dotfiles/` directory.
-
----
-
-## Homebrew
-
-All system packages and applications are declared in the root `Brewfile`. This is the single source for what gets installed.
-
-- **`brew` entries**: CLI tools and libraries (stow, git, neovim, tmux, ripgrep, fzf, etc.)
-- **`cask` entries**: GUI applications (Ghostty, OrbStack, AeroSpace, 1Password CLI, etc.)
-
-### Installing packages
-
-```bash
-brew bundle --file=Brewfile
-```
-
-Or run the full setup:
-
-```bash
-./scripts/homebrew.sh
-```
-
-### Adding a new package
-
-Add the line to `Brewfile` and commit. The format is `brew "package-name"` for CLI tools or `cask "app-name"` for GUI apps.
-
----
-
-## Bootstrap Process
-
-`scripts/bootstrap.sh` is the main entry point for setting up a fresh machine. It runs these steps in order:
-
-1. **homebrew.sh** -- Installs Homebrew itself (if missing), then installs all packages from `Brewfile`, then the Rust stable toolchain (plus rust-analyzer) via the keg-only `rustup` formula, whose bin dir `.zshenv` puts on PATH
-2. **stow.sh** -- Symlinks all dotfile packages to `$HOME`
-3. **git-keys.sh** -- Creates this machine's SSH key, logs in `gh`, and registers the key on GitHub for auth and signing (see Git and SSH Keys)
-4. **agent-skills.sh** -- Clones the private agent-skills repo to `~/code/agent-skills` and links the skills for every agent
-5. **keyboard.sh** -- Sets fast key repeat (InitialKeyRepeat: 10, KeyRepeat: 1), disables press-and-hold
-6. **macos.sh** -- Disables macOS animations, configures AeroSpace settings, enables ctrl+cmd window dragging
-7. **setup-tmux.sh** -- Installs TPM and the tmux plugins into `~/.config/tmux/plugins`
-8. **update-secrets** -- Generates `secrets.zsh` from 1Password template (if the script exists)
-
----
-
-## Directory Structure
-
-```
-.
-├── AGENTS.md              # This file -- project-level AI agent guidance
-├── Brewfile               # Homebrew package declarations
-├── README.md              # Human-readable overview
-├── scripts/               # Setup and configuration scripts
-│   ├── agent-skills.sh    # Clone and link the agent-skills repo
-│   ├── bootstrap.sh       # Main setup orchestrator
-│   ├── git-keys.sh        # Machine SSH key for GitHub auth and signing
-│   ├── homebrew.sh        # Homebrew install and package sync
-│   ├── stow.sh            # Symlink all packages
-│   ├── keyboard.sh        # macOS keyboard settings
-│   ├── macos.sh           # macOS system preferences
-│   └── setup-tmux.sh      # Tmux plugin manager
-└── dotfiles/              # Stow packages (each dir = one package)
-    ├── aerospace/         # AeroSpace tiling window manager
-    ├── atuin/             # Atuin shell history
-    ├── bin/               # Personal scripts (~/bin/)
-    ├── claude/            # Claude Code settings
-    ├── cursor/            # Cursor IDE settings
-    ├── ghostty/           # Ghostty terminal
-    ├── git/               # Git config and global ignore
-    ├── k9s/               # Kubernetes CLI tool
-    ├── lf/                # lf file manager
-    ├── npm/               # npm registry config (token comes from the environment)
-    ├── nvim/              # Neovim configuration
-    ├── psql/              # PostgreSQL client config (psqlrc)
-    ├── smug/              # Smug tmux session manager
-    ├── ssh/               # SSH configuration
-    ├── starship/          # Starship prompt
-    ├── tmux/              # Tmux configuration
-    └── zsh/               # Zsh shell (zshenv, zshrc, aliases)
-```
-
----
-
-## Key Conventions
-
-### XDG Base Directory
-
-Most configs follow the XDG spec. The environment is set in `dotfiles/zsh/.zshenv`:
-
-- `XDG_CONFIG_HOME` = `~/.config`
-- `XDG_DATA_HOME` = `~/.config/local/share`
-- `XDG_CACHE_HOME` = `~/.config/cache`
-- `ZDOTDIR` = `~/.config/zsh` (moves zsh config out of `$HOME`)
-
-When adding a new tool's config, prefer placing it under `.config/<tool>/` rather than as a dotfile in `$HOME`.
-
-### Secrets Management
-
-Secrets are not committed to git. The system uses 1Password CLI:
-
-- `dotfiles/zsh/.config/zsh/secrets.tpl` -- 1Password template with `op://` references
-- `~/bin/update-secrets` -- Runs `op inject` to generate `secrets.zsh` from the template
-- `secrets.zsh` is in `.gitignore`
-
-Never commit API keys, tokens, or credentials. Use the 1Password template pattern instead.
-
-### Git and SSH Keys
-
-Each machine has its own SSH key at `~/.ssh/id_ed25519`, with no passphrase, used for both GitHub auth and commit signing. Git and agents never wait on a prompt. `scripts/git-keys.sh` creates it (named after the machine, e.g. `psci-mbp`), registers it on GitHub as an auth and a signing key, writes `~/.ssh/allowed_signers` from the account's signing keys, and adds GitHub's host keys to `known_hosts` so SSH clones never prompt. Revoke a lost machine by deleting its key on GitHub.
-
-- GitHub over HTTPS uses the `gh` CLI login as the git credential helper. Don't put a GitHub token in the environment; `gh` would prefer it over its own login.
-- Bitbucket is optional, per machine: add `~/.ssh/id_ed25519.pub` in Bitbucket for auth and signing. Repos with a bitbucket.org remote use the Bitbucket email via `~/.config/git/identity-bitbucket`.
-- 1Password is not involved in git. Don't point SSH or signing back at the 1Password agent.
-
-### Personal Scripts
-
-Scripts in `dotfiles/bin/bin/` get symlinked to `~/bin/`, which is on `$PATH`. These are small utilities:
-
-- `update-secrets` -- Regenerate secrets from 1Password
-- `notify` -- Send a push notification to Luke's devices via ntfy (reads `$NTFY_TOKEN`). Use it when a long task finishes, you need Luke's input, you hit an unrecoverable error, or a milestone is worth surfacing. Usage: `notify -t "Title" -p high -g white_check_mark "message"`. Don't spam.
-- `psql-llm` -- Run psql with clean, deterministic CSV output for LLM agents (ignores `~/.psqlrc`, stops on error)
-- `git-lg` / `git-lga` -- Git log formatting (these work as `git lg` because git resolves `git-*` scripts on PATH)
-- `copy-dev-lite-llm-key` -- Copy the dev LiteLLM master key from the sandbox cluster to the clipboard
-- `yt-transcript` -- Print the transcript of a YouTube video as plain text
-
-### The --no-folding Rule
-
-This is the most important stow flag for this repo. Without it, stow creates directory-level symlinks (e.g., `~/.config/zsh` -> `dotfiles/zsh/.config/zsh`). That means any file an application writes to that directory ends up in the git repo. With `--no-folding`, only individual files get symlinked, so runtime artifacts stay local.
-
-If you see a stow package picking up unwanted files, check that `--no-folding` is being used.
-
----
-
-## Working with This Repo
-
-### Editing configs
-
-Just edit the files in this repo. The symlinks mean changes are immediately live. No need to re-stow after editing.
-
-### After adding new files to an existing package
-
-Run `./scripts/stow.sh` to create symlinks for the new files.
-
-### After creating a new package
-
-1. Create the directory structure under `dotfiles/`
-2. Run `./scripts/stow.sh`
-3. If the tool needs a Homebrew package, add it to `Brewfile`
-
-### Checking what's symlinked
-
-```bash
-ls -la ~/.config/<tool>/
-```
-
-Symlinked files will show `->` pointing back to this repo.
-
-### If stow complains about conflicts
-
-A real file exists where stow wants to place a symlink. Either remove/rename the conflicting file and re-run stow, or manually move its contents into the stow package if you want to keep them.
-
----
-
-## What Not To Do
-
-- **Don't create files directly in `$HOME` config dirs** if you want them tracked. Create them in the stow package and re-stow.
-- **Don't commit secrets.** Use the 1Password template pattern.
-- **Don't manually symlink.** Let stow manage all symlinks for consistency.
-- **Don't remove `--no-folding`** from the stow command. Runtime files will leak into git.
-- **Don't add stow packages for configs that contain only runtime data** (caches, history databases, etc.). Only track files you actually configure.
-- **Don't leave untracked files inside a package.** Stow links every file in a package, gitignored or not, so stray files (plugins, `node_modules`, generated secrets) get linked into `$HOME` and tools start writing into this repo.
+- `notify` -- Push notification to Luke's devices via ntfy. Use it when a long task finishes, you need input, or you hit an unrecoverable error. Don't spam. `notify -t "Title" -p high -g white_check_mark "message"`
+- `psql-llm` -- psql with clean CSV output for agents.
+- `update-secrets` -- Regenerate `secrets.zsh`.
+- `git-lg` / `git-lga` -- Compact git log (`git lg`).
+- `copy-dev-lite-llm-key` -- Copy the dev LiteLLM master key to the clipboard.
+- `yt-transcript` -- Print a YouTube video's transcript.
