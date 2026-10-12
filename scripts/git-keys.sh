@@ -36,6 +36,11 @@ gh api --paginate user/keys --jq '.[].key' | grep -qxF "$pub" \
 gh api --paginate user/ssh_signing_keys --jq '.[].key' | grep -qxF "$pub" \
     || gh ssh-key add "$KEY.pub" --type signing --title "$name"
 
+# Trust GitHub's published host keys so a first SSH clone never stops at a
+# host key prompt.
+ssh-keygen -F github.com >/dev/null \
+    || gh api meta --jq '.ssh_keys[] | "github.com " + .' >> "$HOME/.ssh/known_hosts"
+
 # Trust every signing key on the GitHub account (one per machine) when
 # verifying commits locally, for any of my email addresses.
 rm -f "$HOME/.ssh/allowed_signers"
