@@ -1,11 +1,11 @@
 # This is Git's per-user configuration file.
 # Default identity is personal (GitHub). Repos whose remote is on bitbucket.org
-# pick up the work identity via the includeIf block at the bottom of this file.
+# pick up the Bitbucket email via the includeIf block at the bottom of this file.
 [user]
 	name = Luke O'Malley
 	email = luke@lukeomalley.xyz
-	# Auth (github.pub) and signing use different keys; signing via 1Password op-ssh-sign.
-	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILQ9Aq9A//Ga4n0kLH9qXvn3SspHsIStvrKsom+n91vz
+	# This machine's own key, created by scripts/git-keys.sh.
+	signingkey = ~/.ssh/id_ed25519
 
 [gpg]
     format = ssh 
@@ -115,7 +115,6 @@
 
 [gpg "ssh"]
 	allowedSignersFile = ~/.ssh/allowed_signers
-	program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
 
 # GitHub auth over HTTPS goes through the gh CLI credential helper.
 [credential "https://github.com"]
@@ -125,7 +124,7 @@
 	helper =
 	helper = !/opt/homebrew/bin/gh auth git-credential
 
-# Work repos on Bitbucket use the work email + Bitbucket signing key.
+# Repos on Bitbucket use the Bitbucket account's email.
 # hasconfig matches on the repo's configured remote URL (git >= 2.36). Both the
 # SSH (git@bitbucket.org:org/repo) and HTTPS (https://bitbucket.org/org/repo)
 # forms are covered. Note: `**` only spans `/` when bounded by slashes, so the

@@ -91,11 +91,12 @@ Add the line to `Brewfile` and commit. The format is `brew "package-name"` for C
 
 1. **homebrew.sh** -- Installs Homebrew itself (if missing), then installs all packages from `Brewfile`, then the Rust stable toolchain (plus rust-analyzer) via the keg-only `rustup` formula, whose bin dir `.zshenv` puts on PATH
 2. **stow.sh** -- Symlinks all dotfile packages to `$HOME`
-3. **agent-skills.sh** -- Clones the private agent-skills repo to `~/code/agent-skills` and links the skills for every agent
-4. **keyboard.sh** -- Sets fast key repeat (InitialKeyRepeat: 10, KeyRepeat: 1), disables press-and-hold
-5. **macos.sh** -- Disables macOS animations, configures AeroSpace settings, enables ctrl+cmd window dragging
-6. **setup-tmux.sh** -- Installs TPM and the tmux plugins into `~/.config/tmux/plugins`
-7. **update-secrets** -- Generates `secrets.zsh` from 1Password template (if the script exists)
+3. **git-keys.sh** -- Creates this machine's SSH key, logs in `gh`, and registers the key on GitHub for auth and signing (see Git and SSH Keys)
+4. **agent-skills.sh** -- Clones the private agent-skills repo to `~/code/agent-skills` and links the skills for every agent
+5. **keyboard.sh** -- Sets fast key repeat (InitialKeyRepeat: 10, KeyRepeat: 1), disables press-and-hold
+6. **macos.sh** -- Disables macOS animations, configures AeroSpace settings, enables ctrl+cmd window dragging
+7. **setup-tmux.sh** -- Installs TPM and the tmux plugins into `~/.config/tmux/plugins`
+8. **update-secrets** -- Generates `secrets.zsh` from 1Password template (if the script exists)
 
 ---
 
@@ -109,6 +110,7 @@ Add the line to `Brewfile` and commit. The format is `brew "package-name"` for C
 ├── scripts/               # Setup and configuration scripts
 │   ├── agent-skills.sh    # Clone and link the agent-skills repo
 │   ├── bootstrap.sh       # Main setup orchestrator
+│   ├── git-keys.sh        # Machine SSH key for GitHub auth and signing
 │   ├── homebrew.sh        # Homebrew install and package sync
 │   ├── stow.sh            # Symlink all packages
 │   ├── keyboard.sh        # macOS keyboard settings
@@ -160,6 +162,14 @@ Secrets are not committed to git. The system uses 1Password CLI:
 - `secrets.zsh` is in `.gitignore`
 
 Never commit API keys, tokens, or credentials. Use the 1Password template pattern instead.
+
+### Git and SSH Keys
+
+Each machine has its own SSH key at `~/.ssh/id_ed25519`, with no passphrase, used for both GitHub auth and commit signing. Git and agents never wait on a prompt. `scripts/git-keys.sh` creates it (named after the machine, e.g. `psci-mbp`), registers it on GitHub as an auth and a signing key, and writes `~/.ssh/allowed_signers` from the account's signing keys. Revoke a lost machine by deleting its key on GitHub.
+
+- GitHub over HTTPS uses the `gh` CLI login as the git credential helper. Don't put a GitHub token in the environment; `gh` would prefer it over its own login.
+- Bitbucket is optional, per machine: add `~/.ssh/id_ed25519.pub` in Bitbucket for auth and signing. Repos with a bitbucket.org remote use the Bitbucket email via `~/.config/git/identity-bitbucket`.
+- 1Password is not involved in git. Don't point SSH or signing back at the 1Password agent.
 
 ### Personal Scripts
 

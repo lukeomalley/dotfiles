@@ -8,7 +8,7 @@ Personal dotfiles and configuration scripts for macOS, managed with **GNU Stow**
 - **Terminal**: Ghostty, Tmux (with Smug sessions)
 - **Window manager**: AeroSpace
 - **AI agents**: Claude Code, OpenCode
-- **Tools**: Git, lazygit, lf, k9s, psql, SSH (1Password agent)
+- **Tools**: Git, lazygit, lf, k9s, psql, SSH
 
 ## Installation
 
@@ -25,10 +25,15 @@ Personal dotfiles and configuration scripts for macOS, managed with **GNU Stow**
 This script will:
 - Install Homebrew and dependencies (via `Brewfile`)
 - Symlink configuration files using `stow`
+- Create this machine's SSH key and register it on GitHub for auth and commit signing
 - Clone and link the agent skills
 - Apply macOS keyboard and system settings
 - Install tmux plugins
 - Generate `secrets.zsh` from 1Password
+
+## Git Keys
+
+Each machine gets its own SSH key, so commits are signed and pushed without prompts. Bootstrap asks for a machine name (e.g. `psci-mbp`) and opens a GitHub login in the browser once. To use Bitbucket on a machine, add `~/.ssh/id_ed25519.pub` in Bitbucket for auth and signing.
 
 ## Agent Skills
 

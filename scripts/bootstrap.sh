@@ -12,6 +12,10 @@ echo "Setting up Homebrew..."
 echo "Stowing dotfiles..."
 ./scripts/stow.sh
 
+# Machine SSH key for GitHub auth and commit signing (also logs in gh)
+echo "Setting up Git keys..."
+./scripts/git-keys.sh
+
 # Install agent skills (private repo at ~/code/agent-skills)
 echo "Setting up agent skills..."
 ./scripts/agent-skills.sh || echo "Warning: Agent skills setup failed."
