@@ -47,13 +47,6 @@ defaults write com.apple.dock autohide-delay -float 0
 # showing and hiding Mission Control, command+numbers
 defaults write com.apple.dock expose-animation-duration -float 0
 
-# showing and hiding Launchpad
-defaults write com.apple.dock springboard-show-duration -float 0
-defaults write com.apple.dock springboard-hide-duration -float 0
-
-# changing pages in Launchpad
-defaults write com.apple.dock springboard-page-duration -float 0
-
 # at least AnimateInfoPanes
 defaults write com.apple.finder DisableAllAnimations -bool true
 

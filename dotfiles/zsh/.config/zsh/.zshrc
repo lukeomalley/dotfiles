@@ -39,11 +39,6 @@ fi
 # Autocomplete hidden files
 _comp_options+=(globdots)
 
-
-# Pretify Prompt
-# autoload -Uz prompt_purification_setup
-# prompt_purification_setup
-
 # Starship
 export STARSHIP_CONFIG="$HOME/.config/starship.toml"
 eval "$(starship init zsh)"
@@ -71,18 +66,10 @@ bindkey -M menuselect 'j' vi-down-line-or-history
 bindkey -M menuselect 'k' vi-up-line-or-history
 bindkey -M menuselect 'l' vi-forward-char
 
-# Vim Cursor
-# autoload -Uz cursor_mode && cursor_mode
-
 # Edit commands in nvim
 autoload -Uz edit-command-line
 zle -N edit-command-line
 bindkey -M vicmd v edit-command-line
-
-# fzf
-if [[ ! "$PATH" == */opt/homebrew/opt/fzf/bin* ]]; then
-  export PATH="${PATH:+${PATH}:}/opt/homebrew/opt/fzf/bin"
-fi
 
 # fzf config - use fd for faster searching (respects .gitignore)
 export FZF_DEFAULT_COMMAND="fd --type f --hidden --follow --exclude .git"
@@ -114,9 +101,6 @@ bindkey -r '^l'
 bindkey -r '^g'
 bindkey -s '^g' 'clear\n'
 
-# Homebrew - brew shellenv is loaded in .zshenv, which runs for all shell types
-# (login, non-login, interactive, tmux panes), so it does not need to run here.
-
 # Zsh Autosuggestions
 # Note: Using hardcoded path instead of $(brew --prefix) for faster shell startup (~40ms per call)
 source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
@@ -141,7 +125,6 @@ setopt inc_append_history
 [[ ! -d "$XDG_DATA_HOME/zsh" ]] && mkdir -p "$XDG_DATA_HOME/zsh"
 export HISTFILE="$XDG_DATA_HOME/zsh/history"
 export HISTSIZE=50000
-export HISTFILESIZE=$HISTSIZE
 export SAVEHIST=$HISTSIZE
 
 # direnv
@@ -149,14 +132,11 @@ export DIRENV_LOG_FORMAT=""
 eval "$(direnv hook zsh)"
 
 # pnpm
-export PNPM_HOME="/Users/luke/.config/local/share/pnpm"
+export PNPM_HOME="$XDG_DATA_HOME/pnpm"
 export PATH="$PNPM_HOME:$PATH"
 
-# Created by `pipx` on 2024-06-30 17:37:54
-export PATH="$PATH:/Users/luke/.local/bin"
-
-# gnupg
-export GPG_TTY=$(tty)
+# User-installed CLIs (twg, cursor-agent, amp)
+export PATH="$PATH:$HOME/.local/bin"
 
 # bun completions
-[ -s "/Users/luke/.bun/_bun" ] && source "/Users/luke/.bun/_bun"
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"

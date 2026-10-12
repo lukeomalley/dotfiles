@@ -27,19 +27,13 @@ export DOTFILES="$HOME/code/dotfiles"
 # the same home as GUI-launched Codex.
 export CODEX_HOME="$HOME/.codex"
 
-# Editor export EDITOR="nvim"
+# Editor
 export VISUAL="nvim"
 export EDITOR="nvim"
-
-# Note: FZF config moved to .zshrc where it uses fd instead of rg
-
-# Kube Config
-export KUBECONFIG="$HOME/.kube/config"
 
 # Go config
 export GOPATH="$HOME/go"
 export PATH="$PATH:$GOPATH/bin"
-export GO111MODULE=on
 
 # Rust (rustup is keg-only, so brew does not symlink its cargo/rustc/rust-analyzer
 # proxies; ~/.cargo/bin holds binaries from `cargo install`)
@@ -53,9 +47,6 @@ export PATH="$PATH:$HOME/.bun/bin"
 # over the one OrbStack bundles.
 export PATH="$PATH:$HOME/.orbstack/bin"
 fpath+=("$HOME/.orbstack/shell/completions/zsh")
-
-# Z config
-export _Z_DATA="$XDG_DATA_HOME/.z"
 
 # PostgreSQL client (libpq is keg-only, so its bin is not symlinked by brew)
 export PATH="/opt/homebrew/opt/libpq/bin:$PATH"

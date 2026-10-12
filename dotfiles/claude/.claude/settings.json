@@ -1,18 +1,7 @@
 {
-  "env": {},
-  "permissions": {
-    "allow": [
-      "Bash(npm run lint)",
-      "Bash(npm run test:*)",
-      "Read(~/.zshrc)"
-    ]
-  },
   "model": "opus[1m]",
   "effortLevel": "medium",
   "tui": "fullscreen",
   "skipDangerousModePermissionPrompt": true,
-  "feedbackSurveyState": {
-    "lastShownTime": 1753928186805
-  },
   "switchModelsOnFlag": false
 }

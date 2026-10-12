@@ -38,11 +38,3 @@ Each machine gets its own SSH key, so commits are signed and pushed without prom
 ## Agent Skills
 
 Agent skills live in their own private repo, [lukeomalley/agent-skills](https://github.com/lukeomalley/agent-skills), cloned to `~/code/agent-skills`. Its `bin/sync` links the skills into `~/.agents/skills` (read by Codex, Cursor, OpenCode, Copilot, and Gemini) and `~/.claude/skills` (Claude Code). Bootstrap runs `scripts/agent-skills.sh` to clone and link them. See that repo's README for adding and updating skills.
-
-## Atlassian TWG CLI
-
-Jira skills use Atlassian's TWG CLI with OAuth. After bootstrap on a new machine, install TWG using the [official setup guide](https://developer.atlassian.com/cloud/twg-cli/getting-started/installation/). The installer requires an interactive terminal for consent and browser sign-in and installs Atlassian's agent skills. It is separate from Homebrew bootstrap.
-
-Select `procurementsciences.atlassian.net` during setup. Keep TWG credentials and runtime state local; do not Stow them. Confirm `twg --version` and a native Jira read work. If the binary is not on PATH, use `$HOME/.local/bin/twg` and add `$HOME/.local/bin` to PATH.
-
-The custom PSCI skills keep ticket defaults and description templates; the vendor `twg` and `twg-jira` skills supply Jira command guidance. Jira ticket creation does not need a shell API-token export.
