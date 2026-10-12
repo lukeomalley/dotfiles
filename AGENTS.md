@@ -91,10 +91,11 @@ Add the line to `Brewfile` and commit. The format is `brew "package-name"` for C
 
 1. **homebrew.sh** -- Installs Homebrew itself (if missing), then installs all packages from `Brewfile`
 2. **stow.sh** -- Symlinks all dotfile packages to `$HOME`
-3. **keyboard.sh** -- Sets fast key repeat (InitialKeyRepeat: 10, KeyRepeat: 1), disables press-and-hold
-4. **macos.sh** -- Disables macOS animations, configures AeroSpace settings, enables ctrl+cmd window dragging
-5. **setup-tmux.sh** -- Installs Tmux Plugin Manager (TPM)
-6. **update-secrets** -- Generates `secrets.zsh` from 1Password template (if the script exists)
+3. **agent-skills.sh** -- Clones the private agent-skills repo to `~/code/agent-skills` and links the skills for every agent
+4. **keyboard.sh** -- Sets fast key repeat (InitialKeyRepeat: 10, KeyRepeat: 1), disables press-and-hold
+5. **macos.sh** -- Disables macOS animations, configures AeroSpace settings, enables ctrl+cmd window dragging
+6. **setup-tmux.sh** -- Installs TPM and the tmux plugins into `~/.config/tmux/plugins`
+7. **update-secrets** -- Generates `secrets.zsh` from 1Password template (if the script exists)
 
 ---
 
@@ -106,6 +107,7 @@ Add the line to `Brewfile` and commit. The format is `brew "package-name"` for C
 ├── Brewfile               # Homebrew package declarations
 ├── README.md              # Human-readable overview
 ├── scripts/               # Setup and configuration scripts
+│   ├── agent-skills.sh    # Clone and link the agent-skills repo
 │   ├── bootstrap.sh       # Main setup orchestrator
 │   ├── homebrew.sh        # Homebrew install and package sync
 │   ├── stow.sh            # Symlink all packages
@@ -115,23 +117,23 @@ Add the line to `Brewfile` and commit. The format is `brew "package-name"` for C
 └── dotfiles/              # Stow packages (each dir = one package)
     ├── aerospace/         # AeroSpace tiling window manager
     ├── atuin/             # Atuin shell history
-    ├── bin/               # Personal scripts (~/ bin/)
-    ├── claude/            # Claude AI editor
+    ├── bin/               # Personal scripts (~/bin/)
+    ├── claude/            # Claude Code settings and subagents
     ├── cursor/            # Cursor IDE settings
     ├── ghostty/           # Ghostty terminal
     ├── git/               # Git config and global ignore
-    ├── iterm2/            # iTerm2 settings and color scheme
     ├── k9s/               # Kubernetes CLI tool
+    ├── lazygit/           # Lazygit terminal UI
+    ├── lf/                # lf file manager
+    ├── npm/               # npm registry config (token comes from the environment)
     ├── nvim/              # Neovim configuration
-    ├── opencode/          # OpenCode AI editor
+    ├── opencode/          # OpenCode settings and agents
     ├── psql/              # PostgreSQL client config (psqlrc)
-    ├── ranger/            # Ranger file manager
     ├── rclone/            # Rclone cloud sync
     ├── smug/              # Smug tmux session manager
     ├── ssh/               # SSH configuration
     ├── starship/          # Starship prompt
     ├── tmux/              # Tmux configuration
-    ├── zed/               # Zed editor (settings + vim keymap)
     └── zsh/               # Zsh shell (zshenv, zshrc, aliases)
 ```
 
@@ -165,13 +167,18 @@ Never commit API keys, tokens, or credentials. Use the 1Password template patter
 Scripts in `dotfiles/bin/bin/` get symlinked to `~/bin/`, which is on `$PATH`. These are small utilities:
 
 - `update-secrets` -- Regenerate secrets from 1Password
-- `cloudsync` -- rclone bisync with GNU Parallel
-- `notes` -- Open notes directory in nvim
-- `psql-llm` -- Run psql with clean, deterministic CSV output for LLM agents (ignores `~/.psqlrc`, stops on error)
 - `notify` -- Send a push notification to Luke's devices via ntfy (reads `$NTFY_TOKEN`). Use it when a long task finishes, you need Luke's input, you hit an unrecoverable error, or a milestone is worth surfacing. Usage: `notify -t "Title" -p high -g white_check_mark "message"`. Don't spam.
-- `start-*` -- MCP server launchers (atlassian-mcp, firecrawl-mcp)
-- `animations-on` / `animations-off` -- Toggle macOS animations
+- `psql-llm` -- Run psql with clean, deterministic CSV output for LLM agents (ignores `~/.psqlrc`, stops on error)
+- `git-ai-commit-msg` -- Generate a conventional commit message from staged changes (used by lazygit)
 - `git-lg` / `git-lga` -- Git log formatting (these work as `git lg` because git resolves `git-*` scripts on PATH)
+- `start-atlassian-mcp` / `start-firecrawl-mcp` / `start-vibeproxy` -- Start local MCP servers and VibeProxy with secrets from 1Password
+- `copy-dev-lite-llm-key` -- Copy the dev LiteLLM master key from the sandbox cluster to the clipboard
+- `cloudsync` / `rc` -- rclone bisync with GNU Parallel / rclone with the B2 encryption keys loaded
+- `notes` / `snotes` -- Open the notes directory in nvim / commit and sync it with git
+- `tmp` -- Edit a throwaway temp file in nvim
+- `yt-transcript` / `srt-to-txt` / `pdf-to-txt` -- Extract plain text from a YouTube video, SRT subtitles, or a folder of PDFs
+- `animations-on` / `animations-off` -- Toggle macOS animations
+- `clear-desktop` -- Delete everything on the Desktop
 
 ### The --no-folding Rule
 
@@ -218,3 +225,4 @@ A real file exists where stow wants to place a symlink. Either remove/rename the
 - **Don't manually symlink.** Let stow manage all symlinks for consistency.
 - **Don't remove `--no-folding`** from the stow command. Runtime files will leak into git.
 - **Don't add stow packages for configs that contain only runtime data** (caches, history databases, etc.). Only track files you actually configure.
+- **Don't leave untracked files inside a package.** Stow links every file in a package, gitignored or not, so stray files (plugins, `node_modules`, generated secrets) get linked into `$HOME` and tools start writing into this repo.

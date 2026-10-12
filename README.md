@@ -3,16 +3,18 @@
 Personal dotfiles and configuration scripts for macOS, managed with **GNU Stow** and **Homebrew**.
 
 ## Included Configurations
-- **Shell**: Zsh with Starship prompt, zoxide, fnm
-- **Editor**: Neovim (nvim)
-- **Terminal**: Ghostty, iTerm2
-- **Tools**: Tmux, Ranger, k9s, rclone, Smug, Git
+- **Shell**: Zsh with Starship prompt, Atuin history, zoxide, fnm
+- **Editors**: Neovim, Cursor
+- **Terminal**: Ghostty, Tmux (with Smug sessions)
+- **Window manager**: AeroSpace
+- **AI agents**: Claude Code, OpenCode
+- **Tools**: Git, lazygit, lf, k9s, psql, rclone, SSH (1Password agent)
 
 ## Installation
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/dotfiles.git ~/code/dotfiles
+   git clone https://github.com/lukeomalley/dotfiles.git ~/code/dotfiles
    ```
 
 2. Run the bootstrap script:
@@ -23,7 +25,10 @@ Personal dotfiles and configuration scripts for macOS, managed with **GNU Stow**
 This script will:
 - Install Homebrew and dependencies (via `Brewfile`)
 - Symlink configuration files using `stow`
-- Apply macOS keyboard settings
+- Clone and link the agent skills
+- Apply macOS keyboard and system settings
+- Install tmux plugins
+- Generate `secrets.zsh` from 1Password
 
 ## Agent Skills
 

@@ -1,22 +1,7 @@
 .DS_Store
-plugins
 
+# Generated from secrets.tpl by update-secrets; never commit it.
 secrets.zsh
 
-# Stray Claude runtime config dir accidentally created at the repo root.
-# The real stow package is dotfiles/claude/.claude; this anchored ignore keeps
-# a root-level .claude/ (runtime junk) out of git without touching the package.
+# Claude Code project settings created when running Claude in this repo.
 /.claude/
-
-# Claude runtime files (these get created when claude runs)
-dotfiles/claude/.claude/debug/
-dotfiles/claude/.claude/file-history/
-dotfiles/claude/.claude/ide/
-dotfiles/claude/.claude/plugins/
-dotfiles/claude/.claude/projects/
-dotfiles/claude/.claude/session-env/
-dotfiles/claude/.claude/shell-snapshots/
-dotfiles/claude/.claude/statsig/
-dotfiles/claude/.claude/todos/
-dotfiles/claude/.claude/history.jsonl
-dotfiles/claude/.claude/stats-cache.json
