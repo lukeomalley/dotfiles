@@ -27,7 +27,7 @@ This script will:
 
 ## Agent Skills
 
-Agent skills live in their own private repo, [lukeomalley/agent-skills](https://github.com/lukeomalley/agent-skills), cloned to `~/.agents`. Codex, Cursor, OpenCode, Copilot, and Gemini read `~/.agents/skills` directly; `~/.agents/bin/sync` links each skill into `~/.claude/skills` for Claude Code. Bootstrap runs `scripts/agent-skills.sh` to clone and link them. See that repo's README for adding and updating skills.
+Agent skills live in their own private repo, [lukeomalley/agent-skills](https://github.com/lukeomalley/agent-skills), cloned to `~/code/agent-skills`. Its `bin/sync` links the skills into `~/.agents/skills` (read by Codex, Cursor, OpenCode, Copilot, and Gemini) and `~/.claude/skills` (Claude Code). Bootstrap runs `scripts/agent-skills.sh` to clone and link them. See that repo's README for adding and updating skills.
 
 ## Atlassian TWG CLI
 

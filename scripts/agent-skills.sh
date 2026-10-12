@@ -1,10 +1,10 @@
 #!/bin/bash
 set -e
 
-# Agent skills live in a private repo cloned to ~/.agents, which most agents
-# read directly. Its bin/sync links them into ~/.claude/skills for Claude Code.
+# Agent skills live in a private repo cloned to ~/code/agent-skills. Its
+# bin/sync links the skills into ~/.agents and ~/.claude/skills.
 REPO="lukeomalley/agent-skills"
-DEST="$HOME/.agents"
+DEST="$HOME/code/agent-skills"
 
 if [ -d "$DEST/.git" ]; then
     git -C "$DEST" pull --ff-only || echo "Warning: could not update $DEST"

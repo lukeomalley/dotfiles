@@ -12,7 +12,7 @@ echo "Setting up Homebrew..."
 echo "Stowing dotfiles..."
 ./scripts/stow.sh
 
-# Install agent skills (private repo at ~/.agents)
+# Install agent skills (private repo at ~/code/agent-skills)
 echo "Setting up agent skills..."
 ./scripts/agent-skills.sh || echo "Warning: Agent skills setup failed."
 
