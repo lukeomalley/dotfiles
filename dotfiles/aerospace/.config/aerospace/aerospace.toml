@@ -1,5 +1,5 @@
 # ~/.config/aerospace/aerospace.toml
-# Numeric workspaces keep applications grouped by role across two monitors.
+# Numeric workspaces keep applications grouped by role on the main monitor.
 
 # Config version for compatibility (enables persistent-workspaces and other v2 features)
 config-version = 2
@@ -13,9 +13,6 @@ start-at-login = true
 # Reload the config automatically after tracked dotfile changes
 auto-reload-config = true
 
-# Auto-start commands after AeroSpace startup
-after-startup-command = []
-
 # Include stowed personal scripts while preserving AeroSpace's Homebrew paths
 exec.env-vars.PATH = '${HOME}/bin:/opt/homebrew/bin:/opt/homebrew/sbin:${PATH}'
 
@@ -28,11 +25,57 @@ accordion-padding = 30
 default-root-container-layout = 'tiles'
 default-root-container-orientation = 'auto'
 
-# Mouse follows focus when focused monitor changes
+# Focus follows the mouse, and the mouse follows keyboard focus
+focus-follows-mouse.enabled = true
+on-focus-changed = ['move-mouse window-lazy-center']
 on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
 
 # Automatically unhide macOS hidden apps
 automatically-unhide-macos-hidden-apps = true
+
+# Window rules. The first matching rule wins.
+on-window-detected = [
+    # Dialog-like apps and overlays float instead of tiling
+    {
+        if = 'test %{app-bundle-id} = com.apple.systempreferences || test %{app-bundle-id} = com.apple.calculator || test %{app-bundle-id} = com.apple.finder || test %{app-bundle-id} = cc.ffitch.shottr || test %{app-bundle-id} = com.raycast.macos',
+        run = 'layout floating',
+    },
+    # Terminal
+    {
+        if = 'test %{app-bundle-id} = com.mitchellh.ghostty',
+        run = 'move-node-to-workspace 0',
+    },
+    # Editors and AI apps: Cursor, ChatGPT (still reports the old Codex app ID), T3 Code, Claude
+    {
+        if = 'test %{app-bundle-id} = com.todesktop.230313mzl4w4u92 || test %{app-bundle-id} = com.openai.codex || test %{app-bundle-id} = com.t3tools.t3code || test %{app-bundle-id} = com.anthropic.claudefordesktop',
+        run = 'move-node-to-workspace 1',
+    },
+    # Documents: tldraw, Notion, Notion Calendar, Calendar
+    {
+        if = 'test %{app-name} ~= tldraw || test %{app-bundle-id} = notion.id || test %{app-bundle-id} = com.cron.electron || test %{app-bundle-id} = com.apple.iCal',
+        run = 'move-node-to-workspace 3',
+    },
+    # Slack huddle pop-outs look like dialogs, so tile them explicitly
+    {
+        if = 'test %{app-bundle-id} = com.tinyspeck.slackmacgap && test %{window-title} ~= ^Huddle:',
+        run = ['move-node-to-workspace 4', 'layout tiling'],
+    },
+    # Chat: Slack, Teams
+    {
+        if = 'test %{app-bundle-id} = com.tinyspeck.slackmacgap || test %{app-bundle-id} = com.microsoft.teams2',
+        run = 'move-node-to-workspace 4',
+    },
+    # Music
+    {
+        if = 'test %{app-bundle-id} = com.spotify.client',
+        run = 'move-node-to-workspace 5',
+    },
+    # Browsers: Safari, Chrome, Helium
+    {
+        if = 'test %{app-bundle-id} = com.apple.Safari || test %{app-bundle-id} = com.google.Chrome || test %{app-bundle-id} = net.imput.helium',
+        run = 'move-node-to-workspace 2',
+    },
+]
 
 # Use QWERTY key layout
 [key-mapping]
@@ -126,55 +169,6 @@ down = 'volume down'
 up = 'volume up'
 shift-down = ['volume set 0', 'mode main']
 
-# Float dialog-like apps (work better not tiled)
-[[on-window-detected]]
-if = 'test %{app-bundle-id} = com.apple.systempreferences || test %{app-bundle-id} = com.apple.calculator || test %{app-bundle-id} = com.apple.finder || test %{app-bundle-id} = cc.ffitch.shottr'
-run = 'layout floating'
-
-# Raycast AI Chat should overlay the current workspace instead of tiling into it.
-[[on-window-detected]]
-if = 'test %{app-bundle-id} = com.raycast.macos'
-run = 'layout floating'
-
-# Ghostty to workspace 0
-[[on-window-detected]]
-if = 'test %{app-bundle-id} = com.mitchellh.ghostty'
-run = 'move-node-to-workspace 0'
-
-# Code and AI editors to workspace 1
-[[on-window-detected]]
-if = 'test %{app-bundle-id} = com.microsoft.VSCode || test %{app-bundle-id} = com.todesktop.230313mzl4w4u92 || test %{app-bundle-id} = com.openai.codex || test %{app-bundle-id} = com.t3tools.t3code || test %{app-bundle-id} = com.anthropic.claudefordesktop'
-run = 'move-node-to-workspace 1'
-
-# Documents to workspace 3
-[[on-window-detected]]
-if = 'test %{app-name} ~= tldraw'
-run = 'move-node-to-workspace 3'
-
-[[on-window-detected]]
-if = 'test %{app-bundle-id} = notion.id || test %{app-bundle-id} = com.cron.electron || test %{app-bundle-id} = com.apple.iCal'
-run = 'move-node-to-workspace 3'
-
-# Slack huddle pop-outs look like dialogs, so AeroSpace floats them by default.
-[[on-window-detected]]
-if = 'test %{app-bundle-id} = com.tinyspeck.slackmacgap && test %{window-title} ~= ^Huddle:'
-run = ['move-node-to-workspace 4', 'layout tiling']
-
-# Chat to workspace 4
-[[on-window-detected]]
-if = 'test %{app-bundle-id} = com.tinyspeck.slackmacgap || test %{app-bundle-id} = com.microsoft.teams2'
-run = 'move-node-to-workspace 4'
-
-# Music to workspace 5
-[[on-window-detected]]
-if = 'test %{app-bundle-id} = com.spotify.client'
-run = 'move-node-to-workspace 5'
-
-# Browsers to workspace 2
-[[on-window-detected]]
-if = 'test %{app-bundle-id} = com.apple.Safari || test %{app-bundle-id} = com.google.Chrome || test %{app-bundle-id} = com.brave.Browser || test %{app-bundle-id} = net.imput.helium'
-run = 'move-node-to-workspace 2'
-
 # Assign specific workspaces to monitors
 [workspace-to-monitor-force-assignment]
 "0" = 'main' # Terminal (Ghostty) on main monitor
@@ -182,4 +176,4 @@ run = 'move-node-to-workspace 2'
 "2" = 'main' # Browsers on main monitor
 "3" = 'main' # Documents on main monitor
 "4" = 'main' # Chat on main monitor
-"5" = ['secondary', 'main'] # Music on secondary monitor, main as fallback
+"5" = 'main' # Music
