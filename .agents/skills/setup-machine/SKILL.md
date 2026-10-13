@@ -42,7 +42,7 @@ Detect the OS with `uname -s` (`scripts/os.sh` maps it to `darwin` or `omarchy`)
 | Git keys | `scripts/git-keys.sh <name>` | `scripts/git-keys.sh <name>` |
 | Agent skills | `scripts/agent-skills.sh` | `scripts/agent-skills.sh` |
 | Settings | `scripts/darwin/settings.sh`: keyboard, defaults, AeroSpace | `scripts/omarchy/settings.sh`: keyd, fnm Node, voxtype model, zsh login shell |
-| Apps | Open OrbStack once, then `orb config set setup.use_admin false`. Open AeroSpace and Ghostty. | `hyprctl reload`; ask whether they want the radar plugin and Neovim theme from the README |
+| Apps | Open OrbStack once, then `orb config set setup.use_admin false`. Open AeroSpace and Ghostty. | `hyprctl reload`; ask whether they want the Neovim theme from the README |
 | tmux | `scripts/setup-tmux.sh` | `scripts/setup-tmux.sh` |
 | Secrets | `update-secrets` | `update-secrets` |
 

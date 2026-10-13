@@ -65,6 +65,6 @@ Linux uses the shared config unchanged (Zsh, Ghostty with Night Rock and Inconso
 
 Log out and back in after the login shell changes. Keyd makes Caps Lock Escape on tap and Control on hold. Super+Ctrl+F opens Ghostty's quick terminal (Ghostty must be running); Super+F is fullscreen.
 
-Not provisioned by bootstrap: the radar plugin ([omastorm](https://github.com/wesleygrimes/omastorm)) at `~/.config/omarchy/plugins/com.omastorm.radar`, and the Neovim Night Rock theme ([dark-rock-theme](https://github.com/lukeomalley/dark-rock-theme)) at `~/code/dark-rock-theme`.
+Not provisioned by bootstrap: the Neovim Night Rock theme ([dark-rock-theme](https://github.com/lukeomalley/dark-rock-theme)) at `~/code/dark-rock-theme`.
 
 After changes, check `hyprctl configerrors` and `ghostty +validate-config`.
