@@ -22,6 +22,11 @@ Shared configuration for macOS and Omarchy (Arch Linux), managed with GNU Stow. 
 - Track only files you configure, not caches or state. Prefer `~/.config/<tool>/`.
 - Don't symlink by hand or create tracked files directly in `$HOME`; add them to a package and re-stow.
 - Never commit secrets. The repo is public.
+- Omarchy defaults under `/usr/share/omarchy` are read-only. Track only user overrides.
+- Do not run Omarchy theme/font/refresh commands against managed files: they can replace links or write through them into this repo.
+- Keep Linux hardware settings in `stow/hosts/<hostname>`; system files in `system/omarchy` are installed explicitly by `scripts/omarchy/settings.sh`.
+- Before deployment, back up real-file conflicts and identify obsolete links explicitly. Never use `stow --adopt`. Preview each selected package with `stow -n -R --no-folding` before applying.
+- Validate shell syntax and ShellCheck, repeat Stow into temporary homes for both OSes, and inspect changes for secrets/runtime files. Live Hyprland changes require `hyprctl reload` and `hyprctl configerrors`; verify Mac behavior on a Mac when shared files change.
 
 ## Environment
 

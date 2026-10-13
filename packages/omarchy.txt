@@ -1,0 +1,23 @@
+# Additions to /usr/share/omarchy/install/omarchy-base.packages.
+# Base tools such as fzf, fd, bat, eza, jq, tmux and wl-clipboard stay in Omarchy.
+stow
+zsh
+zsh-autosuggestions
+zsh-syntax-highlighting
+fnm
+ttf-inconsolata-nerd
+ghostty
+github-cli
+git-delta
+atuin
+direnv
+neovim
+lf
+k9s
+kubectl
+jless
+smug
+keyd
+voxtype-bin
+playerctl
+1password-cli
