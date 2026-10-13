@@ -1,6 +1,8 @@
 # Dotfiles
 
-Shared configuration for macOS and Omarchy (Arch Linux), managed with GNU Stow. Clone to `~/code/dotfiles` and run `scripts/bootstrap.sh`. The Mac config is the source of truth.
+Shared configuration for macOS and Omarchy (Arch Linux), managed with GNU Stow. Clone to `~/code/dotfiles`. The Mac config is the source of truth.
+
+To set up or check a computer, use the `setup-machine` skill (`.agents/skills/setup-machine/SKILL.md`). `scripts/check.sh` verifies a machine and changes nothing; run it after changes.
 
 ## Layout
 

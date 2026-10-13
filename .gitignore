@@ -4,4 +4,6 @@
 secrets.zsh
 
 # Claude Code project settings created when running Claude in this repo.
-/.claude/
+# Only the skills folder (a link to .agents/skills) is tracked.
+/.claude/*
+!/.claude/skills/

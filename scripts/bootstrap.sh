@@ -29,4 +29,5 @@ echo "Setting up tmux..."
 echo "Generating secrets..."
 "$HOME/bin/update-secrets" || echo "Warning: Secrets setup failed."
 
-echo "Bootstrap complete!"
+echo "Checking the result..."
+"$ROOT/scripts/check.sh" || echo "Fix the failed checks above, then re-run scripts/check.sh."

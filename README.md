@@ -9,6 +9,7 @@ stow/omarchy/   Omarchy only
 stow/hosts/     one machine's hardware, e.g. monitors
 packages/       what each OS installs (Brewfile on macOS)
 scripts/        setup steps, shared and per-OS
+.agents/skills/ the setup-machine skill for agents
 ```
 
 ## Included Configurations
@@ -19,26 +20,30 @@ scripts/        setup steps, shared and per-OS
 - **AI agents**: Claude Code
 - **Tools**: Git, lf, k9s, psql, SSH
 
-## Installation
+## Setting up a computer
 
-1. Clone the repository:
+1. Clone the repository (on a Mac, run `xcode-select --install` first to get git):
    ```bash
    git clone https://github.com/lukeomalley/dotfiles.git ~/code/dotfiles
    ```
 
-2. Run the bootstrap script:
+2. Open Claude Code or Codex in `~/code/dotfiles` and say "set up this computer". The [`setup-machine`](.agents/skills/setup-machine/SKILL.md) skill asks a few questions (machine name, personal or work), tells you what it needs from you, then runs the steps below for macOS or Omarchy and checks the result.
+
+   Or run everything unattended:
    ```bash
    ./scripts/bootstrap.sh
    ```
 
-This script will:
-- Install packages (Homebrew and `packages/Brewfile` on macOS)
-- Symlink configuration files using `stow`
-- Create this machine's SSH key and register it on GitHub for auth and commit signing
-- Clone and link the agent skills
-- Apply OS settings (keyboard and system defaults on macOS)
-- Install tmux plugins
-- Generate `secrets.zsh` from 1Password
+Either way, setup:
+- Installs packages (`packages/Brewfile` on macOS, `packages/omarchy.txt` on Omarchy)
+- Links the configuration with `stow`
+- Creates this machine's SSH key and registers it on GitHub for auth and commit signing
+- Clones and links the agent skills
+- Applies OS settings
+- Installs tmux plugins
+- Generates `secrets.zsh` from 1Password
+
+`./scripts/check.sh` checks a machine against the repo at any time. It changes nothing.
 
 ## Git Keys
 
