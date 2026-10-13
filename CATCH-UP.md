@@ -1,6 +1,6 @@
 # Catching up other machines
 
-The work Mac (`psci-mbp`) went through a big cleanup in October 2026 and is the source of truth. Follow **Other Macs** on any other Mac, or **Omarchy** on the Linux laptop. Delete this file once every machine is done.
+The work Mac (`psci-mbp`) went through a big cleanup in October 2026 and is the source of truth. Follow **Other Macs** on any other Mac; the Linux laptop follows `OMARCHY.md`. Delete this file once every machine is done.
 
 ## What changed
 
@@ -89,19 +89,7 @@ Also try Ctrl-R in a new terminal and check no links are broken: `find ~ -maxdep
 
 ## Omarchy
 
-The old `feat/cross-platform-dotfiles` branch is retired. Start from `main`, port only the Omarchy-specific pieces from that branch, and keep everything else shared. The Mac config wins wherever they differ.
-
-1. **Reset.** `git fetch origin && git checkout main && git reset --hard origin/main`. Keep the old branch around only as a reference until step 7.
-2. **Make room for the shared config.** Omarchy ships its own files where stow will link ours (Git, Ghostty, Neovim, ...). Run `./scripts/stow.sh` once; for every conflict it reports, move the existing file aside (don't merge it into the repo). Also check `~/.gitconfig`: it loads after `~/.config/git/config` and must not override the identity or signing settings.
-3. **Add the Omarchy layer**, following the sharing rules in `AGENTS.md` (shared by default, OS differences handled inside the shared file, one owner per file):
-   - `stow/omarchy/`: Hyprland, voxtype, the Omarchy plugins (from the old branch).
-   - `stow/hosts/<hostname>/`: this laptop's monitors and devices. `<hostname>` is `uname -n` up to the first dot.
-   - `packages/omarchy.txt` with everything the shared config uses: zsh, zsh-autosuggestions, zsh-syntax-highlighting, fnm, wl-clipboard, the Inconsolata Nerd Font (`ttf-inconsolata-nerd`), stow, github-cli, git-delta, eza, bat, fd, fzf, ripgrep, zoxide, atuin, starship, direnv, neovim, tmux, lf, k9s, kubectl, jq, jless, 1password-cli, oxfmt, and so on.
-   - `scripts/omarchy/packages.sh` (install that list) and `scripts/omarchy/settings.sh`, which must make zsh the login shell (`chsh -s /usr/bin/zsh`) and install `system/omarchy/` files such as the keyd config.
-4. **Fix shared files only where Linux genuinely differs**, with an in-file check (see how `.zshenv` guards Homebrew and the zsh plugin loop tries both paths), never a copy. Ghostty ignores macOS-only options; use `stow/hosts/<hostname>/` with a Ghostty `local` file if the font size needs adjusting.
-5. **Run it.** `./scripts/bootstrap.sh`, then log out and back in so zsh is the login shell. `./scripts/git-keys.sh omarchy` registers this machine's key.
-6. **Don't run Omarchy's font or config-refresh tools** (`omarchy-font-set`, `omarchy-refresh-config`) on files the repo manages; they replace links with copies or write through them.
-7. **Verify and finish.** Same checks as the Mac where they apply (`which node`, `ssh -T git@github.com`, a signed test commit, Ctrl-R, no broken links). Commit and push from Linux, then delete the old branch: `git push origin --delete feat/cross-platform-dotfiles`.
+Follow `OMARCHY.md`. It has the decisions, where Linux files go, what to port from the old branch, and when it's done.
 
 ## After every machine is caught up
 
