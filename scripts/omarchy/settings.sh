@@ -31,7 +31,7 @@ if $keyd_changed; then privileged keyd reload; fi
 eval "$(fnm env --shell bash)"
 if ! fnm use default >/dev/null 2>&1; then
     fnm install --lts
-    fnm use --lts
+    fnm use lts-latest
     fnm default "$(fnm current)"
     fnm use default
 fi
