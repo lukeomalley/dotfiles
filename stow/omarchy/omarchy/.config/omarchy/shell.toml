@@ -1,2 +1,5 @@
 [font]
 base-size = 12
+
+[bar]
+background-alpha = 0.8
