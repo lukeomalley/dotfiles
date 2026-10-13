@@ -50,56 +50,16 @@ Agent skills live in their own private repo, [lukeomalley/agent-skills](https://
 
 ## Omarchy
 
-The shared Mac configuration is used unchanged, including Ghostty's Night Rock
-theme and Inconsolata font, Zsh, fnm, and per-machine Git keys. Linux additions
-live in `stow/omarchy`: Hyprland overrides, menu/workspace/clipboard plugins,
-and Parakeet dictation on Insert. Super+Ctrl+F invokes Ghostty's quick file
-browser (replacing Omarchy's tiled-fullscreen shortcut); Super+F is fullscreen.
-Ghostty must be running for its global shortcut to be registered.
-
-`stow/hosts/omarchy` contains this laptop's Acer/external display layout and
-pointer settings. Another host needs its own monitor configuration.
-
-Setup steps can be run individually:
+Linux uses the shared config unchanged (Zsh, Ghostty with Night Rock and Inconsolata, fnm, per-machine Git keys). `stow/omarchy` adds Hyprland overrides, the menu, workspace and clipboard plugins, and Voxtype dictation on Insert. `stow/hosts/omarchy` holds the ThinkPad's monitors and pointer settings; a new machine needs its own host folder named after its hostname.
 
 ```bash
-./scripts/omarchy/packages.sh  # missing additions to the Omarchy base; no system upgrade
-./scripts/stow.sh             # configuration links only
-./scripts/omarchy/settings.sh # keyd, fnm Node/tools, Voxtype model, Zsh login shell
+./scripts/omarchy/packages.sh  # additions to the Omarchy base (packages/omarchy.txt)
+./scripts/stow.sh
+./scripts/omarchy/settings.sh  # keyd, fnm Node, Voxtype model, Zsh login shell
 ```
 
-Settings installs the versioned `/etc/keyd` files only when different, backing
-up existing copies first. Caps Lock is Escape on tap and Control on hold;
-the Flow84 has separate Alt/Super mappings. System files and downloaded models
-are never stowed. Log out and back in after changing the login shell.
+Log out and back in after the login shell changes. Keyd makes Caps Lock Escape on tap and Control on hold. Super+Ctrl+F opens Ghostty's quick terminal (Ghostty must be running); Super+F is fullscreen.
 
-For an existing machine, back up conflicting files before stowing. Remove only
-verified links owned by the old dotfiles checkout, and keep generated secrets,
-history, plugins and caches outside the packages. Do not run Omarchy theme/font
-or refresh commands on repository-managed files: they may overwrite symlinks
-or write through them. The radar plugin is separately installed and is not
-vendored here (source: `https://github.com/wesleygrimes/omastorm`). Its checkout
-lives at `~/.config/omarchy/plugins/com.omastorm.radar`. The optional Neovim
-Night Rock theme comes from `https://github.com/lukeomalley/dark-rock-theme`,
-cloned to `~/code/dark-rock-theme`; without it Neovim uses its fallback theme.
-These external checkouts are not provisioned by bootstrap.
+Not provisioned by bootstrap: the radar plugin ([omastorm](https://github.com/wesleygrimes/omastorm)) at `~/.config/omarchy/plugins/com.omastorm.radar`, and the Neovim Night Rock theme ([dark-rock-theme](https://github.com/lukeomalley/dark-rock-theme)) at `~/code/dark-rock-theme`.
 
-The repo also owns the Ghostty terminal preference, Omarchy shell font size
-and agent selection, and the Voxtype user service. Packaged defaults,
-third-party-installed hooks (such as Omazed), application state and credentials
-remain outside Stow. The current hardware profile is named `omarchy`, matching
-this ThinkPad's hostname; use a distinct hostname and hardware profile on a new
-machine.
-
-To take ownership of a real file, first reconcile its contents with the intended
-package source, then run `scripts/adopt-existing <layer/package> <home-relative-file>`.
-It requires matching contents and moves the original into a private state backup.
-Use `--dry-run` to preview; run `scripts/stow.sh` separately to deploy. Files with
-different contents require explicit review and backup before replacement.
-Run `tests/profile-layout.sh` to check both profiles in temporary homes.
-
-After deployment, check `hyprctl configerrors`, `ghostty +validate-config`,
-a fresh Zsh shell, `fnm current`, GitHub authentication and signed commits.
-Also check the menu/clipboard/workspace plugins, dictation, keyboard mappings
-and monitor unplug/replug behavior. Mac behavior must be rechecked on a Mac
-if a shared file changes.
+After changes, check `hyprctl configerrors` and `ghostty +validate-config`.
