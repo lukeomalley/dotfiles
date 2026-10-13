@@ -1,6 +1,6 @@
 # Catching up other machines
 
-The work Mac (`psci-mbp`) went through a big cleanup in October 2026 and is the source of truth. Follow **Other Macs** on any other Mac; the Linux laptop follows `OMARCHY.md`. Delete this file once every machine is done.
+The work Mac (`psci-mbp`) went through a big cleanup in October 2026 and is the source of truth. Follow **Other Macs** on any other Mac; the Linux laptop is migrated; see the Omarchy section of `README.md`. Delete this file once every machine is done.
 
 ## What changed
 
@@ -89,7 +89,7 @@ Also try Ctrl-R in a new terminal and check no links are broken: `find ~ -maxdep
 
 ## Omarchy
 
-Follow `OMARCHY.md`. It has the decisions, where Linux files go, what to port from the old branch, and when it's done.
+The ThinkPad migration is complete. See `README.md` for the Linux setup steps and the remaining per-machine requirements.
 
 ## After every machine is caught up
 

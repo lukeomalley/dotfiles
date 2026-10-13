@@ -78,7 +78,25 @@ verified links owned by the old dotfiles checkout, and keep generated secrets,
 history, plugins and caches outside the packages. Do not run Omarchy theme/font
 or refresh commands on repository-managed files: they may overwrite symlinks
 or write through them. The radar plugin is separately installed and is not
-vendored here.
+vendored here (source: `https://github.com/wesleygrimes/omastorm`). Its checkout
+lives at `~/.config/omarchy/plugins/com.omastorm.radar`. The optional Neovim
+Night Rock theme comes from `https://github.com/lukeomalley/dark-rock-theme`,
+cloned to `~/code/dark-rock-theme`; without it Neovim uses its fallback theme.
+These external checkouts are not provisioned by bootstrap.
+
+The repo also owns the Ghostty terminal preference, Omarchy shell font size
+and agent selection, and the Voxtype user service. Packaged defaults,
+third-party-installed hooks (such as Omazed), application state and credentials
+remain outside Stow. The current hardware profile is named `omarchy`, matching
+this ThinkPad's hostname; use a distinct hostname and hardware profile on a new
+machine.
+
+To take ownership of a real file, first reconcile its contents with the intended
+package source, then run `scripts/adopt-existing <layer/package> <home-relative-file>`.
+It requires matching contents and moves the original into a private state backup.
+Use `--dry-run` to preview; run `scripts/stow.sh` separately to deploy. Files with
+different contents require explicit review and backup before replacement.
+Run `tests/profile-layout.sh` to check both profiles in temporary homes.
 
 After deployment, check `hyprctl configerrors`, `ghostty +validate-config`,
 a fresh Zsh shell, `fnm current`, GitHub authentication and signed commits.
