@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -e
 
 # Agent skills live in a private repo cloned to ~/code/agent-skills. Its

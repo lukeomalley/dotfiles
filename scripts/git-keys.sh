@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -euo pipefail
 
 # Give this machine its own SSH key for GitHub auth and commit signing. The key

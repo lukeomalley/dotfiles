@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -e
 
 # TPM and its plugins live next to tmux.conf, outside the dotfiles repo.

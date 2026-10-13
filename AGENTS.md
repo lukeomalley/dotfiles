@@ -1,12 +1,19 @@
 # Dotfiles
 
-macOS configuration, managed with GNU Stow and Homebrew. Clone to `~/code/dotfiles` and run `scripts/bootstrap.sh` to set up a fresh Mac.
+Shared configuration for macOS and Omarchy (Arch Linux), managed with GNU Stow. Clone to `~/code/dotfiles` and run `scripts/bootstrap.sh`. The Mac config is the source of truth.
 
 ## Layout
 
-- `dotfiles/<package>/` mirrors `$HOME`. `scripts/stow.sh` symlinks each file into place, e.g. `dotfiles/git/.config/git/config` -> `~/.config/git/config`. Edits are live; re-run `stow.sh` only after adding or removing files.
-- `Brewfile` declares every package and app. Keep it in sync with what is installed.
-- `scripts/` holds setup steps; `bootstrap.sh` runs them in order.
+- `stow/<layer>/<package>/` mirrors `$HOME`. `scripts/stow.sh` links `stow/common`, then `stow/<os>` (`darwin` or `omarchy`), then `stow/hosts/<hostname>` if it exists, e.g. `stow/common/git/.config/git/config` -> `~/.config/git/config`. Edits are live; re-run `stow.sh` only after adding or removing files.
+- `packages/` lists what each OS installs (`Brewfile` on macOS). Keep it in sync with what is installed.
+- `scripts/` holds the setup steps, shared at the top level and per-OS in `scripts/<os>/`. `bootstrap.sh` runs them in order.
+- `system/<os>/` holds files for outside `$HOME` (e.g. `/etc`), installed explicitly, never stowed.
+
+## Sharing between macOS and Linux
+
+- Put config in `stow/common` by default. An OS layer is only for tools that exist on one OS (AeroSpace, Hyprland) or small per-OS files a shared file includes. `hosts/<hostname>` is only for one machine's hardware, e.g. monitors.
+- Each file has exactly one owner. Layers add files; a later layer cannot override an earlier one's file, so stow fails on duplicates.
+- Handle OS differences inside the shared file, never by copying it: check that a path exists (`[[ -x /opt/homebrew/bin/brew ]]`), try both locations, or use the app's optional include (Ghostty `config-file = ?local`). Ghostty ignores the other OS's options, and ssh skips a missing `Include`.
 
 ## Rules
 
@@ -18,11 +25,11 @@ macOS configuration, managed with GNU Stow and Homebrew. Clone to `~/code/dotfil
 
 ## Environment
 
-`dotfiles/zsh/.zshenv` sets `XDG_CONFIG_HOME=~/.config`, `XDG_DATA_HOME=~/.config/local/share`, `XDG_CACHE_HOME=~/.config/cache` and `ZDOTDIR=~/.config/zsh`, and builds PATH for every shell type, so put env and PATH there rather than in `.zshrc`.
+`stow/common/zsh/.zshenv` sets the standard XDG directories (`~/.config`, `~/.local/share`, `~/.cache`, `~/.local/state`) and `ZDOTDIR=~/.config/zsh`, and builds PATH for every shell type, so put env and PATH there rather than in `.zshrc`. Node versions come from fnm on both OSes.
 
 ## Secrets
 
-`dotfiles/zsh/.config/zsh/secrets.tpl` holds 1Password `op://` references. `update-secrets` renders it to `secrets.zsh` (gitignored), which `.zshrc` sources. Add new secrets to the template.
+`stow/common/zsh/.config/zsh/secrets.tpl` holds 1Password `op://` references. `update-secrets` renders it to `secrets.zsh` (gitignored), which `.zshrc` sources. Add new secrets to the template.
 
 ## Git and SSH keys
 
@@ -38,5 +45,4 @@ Each machine has its own passphrase-free key at `~/.ssh/id_ed25519`, used for Gi
 - `psql-llm` -- psql with clean CSV output for agents.
 - `update-secrets` -- Regenerate `secrets.zsh`.
 - `git-lg` / `git-lga` -- Compact git log (`git lg`).
-- `copy-dev-lite-llm-key` -- Copy the dev LiteLLM master key to the clipboard.
 - `yt-transcript` -- Print a YouTube video's transcript.

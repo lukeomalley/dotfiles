@@ -1,43 +1,32 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -e
 
-# Navigate to project root
-cd "$(dirname "$0")/.."
+# Set up this machine. Every step is safe to re-run.
 
-# Install Homebrew and packages
-echo "Setting up Homebrew..."
-./scripts/homebrew.sh
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+source "$ROOT/scripts/os.sh"
 
-# Stow dotfiles
+echo "Installing packages..."
+"$ROOT/scripts/$OS/packages.sh"
+# Make Homebrew (installed just now on a fresh Mac) available to later steps.
+[[ -x /opt/homebrew/bin/brew ]] && eval "$(/opt/homebrew/bin/brew shellenv)"
+
 echo "Stowing dotfiles..."
-./scripts/stow.sh
+"$ROOT/scripts/stow.sh"
 
-# Machine SSH key for GitHub auth and commit signing (also logs in gh)
 echo "Setting up Git keys..."
-./scripts/git-keys.sh
+"$ROOT/scripts/git-keys.sh"
 
-# Install agent skills (private repo at ~/code/agent-skills)
 echo "Setting up agent skills..."
-./scripts/agent-skills.sh || echo "Warning: Agent skills setup failed."
+"$ROOT/scripts/agent-skills.sh" || echo "Warning: Agent skills setup failed."
 
-# Configure Keyboard
-echo "Configuring keyboard..."
-./scripts/keyboard.sh
+echo "Applying $OS settings..."
+"$ROOT/scripts/$OS/settings.sh"
 
-# Configure macOS settings
-echo "Configuring macOS settings..."
-./scripts/macos.sh
+echo "Setting up tmux..."
+"$ROOT/scripts/setup-tmux.sh"
 
-# Configure Tmux
-echo "Configuring tmux..."
-./scripts/setup-tmux.sh
-
-# Configure Secrets
-echo "Configuring secrets..."
-if [ -x "$HOME/bin/update-secrets" ]; then
-    "$HOME/bin/update-secrets" || echo "Warning: Secrets configuration failed."
-else
-    echo "Warning: update-secrets script not found in $HOME/bin"
-fi
+echo "Generating secrets..."
+"$HOME/bin/update-secrets" || echo "Warning: Secrets setup failed."
 
 echo "Bootstrap complete!"

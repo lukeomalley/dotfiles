@@ -1,17 +1,20 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -euo pipefail
 
-# Navigate to dotfiles directory
-SCRIPT_DIR="$(dirname "$0")"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-cd "$PROJECT_ROOT/dotfiles"
+# Link stow/common, stow/<os> and stow/hosts/<hostname> into $HOME.
+# --no-folding links files only, never directories, so app runtime files never
+# land in the repo.
 
-# Stow all directories in dotfiles/ to $HOME
-# --no-folding: Create symlinks for files only, not directories
-#               This prevents runtime files from polluting the dotfiles repo
-#               (e.g., Claude writes debug/history/cache files to ~/.claude)
-for d in */; do
-    [ -d "$d" ] || continue
-    echo "Stowing ${d%/}..."
-    stow -R --no-folding -t "$HOME" "${d%/}"
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+source "$ROOT/scripts/os.sh"
+host="$(uname -n)"
+
+for layer in common "$OS" "hosts/${host%%.*}"; do
+    dir="$ROOT/stow/$layer"
+    [[ -d "$dir" ]] || continue
+    for package in "$dir"/*/; do
+        package="$(basename "$package")"
+        echo "Stowing $layer/$package..."
+        stow -R --no-folding -d "$dir" -t "$HOME" "$package"
+    done
 done

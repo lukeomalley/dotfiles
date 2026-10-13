@@ -1,12 +1,21 @@
-# Mac Configuration Files
+# Dotfiles
 
-Personal dotfiles and configuration scripts for macOS, managed with **GNU Stow** and **Homebrew**.
+Personal configuration for macOS and Omarchy (Arch Linux), managed with **GNU Stow**. Most config is shared; each OS adds only what is unique to it.
+
+```
+stow/common/    shared by every machine (zsh, git, nvim, tmux, ghostty, ...)
+stow/darwin/    macOS only (AeroSpace, Cursor)
+stow/omarchy/   Omarchy only
+stow/hosts/     one machine's hardware, e.g. monitors
+packages/       what each OS installs (Brewfile on macOS)
+scripts/        setup steps, shared and per-OS
+```
 
 ## Included Configurations
 - **Shell**: Zsh with Starship prompt, Atuin history, zoxide, fnm
-- **Editors**: Neovim, Cursor
+- **Editors**: Neovim, Cursor (macOS)
 - **Terminal**: Ghostty, Tmux (with Smug sessions)
-- **Window manager**: AeroSpace
+- **Window manager**: AeroSpace (macOS)
 - **AI agents**: Claude Code
 - **Tools**: Git, lf, k9s, psql, SSH
 
@@ -23,11 +32,11 @@ Personal dotfiles and configuration scripts for macOS, managed with **GNU Stow**
    ```
 
 This script will:
-- Install Homebrew and dependencies (via `Brewfile`)
+- Install packages (Homebrew and `packages/Brewfile` on macOS)
 - Symlink configuration files using `stow`
 - Create this machine's SSH key and register it on GitHub for auth and commit signing
 - Clone and link the agent skills
-- Apply macOS keyboard and system settings
+- Apply OS settings (keyboard and system defaults on macOS)
 - Install tmux plugins
 - Generate `secrets.zsh` from 1Password
 
