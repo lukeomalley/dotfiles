@@ -1,5 +1,6 @@
 # Additions to /usr/share/omarchy/install/omarchy-base.packages.
 # Base tools such as fzf, fd, bat, eza, jq, tmux and wl-clipboard stay in Omarchy.
+# oma-cast is installed from source by scripts/omarchy/oma-cast.sh; socat is in the base.
 stow
 zsh
 zsh-autosuggestions

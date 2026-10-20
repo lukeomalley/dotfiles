@@ -158,8 +158,21 @@ else
         skip "Hyprland config" "not in a Hyprland session"
     fi
     systemctl is-active --quiet keyd && pass "keyd" || fail "keyd" "not running (run scripts/omarchy/settings.sh)"
+    cmp -s "$ROOT/system/omarchy/etc/libinput/local-overrides.quirks" /etc/libinput/local-overrides.quirks \
+        && pass "libinput quirks" || fail "libinput quirks" "run scripts/omarchy/system-settings.sh"
+    lid_config="$ROOT/system/omarchy/hosts/$host/logind-keep-online.conf"
+    if [[ -f "$lid_config" ]]; then
+        cmp -s "$lid_config" /etc/systemd/logind.conf.d/90-dotfiles-keep-online.conf \
+            && pass "host lid settings" || fail "host lid settings" "run scripts/omarchy/system-settings.sh"
+    fi
     systemctl --user is-active --quiet voxtype && pass "voxtype" \
         || fail "voxtype" "not running (run scripts/omarchy/settings.sh)"
+    if [[ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]]; then
+        omarchy-shell oma-cast call system.healthPing '{}' 2>/dev/null | jq -e '.ok == true' >/dev/null \
+            && pass "oma-cast" || fail "oma-cast" "not responding (run scripts/omarchy/oma-cast.sh)"
+    else
+        skip "oma-cast" "not in a Hyprland session"
+    fi
 fi
 
 echo

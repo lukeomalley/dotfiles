@@ -4,6 +4,10 @@
 -- See current bindings and descriptions:
 --   omarchy menu keybindings --print
 
+-- Replace the default Omarchy menu with oma-cast.
+hl.unbind("SUPER + SPACE")
+o.bind("SUPER + SPACE", "oma-cast launcher", hl.dsp.global("oma-cast:toggle"))
+
 -- To disable every Omarchy default binding, set this in
 -- ~/.config/hypr/hyprland.lua before require("default.hypr.omarchy"), then add
 -- only the bindings you want below:

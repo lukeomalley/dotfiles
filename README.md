@@ -65,6 +65,41 @@ Linux uses the shared config unchanged (Zsh, Ghostty with Night Rock and Inconso
 
 Log out and back in after the login shell changes. Keyd makes Caps Lock Escape on tap and Control on hold. Super+Ctrl+F opens Ghostty's quick terminal (Ghostty must be running); Super+F is fullscreen.
 
+[oma-cast](https://github.com/typecraft-dev/oma-cast) is the default launcher on **Super+Space** (Command+Space on the Mac keyboard). The existing Omarchy bar menu and other menu shortcuts remain available.
+
+Setup installs a pinned upstream revision with `scripts/omarchy/oma-cast.sh`; rerun that script to install it on an existing machine after pulling these dotfiles. It includes compatibility for Omarchy 4.0.5's IPC and overlay window components. To update it, change the revision in that script, rerun it, and run `omarchy restart shell` to clear cached QML.
+
+The plugin is installed under `~/.config/omarchy/plugins/typecraft.oma-cast-managed`, outside the Stow packages; `shell.json` enables it and `bindings.lua` owns the shortcut. Control it from the terminal with `omarchy-shell oma-cast toggle` (or `show` / `hide`). The upstream install/setup commands are unnecessary. `scripts/check.sh` checks its backend health.
+
+Omarchy uses adaptive pointer acceleration, physical touchpad clicks (no tap-to-click), and disables the touchpad while typing. The settings script installs a libinput quirk so typing through keyd still suppresses the touchpad; log out and back in after first installing it. Libinput also provides hardware-dependent palm detection. Alt/Super are swapped by default; `intel-mac-omarchy` overrides this in its host `devices.lua` so Command remains Super.
+
+Setup also installs `system/omarchy/hosts/<hostname>/logind-keep-online.conf` when present. On `intel-mac-omarchy`, this keeps the laptop online with its lid closed on charger power. Apply just the libinput and host lid settings with `./scripts/omarchy/system-settings.sh`; this leaves Voxtype and other app setup alone. Existing system files are backed up before replacement, and unchanged files are left alone.
+
+### Updating an existing Omarchy machine
+
+These settings require Omarchy 4 with Lua-configured Hyprland and `omarchy-shell`.
+To apply the launcher, faster animations, and input/system settings without
+rerunning the full app setup:
+
+```bash
+cd ~/code/dotfiles
+git pull --ff-only
+./scripts/stow.sh
+./scripts/omarchy/oma-cast.sh
+./scripts/omarchy/system-settings.sh
+hyprctl reload
+hyprctl configerrors
+```
+
+Stop and resolve any Stow conflict by backing up the conflicting real file;
+never use `stow --adopt`. Log out and back in to activate the libinput change,
+then run `./scripts/check.sh`.
+
+The faster animations, launcher, and touchpad preferences apply to all Omarchy
+machines. Apple keyboard/display settings and lid-closed behavior apply only to
+`intel-mac-omarchy`; other hosts keep their own hardware configuration. Wi-Fi
+profiles and their reconnect/power-saving settings remain machine-local.
+
 Not provisioned by bootstrap: the Neovim Night Rock theme ([dark-rock-theme](https://github.com/lukeomalley/dark-rock-theme)) at `~/code/dark-rock-theme`.
 
 After changes, check `hyprctl configerrors` and `ghostty +validate-config`.

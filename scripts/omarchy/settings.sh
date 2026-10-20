@@ -9,6 +9,8 @@ privileged() {
     if [[ -t 0 ]]; then sudo "$@"; else pkexec "$@"; fi
 }
 
+"$ROOT/scripts/omarchy/oma-cast.sh"
+
 # Keep system configuration outside Stow and avoid rewriting identical files.
 keyd_changed=false
 for source in "$ROOT"/system/omarchy/etc/keyd/*.conf; do
@@ -26,6 +28,8 @@ if ! systemctl is-enabled --quiet keyd || ! systemctl is-active --quiet keyd; th
     privileged systemctl enable --now keyd
 fi
 if $keyd_changed; then privileged keyd reload; fi
+
+"$ROOT/scripts/omarchy/system-settings.sh"
 
 # fnm owns Node for the shared Zsh configuration; do not change mise projects.
 eval "$(fnm env --shell bash)"

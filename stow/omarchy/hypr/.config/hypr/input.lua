@@ -3,13 +3,17 @@
 
 -- Omarchy normally uses Caps Lock as Compose. This machine delegates Caps Lock
 -- to keyd instead (Escape when tapped, Control when held), and swaps Alt/Super.
+-- Hosts with Apple keyboards can undo the swap in devices.lua.
 hl.config({
   input = {
     kb_options = "shift:both_capslock_cancel,altwin:swap_alt_win",
     repeat_rate = 50,
     repeat_delay = 200,
+    accel_profile = "adaptive",
     touchpad = {
       natural_scroll = true,
+      tap_to_click = false,
+      disable_while_typing = true,
     },
   },
 })
