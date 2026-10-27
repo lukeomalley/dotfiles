@@ -15,7 +15,7 @@ Run `scripts/check.sh` and look around first, so you only ask what you can't see
 
 1. **Machine name** for its SSH key on GitHub. Suggest one, e.g. `psci-mbp` or `personal-mbp`.
 2. **Personal or work machine?** Personal machines also get Bitbucket; work machines are GitHub only.
-3. **Only if check.sh shows real files or old links where the repo's links go:** is this a machine with older dotfiles? If `CATCH-UP.md` exists, follow it for those machines.
+3. **Only if check.sh shows real files or old links where the repo's links go:** is this a machine with older dotfiles? If its data still lives in `~/.config/local` (the pre-October 2026 layout), follow the old catch-up guide from git history: `git show "$(git rev-list -1 HEAD -- CATCH-UP.md)^:CATCH-UP.md"`.
 
 On Omarchy, also confirm the hostname. It names the machine's hardware folder (`stow/hosts/<hostname>`), so a generic or reused one should be changed first (`hostnamectl set-hostname <name>`).
 
