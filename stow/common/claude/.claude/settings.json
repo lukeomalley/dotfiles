@@ -3,5 +3,6 @@
   "effortLevel": "medium",
   "tui": "fullscreen",
   "skipDangerousModePermissionPrompt": true,
-  "switchModelsOnFlag": false
+  "switchModelsOnFlag": false,
+  "theme": "dark"
 }
