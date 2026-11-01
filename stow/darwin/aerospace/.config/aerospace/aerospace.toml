@@ -63,9 +63,9 @@ on-window-detected = [
         if = 'test %{app-bundle-id} = com.tinyspeck.slackmacgap || test %{app-bundle-id} = com.microsoft.teams2',
         run = 'move-node-to-workspace 4',
     },
-    # Music
+    # Music: Spotify, Apple Music
     {
-        if = 'test %{app-bundle-id} = com.spotify.client',
+        if = 'test %{app-bundle-id} = com.spotify.client || test %{app-bundle-id} = com.apple.Music',
         run = 'move-node-to-workspace 5',
     },
     # Browsers: Safari, Chrome, Helium
