@@ -5,7 +5,7 @@
 config-version = 2
 
 # Keep the small, fixed workspace set available even when empty
-persistent-workspaces = ['0', '1', '2', '3', '4', '5']
+persistent-workspaces = ['0', '1', '2', '3', '4', '5', '6']
 
 # Start AeroSpace at login
 start-at-login = true
@@ -33,6 +33,17 @@ automatically-unhide-macos-hidden-apps = true
 
 # Window rules. The first matching rule wins.
 on-window-detected = [
+    # Battle.net launcher, login and Blizzard helper windows float
+    {
+        if = 'test %{app-bundle-id} = net.battle.app || test %{app-bundle-id} = net.battle.bootstrapper || test %{app-bundle-id} = com.blizzard.bnl.browser || test %{app-bundle-id} = com.blizzard.blizzarderror',
+        run = 'layout floating',
+    },
+    # World of Warcraft (retail and classic) gets its own workspace and floats,
+    # so AeroSpace never resizes the game window and it keeps its own fullscreen size
+    {
+        if = 'test %{app-bundle-id} = com.blizzard.worldofwarcraft',
+        run = ['move-node-to-workspace 6', 'layout floating'],
+    },
     # Dialog-like apps and overlays float instead of tiling
     {
         if = 'test %{app-bundle-id} = com.apple.systempreferences || test %{app-bundle-id} = com.apple.calculator || test %{app-bundle-id} = com.apple.finder || test %{app-bundle-id} = cc.ffitch.shottr || test %{app-bundle-id} = com.raycast.macos',
@@ -117,6 +128,7 @@ cmd-2 = 'workspace 2'        # Browser workspace
 cmd-3 = 'workspace 3'        # Documents workspace
 cmd-4 = 'workspace 4'        # Chat workspace
 cmd-5 = 'workspace 5'        # Music workspace
+cmd-6 = 'workspace 6'        # Games workspace
 
 # Move windows to workspaces (option+shift+number)
 alt-shift-backtick = 'move-node-to-workspace 0 --focus-follows-window'
@@ -125,6 +137,7 @@ alt-shift-2 = 'move-node-to-workspace 2 --focus-follows-window'
 alt-shift-3 = 'move-node-to-workspace 3 --focus-follows-window'
 alt-shift-4 = 'move-node-to-workspace 4 --focus-follows-window'
 alt-shift-5 = 'move-node-to-workspace 5 --focus-follows-window'
+alt-shift-6 = 'move-node-to-workspace 6 --focus-follows-window'
 
 # Focus monitors
 cmd-shift-left = 'focus-monitor --wrap-around left'
@@ -175,3 +188,4 @@ shift-down = ['volume set 0', 'mode main']
 "3" = 'main' # Documents on main monitor
 "4" = 'main' # Chat on main monitor
 "5" = 'main' # Music
+"6" = 'main' # Games
