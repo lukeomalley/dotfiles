@@ -1,0 +1,100 @@
+#!/usr/bin/env bash
+
+# wow-addons: install and update World of Warcraft addons without an addon manager.
+# Does nothing on machines without WoW, so bootstrap can always run it.
+#
+# Usage: wow-addons        install missing addons, update the rest, link into AddOns
+#
+# Downloads live in ~/.local/share/wow-addons; each addon folder is symlinked into
+# <WoW>/<flavor>/Interface/AddOns. Close the game (or /reload) afterwards.
+
+set -euo pipefail
+
+# flavor | kind | source | what to link
+#   git:     a repo cloned and pulled; "what" is the addon folder inside it
+#   release: latest GitHub release; "what" is the zip asset pattern, and every
+#            top-level folder in the zip is linked
+ADDONS=(
+  "_forever_ | git     | https://github.com/smoergi/OneForAll_Forever.git | OneForAll"
+  "_forever_ | release | Backupiseasy/ThreatPlates                         | ThreatPlates-*.zip"
+  "_forever_ | release | dfherr/ThreatClassic2                             | *-forever.zip"
+)
+
+WOW_DIR="${WOW_DIR:-/Applications/World of Warcraft}"
+SRC_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/wow-addons"
+
+if [[ ! -d "$WOW_DIR" ]]; then
+  echo "WoW not found at $WOW_DIR (set WOW_DIR to override); nothing to do."
+  exit 0
+fi
+
+trim() { xargs <<<"$1"; }
+
+# link_addon <addon folder> <AddOns dir>
+link_addon() {
+  local name link
+  name="$(basename "$1")"
+  link="$2/$name"
+  if [[ -e "$link" && ! -L "$link" ]]; then
+    echo "  $link is a real folder, not a link; move it aside to manage it here" >&2
+    return
+  fi
+  ln -sfn "$1" "$link"
+  echo "  linked $name"
+}
+
+# install_git <repo url> <folder in repo> <AddOns dir>
+install_git() {
+  local clone="$SRC_DIR/$(basename "$1" .git)"
+  if [[ -d "$clone/.git" ]]; then
+    # The clone is never edited, so match upstream exactly. The game launcher
+    # can chmod files through the link, which would block a plain pull.
+    git -C "$clone" fetch --quiet --depth 1 origin
+    git -C "$clone" reset --quiet --hard FETCH_HEAD
+  else
+    git clone --quiet --depth 1 "$1" "$clone"
+  fi
+  echo "$(basename "$clone") at $(git -C "$clone" log -1 --format=%cs)"
+  link_addon "$clone/$2" "$3"
+}
+
+# install_release <owner/repo> <asset pattern> <AddOns dir>
+install_release() {
+  local dest="$SRC_DIR/${1#*/}" tag tmp
+  tag="$(gh release view -R "$1" --json tagName --jq .tagName)"
+  if [[ "$(cat "$dest/.tag" 2>/dev/null)" != "$tag" ]]; then
+    tmp="$(mktemp -d)"
+    gh release download "$tag" -R "$1" -p "$2" -D "$tmp"
+    mkdir -p "$tmp/out"
+    unzip -q "$tmp"/*.zip -d "$tmp/out"
+    echo "$tag" >"$tmp/out/.tag"
+    rm -rf "$dest"
+    mv "$tmp/out" "$dest"
+    rm -rf "$tmp"
+  fi
+  echo "${1#*/} $tag"
+  for dir in "$dest"/*/; do
+    link_addon "${dir%/}" "$3"
+  done
+}
+
+mkdir -p "$SRC_DIR"
+
+for entry in "${ADDONS[@]}"; do
+  IFS='|' read -r flavor kind source what <<<"$entry"
+  flavor="$(trim "$flavor")" kind="$(trim "$kind")"
+  source="$(trim "$source")" what="$(trim "$what")"
+
+  if [[ ! -d "$WOW_DIR/$flavor" ]]; then
+    echo "skip $source: $flavor not installed"
+    continue
+  fi
+  addons_dir="$WOW_DIR/$flavor/Interface/AddOns"
+  mkdir -p "$addons_dir"
+
+  case "$kind" in
+    git) install_git "$source" "$what" "$addons_dir" ;;
+    release) install_release "$source" "$what" "$addons_dir" ;;
+    *) echo "unknown kind '$kind' for $source" >&2 ;;
+  esac
+done

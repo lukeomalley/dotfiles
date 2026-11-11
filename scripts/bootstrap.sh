@@ -29,5 +29,8 @@ echo "Setting up tmux..."
 echo "Generating secrets..."
 "$HOME/bin/update-secrets" || echo "Warning: Secrets setup failed."
 
+echo "Installing WoW addons (skipped without WoW)..."
+"$HOME/bin/wow-addons" || echo "Warning: WoW addons setup failed."
+
 echo "Checking the result..."
 "$ROOT/scripts/check.sh" || echo "Fix the failed checks above, then re-run scripts/check.sh."

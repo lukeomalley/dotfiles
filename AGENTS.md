@@ -51,3 +51,4 @@ Each machine has its own passphrase-free key at `~/.ssh/id_ed25519`, used for Gi
 - `update-secrets` -- Regenerate `secrets.zsh`.
 - `git-lg` / `git-lga` -- Compact git log (`git lg`).
 - `yt-transcript` -- Print a YouTube video's transcript.
+- `wow-addons` -- Install/update WoW addons from git repos or GitHub releases; the list is at the top of the script. Bootstrap runs it; it does nothing without WoW.
