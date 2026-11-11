@@ -16,8 +16,6 @@ set -euo pipefail
 #            top-level folder in the zip is linked
 ADDONS=(
   "_forever_ | git     | https://github.com/smoergi/OneForAll_Forever.git | OneForAll"
-  "_forever_ | release | Backupiseasy/ThreatPlates                         | ThreatPlates-*.zip"
-  "_forever_ | release | dfherr/ThreatClassic2                             | *-forever.zip"
 )
 
 WOW_DIR="${WOW_DIR:-/Applications/World of Warcraft}"
