@@ -49,9 +49,9 @@ on-window-detected = [
         if = 'test %{app-bundle-id} = com.apple.systempreferences || test %{app-bundle-id} = com.apple.calculator || test %{app-bundle-id} = com.apple.finder || test %{app-bundle-id} = cc.ffitch.shottr || test %{app-bundle-id} = com.raycast.macos',
         run = 'layout floating',
     },
-    # Terminal
+    # Terminals: Ghostty, Rex
     {
-        if = 'test %{app-bundle-id} = com.mitchellh.ghostty',
+        if = 'test %{app-bundle-id} = com.mitchellh.ghostty || test %{app-bundle-id} = com.superlogical.rex',
         run = 'move-node-to-workspace 0',
     },
     # Editors and AI apps: Cursor, ChatGPT (still reports the old Codex app ID), T3 Code, Claude
@@ -182,7 +182,7 @@ shift-down = ['volume set 0', 'mode main']
 
 # Assign specific workspaces to monitors
 [workspace-to-monitor-force-assignment]
-"0" = 'main' # Terminal (Ghostty) on main monitor
+"0" = 'main' # Terminals (Ghostty, Rex) on main monitor
 "1" = 'main' # Code editors on main monitor
 "2" = 'main' # Browsers on main monitor
 "3" = 'main' # Documents on main monitor
