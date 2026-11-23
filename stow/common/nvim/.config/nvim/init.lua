@@ -1176,9 +1176,28 @@ local surround_spec = {
   opts = {},
 }
 
--- Seamless navigation between tmux panes and vim splits.
+-- Seamless navigation between tmux or Rex panes and vim splits. Inside Rex
+-- (and not tmux), move between splits and ask Rex to move focus at the edge.
+local function navigate(wincmd, rex_direction, tmux_command)
+  return function()
+    if not vim.env.REX_SESSION or vim.env.TMUX then
+      vim.cmd(tmux_command)
+      return
+    end
+    local win = vim.api.nvim_get_current_win()
+    vim.cmd.wincmd(wincmd)
+    if vim.api.nvim_get_current_win() == win then
+      vim.system({ vim.env.REX_BIN_DIR .. '/rex', 'focus', rex_direction, '--wrap' })
+    end
+  end
+end
+
 local tmux_navigator_spec = {
   'christoomey/vim-tmux-navigator',
+  init = function()
+    -- The plugin's own <C-h/j/k/l> maps would replace the keys below.
+    vim.g.tmux_navigator_no_mappings = 1
+  end,
   cmd = {
     'TmuxNavigateLeft',
     'TmuxNavigateDown',
@@ -1187,10 +1206,11 @@ local tmux_navigator_spec = {
     'TmuxNavigatePrevious',
   },
   keys = {
-    { '<C-h>', '<cmd>TmuxNavigateLeft<cr>' },
-    { '<C-j>', '<cmd>TmuxNavigateDown<cr>' },
-    { '<C-k>', '<cmd>TmuxNavigateUp<cr>' },
-    { '<C-l>', '<cmd>TmuxNavigateRight<cr>' },
+    { '<C-h>', navigate('h', 'left', 'TmuxNavigateLeft') },
+    { '<C-j>', navigate('j', 'down', 'TmuxNavigateDown') },
+    { '<C-k>', navigate('k', 'up', 'TmuxNavigateUp') },
+    { '<C-l>', navigate('l', 'right', 'TmuxNavigateRight') },
+    { '<C-\\>', '<cmd>TmuxNavigatePrevious<cr>' },
   },
 }
 
