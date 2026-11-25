@@ -23,6 +23,11 @@ echo "Setting up agent skills..."
 echo "Applying $OS settings..."
 "$ROOT/scripts/$OS/settings.sh"
 
+if [[ "$OS" == darwin ]]; then
+    echo "Hiding menu bar icons..."
+    "$ROOT/scripts/darwin/menu-bar.sh" || echo "Warning: Hiding menu bar icons failed."
+fi
+
 echo "Setting up tmux..."
 "$ROOT/scripts/setup-tmux.sh"
 

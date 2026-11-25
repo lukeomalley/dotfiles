@@ -40,6 +40,7 @@ Either way, setup:
 - Creates this machine's SSH key and registers it on GitHub for auth and commit signing
 - Clones and links the agent skills
 - Applies OS settings
+- Hides menu bar icons for work apps that must keep running (`scripts/darwin/menu-bar.sh`; edit its list to add more)
 - Installs tmux plugins
 - Generates `secrets.zsh` from 1Password
 
