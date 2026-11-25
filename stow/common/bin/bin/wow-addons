@@ -14,10 +14,16 @@ set -euo pipefail
 #   git:     a repo cloned and pulled; "what" is the addon folder inside it
 #   release: latest GitHub release; "what" is the zip asset pattern, and every
 #            top-level folder in the zip is linked
+#   curseforge: latest release file of a CurseForge project ID for the flavor;
+#            "what" names its download folder, and every top-level folder in the
+#            zip is linked
 ADDONS=(
-  "_forever_ | git     | https://github.com/smoergi/OneForAll_Forever.git | OneForAll"
-  "_forever_ | release | Backupiseasy/ThreatPlates                         | ThreatPlates-*.zip"
-  "_forever_ | release | dfherr/ThreatClassic2                             | *-forever.zip"
+  "_forever_ | release    | PhenomDevel/Quality-of-Life-Forever | QualityOfLifeForever-*-forever.zip"
+  "_forever_ | release    | Backupiseasy/ThreatPlates           | ThreatPlates-*.zip"
+  "_forever_ | release    | dfherr/ThreatClassic2               | *-forever.zip"
+  "_forever_ | curseforge | 6124                                | Auctionator"
+  "_forever_ | curseforge | 1707971                             | DungeonJournal"
+  "_forever_ | curseforge | 1784845                             | RestedXPTracker"
 )
 
 WOW_DIR="${WOW_DIR:-/Applications/World of Warcraft}"
@@ -58,6 +64,23 @@ install_git() {
   link_addon "$clone/$2" "$3"
 }
 
+# unpack <zip dir> <dest> <tag>: replace dest with the zip in zip dir, tagged
+unpack() {
+  mkdir -p "$1/out"
+  unzip -q "$1"/*.zip -d "$1/out"
+  echo "$3" >"$1/out/.tag"
+  rm -rf "$2"
+  mv "$1/out" "$2"
+  rm -rf "$1"
+}
+
+# link_all <dest> <AddOns dir>: link every top-level folder of an unpacked zip
+link_all() {
+  for dir in "$1"/*/; do
+    link_addon "${dir%/}" "$2"
+  done
+}
+
 # install_release <owner/repo> <asset pattern> <AddOns dir>
 install_release() {
   local dest="$SRC_DIR/${1#*/}" tag tmp
@@ -65,17 +88,30 @@ install_release() {
   if [[ "$(cat "$dest/.tag" 2>/dev/null)" != "$tag" ]]; then
     tmp="$(mktemp -d)"
     gh release download "$tag" -R "$1" -p "$2" -D "$tmp"
-    mkdir -p "$tmp/out"
-    unzip -q "$tmp"/*.zip -d "$tmp/out"
-    echo "$tag" >"$tmp/out/.tag"
-    rm -rf "$dest"
-    mv "$tmp/out" "$dest"
-    rm -rf "$tmp"
+    unpack "$tmp" "$dest" "$tag"
   fi
   echo "${1#*/} $tag"
-  for dir in "$dest"/*/; do
-    link_addon "${dir%/}" "$3"
-  done
+  link_all "$dest" "$3"
+}
+
+# install_curseforge <project id> <name> <flavor> <AddOns dir>
+install_curseforge() {
+  local api="https://www.curseforge.com/api/v1/mods/$1/files"
+  local dest="$SRC_DIR/$2" version_type file id tag tmp
+  case "$3" in
+    _forever_) version_type=88568 ;;
+    *) echo "no CurseForge game version for $3" >&2 && return ;;
+  esac
+  file="$(curl -fsS "$api?pageSize=20&sort=dateCreated&sortDescending=true&gameVersionTypeId=$version_type" |
+    jq -r 'first(.data[] | select(.releaseType == 1)) | "\(.id) \(.fileName)"')"
+  read -r id tag <<<"$file"
+  if [[ "$(cat "$dest/.tag" 2>/dev/null)" != "$tag" ]]; then
+    tmp="$(mktemp -d)"
+    curl -fsSL -o "$tmp/addon.zip" "$api/$id/download"
+    unpack "$tmp" "$dest" "$tag"
+  fi
+  echo "$2 $tag"
+  link_all "$dest" "$4"
 }
 
 mkdir -p "$SRC_DIR"
@@ -95,6 +131,7 @@ for entry in "${ADDONS[@]}"; do
   case "$kind" in
     git) install_git "$source" "$what" "$addons_dir" ;;
     release) install_release "$source" "$what" "$addons_dir" ;;
+    curseforge) install_curseforge "$source" "$what" "$flavor" "$addons_dir" ;;
     *) echo "unknown kind '$kind' for $source" >&2 ;;
   esac
 done
