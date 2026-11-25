@@ -19,11 +19,11 @@ set -euo pipefail
 #            zip is linked
 ADDONS=(
   "_forever_ | release    | PhenomDevel/Quality-of-Life-Forever | QualityOfLifeForever-*-forever.zip"
+  "_forever_ | release    | RestedXP/RXPGuides                  | RXPGuides-*.zip"
   "_forever_ | release    | Backupiseasy/ThreatPlates           | ThreatPlates-*.zip"
   "_forever_ | release    | dfherr/ThreatClassic2               | *-forever.zip"
   "_forever_ | curseforge | 6124                                | Auctionator"
   "_forever_ | curseforge | 1707971                             | DungeonJournal"
-  "_forever_ | curseforge | 1784845                             | RestedXPTracker"
 )
 
 WOW_DIR="${WOW_DIR:-/Applications/World of Warcraft}"
